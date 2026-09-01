@@ -139,19 +139,19 @@
 
   <aside class="sidebar">
     <div class="sb-head">
-      <p class="eyebrow">งานวิจัย · แผนที่ที่พักจากแบบสอบถาม</p>
-      <h1>ที่พักรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร</h1>
-      <p>วงแหวนระยะ 3 กม. และ 6 กม. จากสนามกีฬา มศว พร้อมข้อมูลจากแบบสอบถามผู้พักอาศัยจริง</p>
+      <p class="eyebrow">ผลสำรวจและงานวิจัย</p>
+      <h1>ที่พักใกล้มหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร</h1>
+      <p>แสดงพิกัดที่พักในระยะ 3 กม. และ 6 กม. จากสนามกีฬากลาง มศว พร้อมข้อมูลจากผู้พักอาศัยจริง</p>
     </div>
     <div class="legend">
-      <span><span class="dot" style="background:var(--clay)"></span> สนามกีฬา มศว</span>
+      <span><span class="dot" style="background:var(--clay)"></span> มศว ประสานมิตร</span>
       <span><span class="swatch-ring" style="border-color:#2f8f5b;background:#7ed4a3"></span> 3 กม.</span>
       <span><span class="swatch-ring" style="border-color:#c98a2c;background:#f2c86b"></span> 6 กม.</span>
     </div>
     <div class="filters">
-      <button class="active" data-filter="all">ทั้งหมด</button>
-      <button data-filter="near">ในวง 3 กม.</button>
-      <button data-filter="far">3–6 กม.</button>
+      <button class="active" data-filter="all">ที่พักทั้งหมด</button>
+      <button data-filter="near">ระยะ 3 กม.</button>
+      <button data-filter="far">ระยะ 6 กม.</button>
     </div>
     <div class="list" id="list"></div>
     <div class="sb-foot">คลิกหมุดหรือรายการ เพื่อดูรายละเอียดฉบับเต็มจากแบบสอบถาม</div>
@@ -178,11 +178,11 @@
 
 <script>
 // ==================================================================
-// จุดศูนย์กลาง: สนามกีฬา มศว ประสานมิตร (ควรตรวจสอบพิกัดจริงอีกครั้ง)
+// จุดศูนย์กลาง: สนามกีฬา มศว ประสานมิตร
 // ==================================================================
-const CENTER = [13.7381, 100.5678];
+const CENTER = [13.74488, 100.56493];
 
-// Google Maps Embed API key — ใช้สำหรับฝัง Street View ในแผงรายละเอียด
+// Google Maps Embed API key — สำหรับฝัง Street View ในแผงรายละเอียด
 const GOOGLE_MAPS_API_KEY = "AIzaSyDbWLSw01m60YRiHBu_BOmcejMoDwy1VNE";
 
 function haversineKm(lat1, lng1, lat2, lng2){
@@ -192,17 +192,11 @@ function haversineKm(lat1, lng1, lat2, lng2){
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-
-// ==================================================================
-// ข้อมูลที่พัก — ตามโครงสร้างแบบสอบถามชุดใหม่ (Google Form/Sheet)
-// เพิ่มที่พักใหม่: copy 1 ก้อน แล้วแก้ค่า (ฟิลด์ที่ไม่มีข้อมูลใส่ "" ได้ จะถูกซ่อนอัตโนมัติ)
-// พิกัด lat/lng ต้องหาเพิ่มเอง (ในฟอร์มมีแค่ชื่อที่พัก ไม่มีพิกัด) — ส่งชื่อที่พักมาให้ผู้ช่วยค้นหาพิกัดให้ได้
-// ==================================================================
 const housing = [
   {
     name: "Life Asoke Hype",
     type: "คอนโดมิเนียม",
-    lat: 13.754421664696169, lng: 100.56306436137048,
+    lat: 13.754381, lng: 100.561015,
 
     // ข้อมูลผู้ตอบแบบสอบถาม
     respondent: { gender: "หญิง", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน" },
@@ -240,8 +234,8 @@ const housing = [
     // สิ่งอำนวยความสะดวกส่วนกลางของอาคาร
     fitness: "มี",
     pool: "มี", poolNote: "",
-    elevator: "มี", elevatorNote: "7 ชั้น",
-    parking: "มี", parkingFee: "530", parkingFeeNote: "",
+    elevator: "มี", elevatorNote: "7 ตัว",
+    parking: "มี", parkingFee: "", parkingFeeNote: "",
     security: "ระบบสแกนใบหน้า (Face Scan)",
 
     // สภาพอาคารและรีวิว
@@ -270,7 +264,6 @@ function typeIcon(type){
     'คอนโดมิเนียม': '🏢',
     'อพาร์ตเมนต์': '🏠',
     'หอพัก': '🏨',
-    'บ้านเช่า': '🏡'
   };
   return map[type] || '📍';
 }
