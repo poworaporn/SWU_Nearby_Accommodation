@@ -70,7 +70,10 @@
   .mini-popup .rent{ font-size:16px; font-weight:800; color:var(--gold); margin-bottom:6px; }
   .mini-popup .review{
     font-size:11px; font-style:italic; color:var(--ink); background:#fbf8f1; border-left:2.5px solid var(--gold);
-    padding:5px 8px; margin-bottom:9px; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    padding:5px 8px; margin-bottom:9px; line-height:1.5;
+    max-height: 80px; 
+    overflow-y: auto;
+    white-space: normal;
   }
   .mini-popup button{
     width:100%; padding:8px 0; border:none; border-radius:8px; background:var(--emerald); color:#fff;
@@ -484,7 +487,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 L.circle(CENTER, { radius:6000, color:'#b98b3e', weight:2.5, fillColor:'#f0dfb0', fillOpacity:0.22 }).addTo(map);
 L.circle(CENTER, { radius:3000, color:'#0f4d3a', weight:2.5, fillColor:'#7ec9a3', fillOpacity:0.3 }).addTo(map);
 L.marker(CENTER, { icon: L.divIcon({ className:'', html:'<div class="center-badge">🏟️</div>', iconSize:[38,38] }) })
-  .addTo(map).bindPopup('<b>สนามกีฬา มศว ประสานมิตร</b><br><span style="font-size:11px;color:#7a7566">จุดอ้างอิงระยะทาง</span>');
+  .addTo(map).bindPopup('<b>สนามกีฬา มศว ประสานมิตร</b><br><span style="font-size:11px;color:#DA2128">จุดอ้างอิงระยะทาง</span>');
 
 function typeIcon(type){
   const icons = {
@@ -620,20 +623,21 @@ function openDrawer(i){
   if(p4) body += `<details class="section"><summary>การเดินทางสู่ มศว</summary><div class="section-content">${p4}</div></details>`;
 
   if(h.appliances && h.appliances.length) body += `<details class="section"><summary>เครื่องใช้ไฟฟ้าในห้อง</summary><div class="section-content">${tagList(h.appliances)}</div></details>`;
+let p5 = '';
+  p5 += kv('เครื่องซักผ้า', h.laundry);
+  p5 += kv('ระยะทางร้านซักรีด', h.laundryDistance ? h.laundryDistance + ' เมตร' : '');
 
-  let p5 = '';
-p5 += kv('เครื่องซักผ้า', h.laundry);
-p5 += kv('ระยะทางร้านซักรีด', h.laundryDistance ? h.laundryDistance + ' เมตร' : '');
-const facList = [];
-if (h.fitness) facList.push('ฟิตเนส');
-if (h.pool) facList.push('สระว่ายน้ำ' + (h.pooldistance ? ` (${h.poodistance})` : ''));
-if (h.elevator) facList.push('ลิฟต์โดยสาร' + (h.elevatorNote ? ` (${h.elevatorNote})` : ''));
-if (h.parking) facList.push('ที่จอดรถยนต์' + (h.parkingFee ? ` (ค่าจอด ${h.parkingFee} บาท)` : h.parkingFeeNote ? ` (${h.parkingFeeNote})` : ''));
-if (facList.length) {
-  p5 += `<div style="display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; width: 100%;">` + 
-        facList.map(item => `<span class="tag-item">${item}</span>`).join('') + 
-        `</div>`;
-}
+  const facList = [];
+  if (h.fitness && h.fitness !== "ไม่มี") facList.push('ฟิตเนส');
+  if (h.pool && h.pool !== "ไม่มี") facList.push('สระว่ายน้ำ' + (h.pooldistance ? ` (${h.pooldistance})` : ''));
+  if (h.elevator && h.elevator !== "ไม่มี") facList.push('ลิฟต์โดยสาร' + (h.elevatorNote ? ` (${h.elevatorNote})` : ''));
+  if (h.parking && h.parking !== "ไม่มี") facList.push('ที่จอดรถยนต์' + (h.parkingFee ? ` (ค่าจอด ${h.parkingFee} บาท)` : h.parkingFeeNote ? ` (${h.parkingFeeNote})` : ''));
+
+  // ใช้ tagList(facList) เพื่อให้ดึงสีเขียวเดิมมาใช้ทันที
+  if (facList.length) {
+    p5 += tagList(facList);
+  }
+
 p5 += kv('ระบบรักษาความปลอดภัย', h.security);
   if(p5) body += `<details class="section"><summary>สิ่งอำนวยความสะดวกส่วนกลาง</summary><div class="section-content">${p5}</div></details>`;
 
