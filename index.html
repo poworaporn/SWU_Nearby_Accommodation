@@ -613,7 +613,7 @@ function openDrawer(i){
   const p2 = kv('รูปแบบจ่าย', h.paymentTiming) + kv('ค่าแรกเข้า', h.initialCost ? h.initialCost.toLocaleString() + ' บาท' : '') + kv('ระยะสัญญา', h.contractDuration);
   if(p2) body += `<details class="section"><summary>ค่าเช่าและสัญญา</summary><div class="section-content">${p2}</div></details>`;
 
-  const p3 = kv('ค่าไฟ', h.electricity) + kv('ค่าน้ำ', h.water) + kv('ค่าส่วนกลาง', h.commonFee) + kv('อินเทอร์เน็ต/WIFI', h.wifi);
+  const p3 = kv('ค่าไฟ', h.electricity+ (h.electricitynote ? ` (${h.electricitynote})` : '')) + kv('ค่าน้ำ', h.water + (h.waternote ? ` (${h.waternote})` : '')) + kv('ค่าส่วนกลาง', h.commonFee) + kv('อินเทอร์เน็ต/WiFi', h.wifi);
   if(p3) body += `<details class="section"><summary>ค่าน้ำ-ไฟ-ส่วนกลาง-เน็ต</summary><div class="section-content">${p3}</div></details>`;
 
   const p4 = kv('วิธีหลัก', h.transportPrimary) + kv('ค่าเดินทาง/เดือน', h.travelCostMonth ? h.travelCostMonth.toLocaleString() + ' บาท' : '');
@@ -621,14 +621,20 @@ function openDrawer(i){
 
   if(h.appliances && h.appliances.length) body += `<details class="section"><summary>เครื่องใช้ไฟฟ้าในห้อง</summary><div class="section-content">${tagList(h.appliances)}</div></details>`;
 
-  let p5 = '';
-  p5 += kv('เครื่องซักผ้า', h.laundry);
-  p5 += kv('ระยะทางร้านซักรีด', h.laundryDistance ? h.laundryDistance + ' เมตร' : '');
-  p5 += yn('ฟิตเนส', h.fitness);
-  p5 += yn('สระว่ายน้ำ', h.pool, h.poolNote);
-  p5 += yn('ลิฟต์โดยสาร', h.elevator, h.elevatorNote);
-  p5 += yn('ที่จอดรถยนต์', h.parking, h.parkingFee ? `ค่าจอด ${h.parkingFee} บาท` : h.parkingFeeNote);
-  p5 += kv('ระบบรักษาความปลอดภัย', h.security);
+  llet p5 = '';
+p5 += kv('เครื่องซักผ้า', h.laundry);
+p5 += kv('ระยะทางร้านซักรีด', h.laundryDistance ? h.laundryDistance + ' เมตร' : '');
+const facList = [];
+if (h.fitness) facList.push('ฟิตเนส');
+if (h.pool) facList.push('สระว่ายน้ำ' + (h.poolNote ? ` (${h.poolNote})` : ''));
+if (h.elevator) facList.push('ลิฟต์โดยสาร' + (h.elevatorNote ? ` (${h.elevatorNote})` : ''));
+if (h.parking) facList.push('ที่จอดรถยนต์' + (h.parkingFee ? ` (ค่าจอด ${h.parkingFee} บาท)` : h.parkingFeeNote ? ` (${h.parkingFeeNote})` : ''));
+if (facList.length) {
+  p5 += `<div style="display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; width: 100%;">` + 
+        facList.map(item => `<span class="tag-item">${item}</span>`).join('') + 
+        `</div>`;
+}
+p5 += kv('ระบบรักษาความปลอดภัย', h.security);
   if(p5) body += `<details class="section"><summary>สิ่งอำนวยความสะดวกส่วนกลาง</summary><div class="section-content">${p5}</div></details>`;
 
   const p6 = kv('สภาพอาคาร', h.buildingCondition);
