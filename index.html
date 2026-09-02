@@ -270,6 +270,45 @@ const housing = [
     buildingCondition: "ใหม่ (ดูทันสมัย / เพิ่งสร้าง / หรือเพิ่งปรับปรุงใหม่)",
     quote: "ส่วนกลางดีมาก สะดวกสบาย ใกล้ห้าง ใกล้มหาลัย"
   }
+  {
+    name: "Sukhumvit living town",
+    type: "คอนโดมิเนียม",
+      lat: 13.746242558071522, lng: 100.5624452232822,
+    respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "5,001-10,000 บาท/เดือน" },
+    roomSize: "77.08 ตร.ม.",
+    floor: "23",
+    occupants: "4 คนขึ้นไป",
+    furnishing: "มีเฟอร์นิเจอร์หรือเครื่องใช้ไฟฟ้าหลักบางชิ้น (เช่น มีเฉพาะตู้เสื้อผ้า Built-in, เตียง หรือแอร์)",
+
+    rent: 22000,
+    rentNote: "",
+    paymentTiming: "ชำระค่าเช่าทุกต้นเดือน",
+    initialCost: 88000,
+    contractDuration: " 1 ปี",
+
+    electricity: "ชำระตามเรทรัฐบาล",
+    water: "ชำระตามยูนิต",
+    waterrate: 20,
+    commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
+    wifi: "ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม",
+
+    transportPrimary: "เดิน",
+    travelCostMonth: "0",
+
+    appliances: ["เครื่องปรับอากาศ (แอร์)", "ตู้เย็น", "เครื่องทำน้ำอุ่น", "เตาไฟฟ้า (สำหรับทำอาหาร)"],
+
+    laundry: "มีเครื่องซักผ้าส่วนตัว (อยู่ภายในห้องพัก/ระเบียง)",
+    laundryDistance: "",
+
+    fitness: "มี",
+    pool: "มี", pooldistance: "25 เมตร",
+    elevator: "มี", elevatorNote: "6 ตัว",
+    parking: "มี", parkingcount: "540 คัน", parkingFeeNote: "",
+    security: "ระบบคีย์การ์ด (Keycard)",
+
+    buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
+    quote: "สะดวก ใกล้แหล่งของกิน และแหล่งอำนวยความสะดวก เช่น ร้านตัดผม ที่ส่งของ ตลาด เซเว่น วัตสัน เดินไปmrt และ btsได้ ใกล้มอ คอนโดมีห้องซ้อมเต้นใช้อัดคลิปได้"
+  }
 ];
 
 housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h.lng); });
