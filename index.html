@@ -323,10 +323,7 @@ function haversineKm(lat1, lng1, lat2, lng2){
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-// ==================================================================
 // ข้อมูลที่พัก — Google Form/Sheet
-// เพิ่มที่พักใหม่: copy 1 ก้อน แล้วแก้ค่า (ฟิลด์ที่ไม่มีข้อมูลใส่ "" ได้ จะถูกซ่อนอัตโนมัติ)
-// ==================================================================
 const housing = [
   {
     name: "Life Asoke Hype",
@@ -529,7 +526,7 @@ const housing = [
   {
     name: "Witwiboon Apartment W7",
     type: "หอพัก",
-      lat: 13.77103202170738,lng: 100.5691042916792,
+      lat: 13.771263910258723,lng: 100.56919282092218,
     respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "10,001-15,000 บาท/เดือน"},
     roomSize: "17 ตร.ม.",
     floor: "6",
