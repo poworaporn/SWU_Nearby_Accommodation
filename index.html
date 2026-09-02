@@ -8,130 +8,145 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root{
---ink:#1a2332; 
---paper:#f4f1e8; 
---panel:#fffdf9; 
---line:#dcd5c4;
---emerald:#1a2332; 
---emerald-deep:#0f1620; 
---gold:#c9a227; 
---gold-light:#f0e0a8; 
---muted:#6b6a63;
---warn-bg:#fbf1e4;
---warn-line:#e0b877;
---warn-text:#8a5a24;
+    --ink:#1c1a15;
+    --paper:#f5f1e8;
+    --panel:#fffdf9;
+    --line:#e4dcc5;
+    --emerald:#0f4d3a;
+    --emerald-deep:#0a352a;
+    --gold:#b98b3e;
+    --gold-light:#f0dfb0;
+    --muted:#8b8371;
+    --warn-bg:#fbf1e4;
+    --warn-line:#e0b877;
+    --warn-text:#8a5a24;
   }
   *{box-sizing:border-box;}
   html,body{ margin:0; padding:0; height:100%;
     font-family:"IBM Plex Sans Thai","Noto Sans Thai","IBM Plex Sans",sans-serif;
     background:var(--paper); color:var(--ink);
   }
-  .app{ display:grid; grid-template-columns: 340px 1fr; height:100vh; position:relative; overflow:hidden; }
+  .app{ display:grid; grid-template-columns: 350px 1fr; height:100vh; position:relative; overflow:hidden; }
   @media (max-width: 820px){ .app{ grid-template-columns: 1fr; grid-template-rows: 38vh 62vh; } }
 
   /* ---------- Sidebar ---------- */
   .sidebar{ border-right:1px solid var(--line); background:var(--panel); display:flex; flex-direction:column; overflow:hidden; }
-  .sb-head{ padding:20px 20px 14px; border-bottom:1px solid var(--line); }
-  .eyebrow{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--clay); font-weight:600; margin:0 0 6px; }
-  .sb-head h1{ font-size:19px; line-height:1.35; margin:0 0 8px; color:var(--moss-deep); font-weight:700; }
+  .sb-head{ padding:22px 20px 14px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#fffdf9,#f9f4e9); }
+  .eyebrow{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); font-weight:700; margin:0 0 6px; }
+  .sb-head h1{ font-size:19px; line-height:1.35; margin:0 0 8px; color:var(--emerald-deep); font-weight:700; }
   .sb-head p{ font-size:12.5px; color:var(--muted); margin:0; line-height:1.6; }
   .legend{ display:flex; gap:14px; padding:12px 20px; border-bottom:1px solid var(--line); font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
   .legend span{display:flex; align-items:center; gap:6px;}
   .dot{width:10px; height:10px; border-radius:50%; display:inline-block;}
   .swatch-ring{width:14px; height:14px; border-radius:50%; display:inline-block; border:2px solid;}
-  .filters{ display:flex; gap:8px; padding:12px 20px; border-bottom:1px solid var(--line); }
-  .filters button{ flex:1; padding:7px 6px; font-size:12px; border-radius:20px; border:1px solid var(--line); background:var(--paper); color:var(--ink); cursor:pointer; transition:.15s; }
-  .filters button.active{ background:var(--moss); color:#fff; border-color:var(--moss); }
+
+  .controls{ padding:12px 20px; border-bottom:1px solid var(--line); display:flex; flex-direction:column; gap:8px; background:#fbf8f1; }
+  .controls .row{ display:flex; gap:8px; }
+  .controls select{
+    flex:1; padding:8px 10px; font-size:12px; border-radius:8px; border:1px solid var(--line);
+    background:var(--panel); color:var(--ink); font-family:inherit; cursor:pointer;
+  }
+  .controls select:focus{ outline:2px solid var(--gold); }
+
   .list{ flex:1; overflow-y:auto; padding:6px 0; }
   .card{ padding:14px 20px; border-bottom:1px solid var(--line); cursor:pointer; transition:background .15s; }
-  .card:hover, .card.selected{ background:#f0ede2; }
+  .card:hover, .card.selected{ background:#f2ecd9; }
   .card-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
-  .card-top .name{ font-weight:700; font-size:14px; color:var(--moss-deep);}
-  .card-top .radius-tag{ font-size:10.5px; padding:2px 8px; border-radius:10px; white-space:nowrap; background:#eef1ea; color:var(--moss-deep); font-weight:600; }
-  .card-top .radius-tag.far{ background:#f4ece0; color:#8a5a24;}
+  .card-top .name{ font-weight:700; font-size:14px; color:var(--emerald-deep);}
+  .card-top .radius-tag{ font-size:10.5px; padding:2px 8px; border-radius:10px; white-space:nowrap; background:#e4f0e9; color:var(--emerald-deep); font-weight:600; }
+  .card-top .radius-tag.far{ background:var(--gold-light); color:#7a5a1e;}
   .card-meta{ font-size:12px; color:var(--muted); margin-top:4px; }
-  .card-price{ font-size:12.5px; margin-top:6px; color:var(--clay); font-weight:600;}
+  .card-price{ font-size:13px; margin-top:6px; color:var(--gold); font-weight:700;}
   .sb-foot{ padding:12px 20px; border-top:1px solid var(--line); font-size:11px; color:var(--muted); }
 
   /* ---------- Map ---------- */
   #map{ width:100%; height:100%; background:#eae7dc; }
-  .leaflet-popup-content-wrapper{ background:var(--panel); border-radius:10px; box-shadow:0 8px 24px rgba(31,42,36,.18); }
+  .leaflet-popup-content-wrapper{ background:var(--panel); border-radius:12px; box-shadow:0 10px 28px rgba(15,77,58,.22); }
   .leaflet-popup-tip{ background:var(--panel); }
-  .mini-popup{ font-family:inherit; width:210px; }
-  .mini-popup h3{ margin:0 0 2px; font-size:14.5px; color:var(--moss-deep); }
-  .mini-popup .area{ font-size:11.5px; color:var(--muted); margin-bottom:8px; }
-  .mini-popup .rent{ font-size:15px; font-weight:700; color:var(--clay); margin-bottom:10px; }
+  .mini-popup{ font-family:inherit; width:230px; }
+  .mini-popup .sv-thumb{ width:100%; height:100px; border:0; border-radius:8px; display:block; margin-bottom:8px; }
+  .mini-popup h3{ margin:0 0 2px; font-size:14.5px; color:var(--emerald-deep); }
+  .mini-popup .area{ font-size:11.5px; color:var(--muted); margin-bottom:4px; }
+  .mini-popup .rent{ font-size:16px; font-weight:800; color:var(--gold); margin-bottom:6px; }
+  .mini-popup .review{
+    font-size:11px; font-style:italic; color:var(--ink); background:#fbf8f1; border-left:2.5px solid var(--gold);
+    padding:5px 8px; margin-bottom:9px; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
   .mini-popup button{
-    width:100%; padding:8px 0; border:none; border-radius:8px; background:var(--moss); color:#fff;
+    width:100%; padding:8px 0; border:none; border-radius:8px; background:var(--emerald); color:#fff;
     font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;
   }
-  .mini-popup button:hover{ background:var(--moss-deep); }
+  .mini-popup button:hover{ background:var(--emerald-deep); }
 
-  .center-marker{ background:var(--clay); border:3px solid #fff; border-radius:50%; width:16px; height:16px; box-shadow:0 0 0 4px rgba(193,99,60,.25); }
+  .center-badge{
+    width:38px; height:38px; border-radius:50%;
+    background:linear-gradient(155deg,var(--gold),#8a651f); border:3px solid #fff;
+    box-shadow:0 3px 10px rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; font-size:19px;
+  }
   .pin-badge{
     width:34px; height:34px; border-radius:50% 50% 50% 4px; transform:rotate(-45deg);
     border:2.5px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,.35);
     display:flex; align-items:center; justify-content:center;
   }
   .pin-badge .pin-icon{ transform:rotate(45deg); font-size:16px; line-height:1; }
-  .pin-near{ background:#2f8f5b; }
-  .pin-far{ background:#c98a2c; }
+  .pin-near{ background:var(--emerald); }
+  .pin-far{ background:var(--gold); }
 
   /* ---------- Detail Drawer ---------- */
   .drawer-overlay{
-    position:absolute; inset:0; background:rgba(31,42,36,.25);
+    position:absolute; inset:0; background:rgba(15,77,58,.28);
     opacity:0; pointer-events:none; transition:opacity .25s; z-index:1000;
   }
   .drawer-overlay.open{ opacity:1; pointer-events:auto; }
   .drawer{
     position:absolute; top:0; right:0; height:100%; width:430px; max-width:92vw;
-    background:var(--panel); box-shadow:-12px 0 30px rgba(31,42,36,.2);
+    background:var(--panel); box-shadow:-12px 0 30px rgba(15,77,58,.25);
     transform:translateX(100%); transition:transform .3s ease; z-index:1001;
     display:flex; flex-direction:column;
   }
   .drawer.open{ transform:translateX(0); }
-  .drawer-head{ padding:22px 22px 16px; border-bottom:1px solid var(--line); position:relative; }
+  .drawer-head{ padding:22px 22px 16px; border-bottom:1px solid var(--line); position:relative; background:#fbf8f1; }
   .drawer-close{
     position:absolute; top:16px; right:16px; width:30px; height:30px; border-radius:50%;
-    border:1px solid var(--line); background:var(--paper); cursor:pointer; font-size:16px; color:var(--muted);
+    border:1px solid var(--line); background:var(--panel); cursor:pointer; font-size:16px; color:var(--muted);
     display:flex; align-items:center; justify-content:center;
   }
   .drawer-close:hover{ background:#eee; }
   .badge-row{ display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
-  .badge{ font-size:10.5px; padding:3px 9px; border-radius:10px; background:#eef1ea; color:var(--moss-deep); font-weight:600; }
-  .badge.dist{ background:#f4ece0; color:#8a5a24; }
-  .drawer-head h2{ margin:0 0 4px; font-size:19px; color:var(--moss-deep); font-weight:700; }
+  .badge{ font-size:10.5px; padding:3px 9px; border-radius:10px; background:#e4f0e9; color:var(--emerald-deep); font-weight:600; }
+  .badge.dist{ background:var(--gold-light); color:#7a5a1e; }
+  .drawer-head h2{ margin:0 0 4px; font-size:19px; color:var(--emerald-deep); font-weight:700; }
   .drawer-head .area{ font-size:12.5px; color:var(--muted); }
-  .drawer-price{ padding:16px 22px; background:#faf8f2; border-bottom:1px solid var(--line); }
-  .drawer-price .amount{ font-size:24px; font-weight:800; color:var(--clay); }
-  .drawer-price .unit{ font-size:12.5px; color:var(--muted); margin-left:4px; }
-  .drawer-price .note{ font-size:11.5px; color:var(--muted); margin-top:4px; line-height:1.5; }
+  .drawer-price{ padding:18px 22px; background:linear-gradient(135deg,var(--emerald-deep),var(--emerald)); border-bottom:1px solid var(--line); }
+  .drawer-price .amount{ font-size:26px; font-weight:800; color:var(--gold-light); }
+  .drawer-price .unit{ font-size:12.5px; color:#d8e6de; margin-left:4px; }
+  .drawer-price .note{ font-size:11.5px; color:#cfe0d6; margin-top:4px; line-height:1.5; }
   .drawer-body{ flex:1; overflow-y:auto; padding:10px 0 20px; }
 
   details.section{ border-bottom:1px solid var(--line); }
   details.section summary{
     list-style:none; cursor:pointer; padding:13px 22px; font-size:13px; font-weight:700;
-    color:var(--moss-deep); display:flex; align-items:center; justify-content:space-between;
+    color:var(--emerald-deep); display:flex; align-items:center; justify-content:space-between;
   }
   details.section summary::-webkit-details-marker{ display:none; }
-  details.section summary::after{ content:'+'; font-size:16px; color:var(--muted); font-weight:400; }
+  details.section summary::after{ content:'+'; font-size:16px; color:var(--gold); font-weight:700; }
   details.section[open] summary::after{ content:'–'; }
-  details.section[open] summary{ background:#faf8f2; }
+  details.section[open] summary{ background:#fbf8f1; }
   .section-content{ padding:2px 22px 16px; font-size:12.5px; }
   .kv{ display:flex; padding:5px 0; gap:10px; border-bottom:1px dashed #eee; }
   .kv:last-child{ border-bottom:none; }
   .kv .k{ width:120px; flex-shrink:0; color:var(--muted); }
   .kv .v{ font-weight:600; color:var(--ink); }
   .tag-wrap{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
-  .tag-wrap span{ font-size:11px; background:#eef1ea; color:var(--moss-deep); padding:3px 9px; border-radius:8px; }
-  .tag-wrap span.no{ background:#f4ece0; color:#8a5a24; }
-  .quote-block{ margin:14px 22px 0; font-size:12.5px; font-style:italic; color:var(--ink); background:#faf8f2; border-left:3px solid var(--clay); padding:10px 12px; line-height:1.6; }
+  .tag-wrap span{ font-size:11px; background:#e4f0e9; color:var(--emerald-deep); padding:3px 9px; border-radius:8px; }
+  .tag-wrap span.no{ background:var(--gold-light); color:#7a5a1e; }
+  .quote-block{ margin:14px 22px 0; font-size:12.5px; font-style:italic; color:var(--ink); background:#fbf8f1; border-left:3px solid var(--gold); padding:10px 12px; line-height:1.6; }
   .quote-src{ font-size:10.5px; color:var(--muted); text-align:right; margin-top:6px; font-style:normal; }
   .gmaps-link{
     display:flex; align-items:center; justify-content:center; gap:7px; margin:16px 22px 4px; padding:11px 0;
-    border-radius:9px; background:var(--moss); color:#fff; text-decoration:none; font-size:13px; font-weight:600;
+    border-radius:9px; background:var(--emerald); color:#fff; text-decoration:none; font-size:13px; font-weight:600;
   }
-  .gmaps-link:hover{ background:var(--moss-deep); }
+  .gmaps-link:hover{ background:var(--emerald-deep); }
   .gmaps-link svg{ width:14px; height:14px; }
 </style>
 </head>
@@ -141,21 +156,39 @@
   <aside class="sidebar">
     <div class="sb-head">
       <p class="eyebrow">ผลสำรวจและงานวิจัย</p>
-      <h1>ที่พักใกล้มหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร</h1>
+      <h1>ที่พักรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร</h1>
       <p>แสดงพิกัดที่พักในระยะ 3 กม. และ 6 กม. จากสนามกีฬากลาง มศว พร้อมข้อมูลจากผู้พักอาศัยจริง</p>
     </div>
     <div class="legend">
-      <span><span class="dot" style="background:var(--clay)"></span> มศว ประสานมิตร</span>
-      <span><span class="swatch-ring" style="border-color:#2f8f5b;background:#7ed4a3"></span> 3 กม.</span>
-      <span><span class="swatch-ring" style="border-color:#c98a2c;background:#f2c86b"></span> 6 กม.</span>
+      <span><span class="dot" style="background:var(--gold)"></span>มศว ประสานมิตร</span>
+      <span><span class="swatch-ring" style="border-color:var(--emerald);background:#bfe0cd"></span> 3 กม.</span>
+      <span><span class="swatch-ring" style="border-color:var(--gold);background:var(--gold-light)"></span> 6 กม.</span>
     </div>
-    <div class="filters">
-      <button class="active" data-filter="all">ที่พักทั้งหมด</button>
-      <button data-filter="near">ระยะ 3 กม.</button>
-      <button data-filter="far">ระยะ 6 กม.</button>
+    <div class="controls">
+      <div class="row">
+        <select id="sortSelect">
+          <option value="default">เรียงตาม: ค่าเริ่มต้น</option>
+          <option value="price-asc">ราคา: ต่ำ → สูง</option>
+          <option value="price-desc">ราคา: สูง → ต่ำ</option>
+          <option value="dist-asc">ระยะทาง: ใกล้ → ไกล</option>
+        </select>
+      </div>
+      <div class="row">
+        <select id="distFilter">
+          <option value="all">ระยะ: ทั้งหมด</option>
+          <option value="near"> 3 กม.</option>
+          <option value="far">6 กม.</option>
+        </select>
+        <select id="typeFilter">
+          <option value="all">ประเภท: ทั้งหมด</option>
+          <option value="คอนโดมิเนียม">คอนโดมิเนียม</option>
+          <option value="หอพัก">หอพัก</option>
+          <option value="อพาร์ตเมนต์">อพาร์ตเมนต์</option>
+        </select>
+      </div>
     </div>
     <div class="list" id="list"></div>
-    <div class="sb-foot">คลิกหมุดหรือรายการ เพื่อดูรายละเอียดฉบับเต็มจากแบบสอบถาม</div>
+    <div class="sb-foot">คลิกหมุดหรือรายการ เพื่อดูรายละเอียดจากแบบสอบถามวิจัย</div>
   </aside>
 
   <div id="map"></div>
@@ -183,7 +216,7 @@
 // ==================================================================
 const CENTER = [13.74485119465704, 100.56461190542645];
 
-// Google Maps Embed API key — สำหรับฝัง Street View ในแผงรายละเอียด
+// Google Maps Embed API key — ใช้สำหรับฝัง Street View
 const GOOGLE_MAPS_API_KEY = "AIzaSyDbWLSw01m60YRiHBu_BOmcejMoDwy1VNE";
 
 function haversineKm(lat1, lng1, lat2, lng2){
@@ -193,54 +226,49 @@ function haversineKm(lat1, lng1, lat2, lng2){
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
+// ==================================================================
+// ข้อมูลที่พัก — Google Form/Sheet
+// เพิ่มที่พักใหม่: copy 1 ก้อน แล้วแก้ค่า (ฟิลด์ที่ไม่มีข้อมูลใส่ "" ได้ จะถูกซ่อนอัตโนมัติ)
+// ==================================================================
 const housing = [
   {
     name: "Life Asoke Hype",
     type: "คอนโดมิเนียม",
-    lat: 13.754346097834594, lng: 100.56290610544808,
-    // ข้อมูลผู้ตอบแบบสอบถาม
+      lat: 13.754346097834594, lng: 100.56290610544808,
     respondent: { gender: "หญิง", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน" },
-
-    // ข้อมูลที่พัก
     roomSize: "32 ตร.ม.",
     floor: "33",
     occupants: "1 คน",
     furnishing: "มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
 
-    // ค่าเช่าและสัญญา
     rent: 20000,
     rentNote: "",
     paymentTiming: "ชำระค่าเช่าทุกต้นเดือน",
     initialCost: 60000,
     contractDuration: "มากกว่า 1 ปี",
 
-    // ค่าน้ำ-ไฟ-ส่วนกลาง-อินเทอร์เน็ต
     electricity: "ชำระตามเรทรัฐบาล",
-    water: "ชำระตามเรทรัฐบาล",
+    water: "ชำระตามยูนิต",
+    waterrate: 20,
     commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
     wifi: "ไม่มี / ติดตั้งเอง / ใช้เน็ตมือถือ",
 
-    // การเดินทาง
     transportPrimary: "รถรับจ้าง/บริการผ่านแอป",
     travelCostMonth: 1000,
 
-    // สิ่งอำนวยความสะดวกในห้อง (จากช่องเลือกได้หลายข้อ)
     appliances: ["เครื่องปรับอากาศ (แอร์)", "โทรทัศน์ (TV)", "ตู้เย็น", "ไมโครเวฟ", "เครื่องทำน้ำอุ่น", "เตาไฟฟ้า (สำหรับทำอาหาร)"],
 
-    // เครื่องซักผ้า
     laundry: "มีเครื่องซักผ้าส่วนตัว (อยู่ภายในห้องพัก/ระเบียง)",
     laundryDistance: "",
 
-    // สิ่งอำนวยความสะดวกส่วนกลางของอาคาร
     fitness: "มี",
-    pool: "มี", poolNote: "",
+    pool: "มี", pooldistance: "75 เมตร",
     elevator: "มี", elevatorNote: "7 ตัว",
-    parking: "มี", parkingFee: "", parkingFeeNote: "",
+    parking: "มี", parkingcount: "530 คัน", parkingFeeNote: "",
     security: "ระบบสแกนใบหน้า (Face Scan)",
 
-    // สภาพอาคารและรีวิว
     buildingCondition: "ใหม่ (ดูทันสมัย / เพิ่งสร้าง / หรือเพิ่งปรับปรุงใหม่)",
-    quote: "สะดวกสบาย ใกล้มหาลัย ใกล้ห้าง"
+    quote: "ส่วนกลางดีมาก สะดวกสบาย ใกล้ห้าง ใกล้มหาลัย"
   }
 ];
 
@@ -254,18 +282,18 @@ L.control.zoom({ position:'bottomright' }).addTo(map);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
 }).addTo(map);
-L.circle(CENTER, { radius:6000, color:'#c98a2c', weight:2.5, fillColor:'#f2c86b', fillOpacity:0.18 }).addTo(map);
-L.circle(CENTER, { radius:3000, color:'#2f8f5b', weight:2.5, fillColor:'#7ed4a3', fillOpacity:0.28 }).addTo(map);
-L.marker(CENTER, { icon: L.divIcon({ className:'', html:'<div class="center-marker"></div>', iconSize:[16,16] }) })
+L.circle(CENTER, { radius:6000, color:'#b98b3e', weight:2.5, fillColor:'#f0dfb0', fillOpacity:0.22 }).addTo(map);
+L.circle(CENTER, { radius:3000, color:'#0f4d3a', weight:2.5, fillColor:'#7ec9a3', fillOpacity:0.3 }).addTo(map);
+L.marker(CENTER, { icon: L.divIcon({ className:'', html:'<div class="center-badge">🏟️</div>', iconSize:[38,38] }) })
   .addTo(map).bindPopup('<b>สนามกีฬา มศว ประสานมิตร</b><br><span style="font-size:11px;color:#7a7566">จุดอ้างอิงระยะทาง</span>');
 
 function typeIcon(type){
-  const map = {
+  const icons = {
     'คอนโดมิเนียม': '🏢',
-    'อพาร์ตเมนต์': '🏠',
     'หอพัก': '🏨',
+    'อพาร์ตเมนต์': '🏠'
   };
-  return map[type] || '📍';
+  return icons[type] || '📍';
 }
 
 const markers = {};
@@ -279,32 +307,50 @@ housing.forEach((h, i) => {
   const m = L.marker([h.lat, h.lng], { icon }).addTo(map);
   m.bindPopup(`
     <div class="mini-popup">
+      <iframe class="sv-thumb"
+        src="https://www.google.com/maps/embed/v1/streetview?key=${GOOGLE_MAPS_API_KEY}&location=${h.lat},${h.lng}&heading=210&pitch=5&fov=80"
+        loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       <h3>${h.name}</h3>
-      <div class="area">${h.type}</div>
+      <div class="area">${h.type} · ${h.distanceKm.toFixed(1)} กม. จาก มศว</div>
       <div class="rent">${h.rent.toLocaleString()} บาท/เดือน</div>
-      <button onclick="openDrawer(${i})">ดูรายละเอียดทั้งหมด →</button>
+      ${h.quote ? `<div class="review">"${h.quote}"</div>` : ''}
+      <button onclick="openDrawer(${i})">ดูรายละเอียด →</button>
     </div>
-  `, { maxWidth:240 });
+  `, { maxWidth:260 });
   markers[i] = m;
 });
 
 // ==================================================================
-// Sidebar list + filter
+// Sidebar list + filter + sort
 // ==================================================================
 const listEl = document.getElementById('list');
-let currentFilter = 'all';
+const sortSelect = document.getElementById('sortSelect');
+const distFilter = document.getElementById('distFilter');
+const typeFilter = document.getElementById('typeFilter');
 
 function render(){
+  let items = housing.map((h, i) => ({ h, i }));
+
+  const dist = distFilter.value;
+  if(dist === 'near') items = items.filter(o => o.h.distanceKm <= 3);
+  if(dist === 'far') items = items.filter(o => o.h.distanceKm > 3);
+
+  const type = typeFilter.value;
+  if(type !== 'all') items = items.filter(o => o.h.type === type);
+
+  const sort = sortSelect.value;
+  if(sort === 'price-asc') items.sort((a,b) => a.h.rent - b.h.rent);
+  if(sort === 'price-desc') items.sort((a,b) => b.h.rent - a.h.rent);
+  if(sort === 'dist-asc') items.sort((a,b) => a.h.distanceKm - b.h.distanceKm);
+
   listEl.innerHTML = '';
-  housing.forEach((h, i) => {
+  items.forEach(({h, i}) => {
     const near = h.distanceKm <= 3;
-    if(currentFilter === 'near' && !near) return;
-    if(currentFilter === 'far' && near) return;
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
       <div class="card-top">
-        <span class="name">${h.name}</span>
+        <span class="name">${typeIcon(h.type)} ${h.name}</span>
         <span class="radius-tag ${near ? '' : 'far'}">${h.distanceKm.toFixed(1)} กม.</span>
       </div>
       <div class="card-meta">${h.type}</div>
@@ -321,14 +367,7 @@ function render(){
 }
 render();
 
-document.querySelectorAll('.filters button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
-    render();
-  });
-});
+[sortSelect, distFilter, typeFilter].forEach(el => el.addEventListener('change', render));
 
 // ==================================================================
 // Detail Drawer
@@ -352,7 +391,7 @@ function openDrawer(i){
   const h = housing[i];
 
   document.getElementById('dBadges').innerHTML = `
-    <span class="badge">${h.type}</span>
+    <span class="badge">${typeIcon(h.type)} ${h.type}</span>
     <span class="badge dist">${h.distanceKm.toFixed(1)} กม. จาก มศว</span>
   `;
   document.getElementById('dName').textContent = h.name;
@@ -360,38 +399,29 @@ function openDrawer(i){
   document.getElementById('dRent').textContent = h.rent.toLocaleString();
   document.getElementById('dRentNote').textContent = h.rentNote || '';
 
-  // Street View
   let body = `
     <div class="streetview-wrap" style="padding:14px 22px 0;">
       <iframe
         src="https://www.google.com/maps/embed/v1/streetview?key=${GOOGLE_MAPS_API_KEY}&location=${h.lat},${h.lng}&heading=210&pitch=5&fov=80"
         style="width:100%;height:190px;border:0;border-radius:10px;display:block;"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
+        loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
   `;
 
-  // ส่วนที่ 1: ข้อมูลที่พัก
   const p1 = kv('ประเภท', h.type) + kv('ขนาดห้อง', h.roomSize) + kv('ชั้น', h.floor) + kv('จำนวนผู้พัก', h.occupants) + kv('การตกแต่ง', h.furnishing);
   if(p1) body += `<details class="section" open><summary>ข้อมูลที่พัก</summary><div class="section-content">${p1}</div></details>`;
 
-  // ส่วนที่ 2: ค่าเช่าและสัญญา
   const p2 = kv('รูปแบบจ่าย', h.paymentTiming) + kv('ค่าแรกเข้า', h.initialCost ? h.initialCost.toLocaleString() + ' บาท' : '') + kv('ระยะสัญญา', h.contractDuration);
   if(p2) body += `<details class="section"><summary>ค่าเช่าและสัญญา</summary><div class="section-content">${p2}</div></details>`;
 
-  // ส่วนที่ 3: ค่าน้ำ-ไฟ-ส่วนกลาง-อินเทอร์เน็ต
   const p3 = kv('ค่าไฟ', h.electricity) + kv('ค่าน้ำ', h.water) + kv('ค่าส่วนกลาง', h.commonFee) + kv('อินเทอร์เน็ต/WIFI', h.wifi);
   if(p3) body += `<details class="section"><summary>ค่าน้ำ-ไฟ-ส่วนกลาง-เน็ต</summary><div class="section-content">${p3}</div></details>`;
 
-  // ส่วนที่ 4: การเดินทาง
   const p4 = kv('วิธีหลัก', h.transportPrimary) + kv('ค่าเดินทาง/เดือน', h.travelCostMonth ? h.travelCostMonth.toLocaleString() + ' บาท' : '');
   if(p4) body += `<details class="section"><summary>การเดินทางสู่ มศว</summary><div class="section-content">${p4}</div></details>`;
 
-  // เครื่องใช้ไฟฟ้าในห้อง
   if(h.appliances && h.appliances.length) body += `<details class="section"><summary>เครื่องใช้ไฟฟ้าในห้อง</summary><div class="section-content">${tagList(h.appliances)}</div></details>`;
 
-  // สิ่งอำนวยความสะดวกส่วนกลาง
   let p5 = '';
   p5 += kv('เครื่องซักผ้า', h.laundry);
   p5 += kv('ระยะทางร้านซักรีด', h.laundryDistance ? h.laundryDistance + ' เมตร' : '');
@@ -402,13 +432,11 @@ function openDrawer(i){
   p5 += kv('ระบบรักษาความปลอดภัย', h.security);
   if(p5) body += `<details class="section"><summary>สิ่งอำนวยความสะดวกส่วนกลาง</summary><div class="section-content">${p5}</div></details>`;
 
-  // สภาพอาคาร
   const p6 = kv('สภาพอาคาร', h.buildingCondition);
   if(p6) body += `<details class="section"><summary>สภาพอาคาร</summary><div class="section-content">${p6}</div></details>`;
 
   document.getElementById('dBody').innerHTML = body;
 
-  // quote + respondent info + gmaps link
   let quoteSrc = 'ผู้ตอบแบบสอบถาม';
   if(h.respondent){
     const r = h.respondent;
