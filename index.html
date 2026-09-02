@@ -151,11 +151,40 @@
   }
   .gmaps-link:hover{ background:var(--emerald-deep); }
   .gmaps-link svg{ width:14px; height:14px; }
+  .tag-wrap {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    word-break: break-word;
+  }
+  .tag-wrap span {
+    max-width: 100%;
+    white-space: normal !important;
+    line-height: 1.4;
+  }
+  .kv .v {
+    word-break: break-word;
+  }
+  .controls .row {
+    flex-wrap: wrap;
+  }
+  .controls select {
+    min-width: 0;
+  }
+  .mini-popup { 
+    font-family: inherit; 
+    width: 100%;
+    max-width: 240px; 
+  }
+  .leaflet-popup-content {
+    margin: 10px 12px !important;
+  }
 </style>
 </head>
 <body>
 <div class="app">
-
   <aside class="sidebar">
     <div class="sb-head">
       <p class="eyebrow">ผลสำรวจและงานวิจัย</p>
