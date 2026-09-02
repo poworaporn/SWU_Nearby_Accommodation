@@ -621,12 +621,12 @@ function openDrawer(i){
 
   if(h.appliances && h.appliances.length) body += `<details class="section"><summary>เครื่องใช้ไฟฟ้าในห้อง</summary><div class="section-content">${tagList(h.appliances)}</div></details>`;
 
-  llet p5 = '';
+  let p5 = '';
 p5 += kv('เครื่องซักผ้า', h.laundry);
 p5 += kv('ระยะทางร้านซักรีด', h.laundryDistance ? h.laundryDistance + ' เมตร' : '');
 const facList = [];
 if (h.fitness) facList.push('ฟิตเนส');
-if (h.pool) facList.push('สระว่ายน้ำ' + (h.poolNote ? ` (${h.poolNote})` : ''));
+if (h.pool) facList.push('สระว่ายน้ำ' + (h.pooldistance ? ` (${h.poodistance})` : ''));
 if (h.elevator) facList.push('ลิฟต์โดยสาร' + (h.elevatorNote ? ` (${h.elevatorNote})` : ''));
 if (h.parking) facList.push('ที่จอดรถยนต์' + (h.parkingFee ? ` (ค่าจอด ${h.parkingFee} บาท)` : h.parkingFeeNote ? ` (${h.parkingFeeNote})` : ''));
 if (facList.length) {
