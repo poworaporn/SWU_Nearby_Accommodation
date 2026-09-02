@@ -280,7 +280,7 @@
           <option value="all">ประเภท: ทั้งหมด</option>
           <option value="คอนโดมิเนียม">คอนโดมิเนียม</option>
           <option value="หอพัก">หอพัก</option>
-          <option value="อพาร์ตเมนต์">อพาร์ตเมนต์</option>
+          <option value="อพาร์ตเมนต์">อะพาร์ตเมนต์</option>
         </select>
       </div>
     </div>
@@ -445,7 +445,7 @@ const housing = [
   },
   {
     name: "Bangkok Apartment",
-    type: "หอพัก",
+    type: "อะพาร์ตเมนต์",
       lat: 13.782801669865771,lng: 100.57301603390567,
     respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน"},
     roomSize: "24 ตร.ม.",
@@ -525,7 +525,7 @@ const housing = [
   },
   {
     name: "Witwiboon Apartment W7",
-    type: "หอพัก",
+    type: "อะพาร์ตเมนต์",
       lat: 13.771263910258723,lng: 100.56919282092218,
     respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "10,001-15,000 บาท/เดือน"},
     roomSize: "17 ตร.ม.",
@@ -622,7 +622,7 @@ function typeIcon(type){
   const icons = {
     'คอนโดมิเนียม': '🏢',
     'หอพัก': '🏨',
-    'อพาร์ตเมนต์': '🏠'
+    'อะพาร์ตเมนต์': '🏠'
   };
   return icons[type] || '📍';
 }
