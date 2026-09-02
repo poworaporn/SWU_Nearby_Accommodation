@@ -190,90 +190,74 @@
       position: fixed !important;
       width: 100% !important;
     }
+
     .app {
-      display: flex !important;
-      flex-direction: column !important;
+      display: block !important;
+      position: relative !important;
       height: 100dvh !important;
       width: 100vw !important;
       overflow: hidden !important;
     }
+
     #map {
-      order: 1 !important;
-      height: 32dvh !important;
-      min-height: 180px !important;
+      position: absolute !important;
+      top: 0; left: 0;
       width: 100% !important;
-      flex-shrink: 0 !important;
+      height: 100% !important;
+      z-index: 1;
     }
+
     .sidebar {
-      order: 2 !important;
-      height: 68dvh !important;
-      flex: 1 !important;
+      position: absolute !important;
+      left: 0; right: 0; bottom: 0;
+      z-index: 10;
+      height: 82dvh !important;
+      transform: translateY(calc(100% - 130px)); 
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      background: var(--panel) !important;
+      border-radius: 20px 20px 0 0 !important;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.2) !important;
       display: flex !important;
       flex-direction: column !important;
       overflow: hidden !important;
-      border-right: none !important;
-      border-top: 2px solid var(--line) !important;
-      background: var(--panel) !important;
     }
-    .sb-head {
-      padding: 8px 14px 4px !important;
+    .drag-handle {
+      width: 40px;
+      height: 5px;
+      background: #ccc;
+      border-radius: 3px;
+      margin: 8px auto 4px;
+      flex-shrink: 0;
+      cursor: grab;
     }
-    .eyebrow {
-      display: none !important;
+    .sidebar.expanded {
+      transform: translateY(0) !important;
     }
-    .sb-head h1 {
-      font-size: 14px !important;
-      margin-bottom: 2px !important;
-    }
-    .sb-head p {
-      font-size: 10.5px !important;
-      line-height: 1.2 !important;
-    }
-    .legend {
-      padding: 4px 14px !important;
-      font-size: 10px !important;
-    }
-    .controls {
-      padding: 6px 14px !important;
-    }
+    .sb-head { padding: 4px 16px 6px !important; }
+    .sb-head h1 { font-size: 15px !important; margin: 0 !important; }
+    .sb-head p, .eyebrow { display: none !important; }
+    .legend { padding: 4px 16px !important; font-size: 10.5px !important; }
+    .controls { padding: 6px 16px !important; }
     #housingList {
       flex: 1 !important;
-      overflow-y: scroll !important;
+      overflow-y: auto !important;
       -webkit-overflow-scrolling: touch !important;
-      padding: 8px 14px 20px !important;
-    }
-    .leaflet-popup-content-wrapper {
-      padding: 4px !important;
-      border-radius: 12px !important;
-    }
-    .leaflet-popup-content {
-      margin: 8px 12px !important;
-      width: auto !important;
-      min-width: 180px !important;
-      max-width: 260px !important;
-    }
-    .mini-popup {
-      font-size: 13px !important;
-      line-height: 1.4 !important;
-    }
-    .mini-popup b {
-      font-size: 14px !important;
-      display: block;
-      margin-bottom: 3px;
+      padding: 10px 16px 30px !important;
     }
   }
 </style>
 </head>
 <body>
 <div class="app">
-  <aside class="sidebar">
-    <div class="sb-head">
+  <aside class="sidebar" id="mobileSheet">
+  <div class="drag-handle"></div>
+  <div class="sb-head">
       <p class="eyebrow">ผลสำรวจและงานวิจัย</p>
       <h1>ที่พักรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร</h1>
       <p>แสดงพิกัดที่พักในระยะ 3 กม. และ 6 กม. จากสนามกีฬากลาง มศว พร้อมข้อมูลจากผู้พักอาศัยจริง</p>
     </div>
     <div class="legend">
-      <span><span class="dot" style="background:var(--red)"></span>มศว ประสานมิตร</span>
+      <span><span class="dot" style="border-color:var(--gray);background:var(--red)"></span>มศว ประสานมิตร</span>
       <span><span class="swatch-ring" style="border-color:var(--emerald);background:#bfe0cd"></span> 3 กม.</span>
       <span><span class="swatch-ring" style="border-color:var(--gold);background:var(--gold-light)"></span> 6 กม.</span>
     </div>
@@ -784,6 +768,45 @@ function closeDrawer(){
 }
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 document.getElementById('overlay').addEventListener('click', closeDrawer);
-</script>
-</body>
+
+      (function initBottomSheet() {
+        const sheet = document.getElementById('mobileSheet');
+        const handle = sheet ? sheet.querySelector('.drag-handle') : null;
+        if (!sheet || !handle) return;
+
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+
+        handle.addEventListener('click', () => {
+          sheet.classList.toggle('expanded');
+        });
+
+        sheet.addEventListener('touchstart', (e) => {
+          if (e.target.closest('#housingList') && sheet.classList.contains('expanded')) return;
+          startY = e.touches[0].clientY;
+          isDragging = true;
+        }, { passive: true });
+
+        sheet.addEventListener('touchmove', (e) => {
+          if (!isDragging) return;
+          currentY = e.touches[0].clientY;
+          const diff = currentY - startY;
+
+          if (diff > 50) {
+            sheet.classList.remove('expanded');
+            isDragging = false;
+          } 
+          else if (diff < -50) {
+            sheet.classList.add('expanded');
+            isDragging = false;
+          }
+        }, { passive: true });
+
+        sheet.addEventListener('touchend', () => {
+          isDragging = false;
+        });
+      })();
+    </script>
+  </body>
 </html>
