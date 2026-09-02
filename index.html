@@ -235,7 +235,7 @@ const housing = [
     name: "Life Asoke Hype",
     type: "คอนโดมิเนียม",
       lat: 13.754346097834594, lng: 100.56290610544808,
-    respondent: { gender: "หญิง", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน" },
+    respondent: { gender: "หญิง", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน"},
     roomSize: "32 ตร.ม.",
     floor: "33",
     occupants: "1 คน",
@@ -249,7 +249,7 @@ const housing = [
 
     electricity: "ชำระตามเรทรัฐบาล",
     water: "ชำระตามยูนิต",
-    waterrate: 20,
+    waternote: "20 บาท/ยูนิต",
     commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
     wifi: "ไม่มี / ติดตั้งเอง / ใช้เน็ตมือถือ",
 
@@ -274,7 +274,7 @@ const housing = [
     name: "Sukhumvit living town",
     type: "คอนโดมิเนียม",
       lat: 13.746221770574932, lng: 100.5625009468866,
-    respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "5,001-10,000 บาท/เดือน" },
+    respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "5,001-10,000 บาท/เดือน"},
     roomSize: "77.08 ตร.ม.",
     floor: "23",
     occupants: "4 คนขึ้นไป",
@@ -284,11 +284,11 @@ const housing = [
     rentNote: "",
     paymentTiming: "ชำระค่าเช่าทุกต้นเดือน",
     initialCost: 88000,
-    contractDuration: " 1 ปี",
+    contractDuration: "1 ปี",
 
     electricity: "ชำระตามเรทรัฐบาล",
     water: "ชำระตามยูนิต",
-    waterrate: 20,
+    waternote: "20 บาท/ยูนิต",
     commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
     wifi: "ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม",
 
@@ -308,6 +308,166 @@ const housing = [
 
     buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
     quote: "สะดวก ใกล้แหล่งของกิน และแหล่งอำนวยความสะดวก เช่น ร้านตัดผม ที่ส่งของ ตลาด เซเว่น วัตสัน เดินไปmrt และ btsได้ ใกล้มอ คอนโดมีห้องซ้อมเต้นใช้อัดคลิปได้"
+  },
+  {
+    name: "The Rich Place",
+    type: "หอพัก",
+      lat: 13.773672663887089,lng: 100.56767374549968,
+    respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท/เดือน"},
+    roomSize: "22 ตร.ม.",
+    floor: "3",
+    occupants: "2 คน",
+    furnishing: "มีเฟอร์นิเจอร์หรือเครื่องใช้ไฟฟ้าหลักบางชิ้น (เช่น มีเฉพาะตู้เสื้อผ้า Built-in, เตียง หรือแอร์)",
+
+    rent: 5200,
+    rentNote: "",
+    paymentTiming: "ชำระค่าเช่าทุกสิ้นเดือน",
+    initialCost: 13600,
+    contractDuration: "1 ปี",
+
+    electricity: "ชำระตามเรทหอพัก (คิดราคาตามยูนิตที่ใช้)",
+    electricitynote: "8 บาท/ยูนิต",
+    water: "ชำระตามยูนิต",
+    waternote: "18 บาท/ยูนิต",
+    commonFee: "ไม่มี",
+    wifi: "ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม",
+
+    transportPrimary: "MRT",
+    travelCostMonth: "1300",
+
+    appliances: ["เครื่องปรับอากาศ (แอร์)", "เครื่องทำน้ำอุ่น","พัดลม"],
+
+    laundry: "ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
+    laundryDistance: "",
+
+    fitness: "ไม่มี",
+    pool: "ไม่มี", pooldistance: "",
+    elevator: "มี", elevatorNote: "1 ตัว",
+    parking: "มี", parkingcount: "6 คัน", parkingFeeNote: "เสียค่าใช้จ่ายเพิ่มเติม",
+    security: "ระบบคีย์การ์ด (Keycard)",
+
+    buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
+    quote: "ที่จอดรถค่อนข้างน้อย ถนนในซอยแคบมากและมีการก่อสร้างอยู่บ่อยครั้ง แต่แถวนี้เหมือนชุมชนมีของกินเยอะ"
+  },
+  {
+    name: "Bangkok Apartment",
+    type: "หอพัก",
+      lat: 13.783172540259443,lng: 100.571842889993,
+    respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน"},
+    roomSize: "24 ตร.ม.",
+    floor: "5",
+    occupants: "1 คน",
+    furnishing: "มีเฟอร์นิเจอร์หรือเครื่องใช้ไฟฟ้าหลักบางชิ้น (เช่น มีเฉพาะตู้เสื้อผ้า Built-in, เตียง หรือแอร์)",
+
+    rent: 4200,
+    rentNote: "",
+    paymentTiming: "ชำระค่าเช่าทุกสิ้นเดือน",
+    initialCost: 13200,
+    contractDuration: "6 เดือน",
+
+    electricity: "ชำระตามเรทหอพัก (คิดราคาตามยูนิตที่ใช้)",
+    electricitynote: "7 บาท/ยูนิต",
+    water: "เหมาจ่ายรายเดือน",
+    waternote: "100 บาท",
+    commonFee: "ไม่มี",
+    wifi: "ฟรี / รวมในค่าเช่า",
+
+    transportPrimary: "MRT",
+    travelCostMonth: "600",
+
+    appliances: ["เครื่องปรับอากาศ (แอร์)", "เครื่องทำน้ำอุ่น",],
+
+    laundry: "ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
+    laundryDistance: "",
+
+    fitness: "ไม่มี",
+    pool: "ไม่มี", pooldistance: "",
+    elevator: "ไม่มี", elevatorNote: "",
+    parking: "ไม่มี", parkingcount: "", parkingFeeNote: "",
+    security: "ระบบคีย์การ์ด (Keycard)",
+
+    buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
+    quote: "ถูก ใกล้ มีไวไฟแรงให้ฟรี ของกินเยอะ ไม่มีลิฟต์"
+  },
+  {
+    name: "ลุมพินี พาร์ค พระราม 9 - รัชดา",
+    type: "คอนโดมิเนียม",
+      lat: 13.753870998917211,lng: 100.57642221359778,
+    respondent: { gender: "หญิง", age: 20, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท/เดือน"},
+    roomSize: "26.75 ตร.ม.",
+    floor: "11",
+    occupants: "1 คน",
+    furnishing: "มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
+
+    rent: 10000,
+    rentNote: "",
+    paymentTiming: "ชำระค่าเช่าทุกกลางเดือน",
+    initialCost: 30000,
+    contractDuration: "1 ปี",
+
+    electricity: "ชำระตามเรทรัฐบาล",
+    electricitynote: "",
+    water: "ชำระตามยูนิต",
+    waternote: "19 บาท/ยูนิต",
+    commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
+    wifi: "ไม่มี / ติดตั้งเอง / ใช้เน็ตมือถือ",
+
+    transportPrimary: "รถรับจ้าง/บริการผ่านแอป",
+    travelCostMonth: "1000",
+
+    appliances: ["เครื่องปรับอากาศ (แอร์)", "โทรทัศน์ (TV)", "ตู้เย็น", "ไมโครเวฟ", "เครื่องทำน้ำอุ่น", "เตาไฟฟ้า (สำหรับทำอาหาร)"],
+
+    laundry: "มีเครื่องซักผ้าส่วนตัว (อยู่ภายในห้องพัก/ระเบียง)",
+    laundryDistance: "",
+
+    fitness: "มี",
+    pool: "มี", pooldistance: "25",
+    elevator: "มี", elevatorNote: "3 ตัว",
+    parking: "มี", parkingcount: "580 คัน", parkingFeeNote: "เสียค่าใช้จ่ายเพิ่มเติม 200 บาท/เดือน",
+    security: "ระบบคีย์การ์ด (Keycard)",
+
+    buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
+    quote: "สะดวก ใกล้มหาวิทยาลัย ใกล้ทางด่วน facilityครบ มีวินมอไซค์หน้าคอนโด หาของกินง่าย"
+  },
+  {
+    name: "วิศวิบูลย์ ตึก 7",
+    type: "หอพัก",
+      lat: 13.771053454640864,lng: 100.56908450245291,
+    respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "10,001-15,000 บาท/เดือน"},
+    roomSize: "17 ตร.ม.",
+    floor: "6",
+    occupants: "1 คน",
+    furnishing: "มีเฟอร์นิเจอร์หรือเครื่องใช้ไฟฟ้าหลักบางชิ้น (เช่น มีเฉพาะตู้เสื้อผ้า Built-in, เตียง หรือแอร์)",
+
+    rent: 4900,
+    rentNote: "",
+    paymentTiming: "ชำระค่าเช่าทุกต้นเดือน",
+    initialCost: 13000,
+    contractDuration: "6 เดือน",
+
+    electricity: "ชำระตามเรทหอพัก (คิดราคาตามยูนิตที่ใช้)",
+    electricitynote: "8 บาท/ยูนิต",
+    water: "ชำระตามยูนิต",
+    waternote: "18 บาท/ยูนิต",
+    commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
+    wifi: "ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม",
+
+    transportPrimary: "รถรับจ้าง/บริการผ่านแอป",
+    travelCostMonth: "1400",
+
+    appliances: ["เครื่องปรับอากาศ (แอร์)"],
+
+    laundry: "ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
+    laundryDistance: "",
+
+    fitness: "ไม่มี",
+    pool: "ไม่มี", pooldistance: "",
+    elevator: "มี", elevatorNote: "1 ตัว",
+    parking: "ไม่มี", parkingcount: "", parkingFeeNote: "",
+    security: "ระบบคีย์การ์ด (Keycard)",
+
+    buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
+    quote: "ซอยแคบ ทำถนนบ่อย"
   }
 ];
 
