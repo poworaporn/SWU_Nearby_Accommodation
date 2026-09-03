@@ -780,15 +780,18 @@ p5 += kv('ระบบรักษาความปลอดภัย', h.secur
     if(r.faculty) parts.push(r.faculty);
     quoteSrc = parts.join(', ') || quoteSrc;
   }
-  const extra = document.createElement('div');
-  extra.innerHTML = `
-    ${h.quote ? `<div class="quote-block">"${h.quote}"<div class="quote-src">— ${quoteSrc}</div></div>` : ''}
-    <a class="gmaps-link" href="https://www.google.com/maps?q=${h.lat},${h.lng}" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-      ดูตำแหน่งนี้ใน Google Maps
-    </a>
-  `;
-  document.getElementById('dBody').appendChild(extra);
+const gmapsUrl = h.placeId
+  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name)}&query_place_id=${h.placeId}`
+  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + ' ' + h.lat + ',' + h.lng)}`;
+const extra = document.createElement('div');
+extra.innerHTML = `
+  ${h.quote ? `<div class="quote-block">"${h.quote}"<div class="quote-src">— ${quoteSrc}</div></div>` : ''}
+  <a class="gmaps-link" href="${gmapsUrl}" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+    ดูตำแหน่งนี้ใน Google Maps
+  </a>
+`;
+document.getElementById('dBody').appendChild(extra);
 
   document.getElementById('drawer').classList.add('open');
   document.getElementById('overlay').classList.add('open');
