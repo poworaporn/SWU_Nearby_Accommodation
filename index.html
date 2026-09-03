@@ -279,7 +279,6 @@
         <select id="typeFilter">
           <option value="all">ประเภท: ทั้งหมด</option>
           <option value="คอนโดมิเนียม">คอนโดมิเนียม</option>
-          <option value="หอพัก">หอพัก</option>
           <option value="อพาร์ตเมนต์">อะพาร์ตเมนต์</option>
         </select>
       </div>
@@ -405,7 +404,7 @@ const housing = [
   },
   {
     name: "The Rich Place",
-    type: "หอพัก",
+    type: "อะพาร์ตเมนต์",
       lat: 13.771949775481755,lng: 100.56751795118954,
     respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท/เดือน"},
     roomSize: "22 ตร.ม.",
@@ -621,8 +620,7 @@ L.marker(CENTER, { icon: L.divIcon({ className:'', html:'<div class="center-badg
 function typeIcon(type){
   const icons = {
     'คอนโดมิเนียม': '🏢',
-    'หอพัก': '🏨',
-    'อะพาร์ตเมนต์': '🏠'
+    'อะพาร์ตเมนต์': '🏨'
   };
   return icons[type] || '📍';
 }
@@ -761,7 +759,6 @@ let p5 = '';
   if (h.elevator && h.elevator !== "ไม่มี") facList.push('ลิฟต์โดยสาร' + (h.elevatorNote ? ` (${h.elevatorNote})` : ''));
   if (h.parking && h.parking !== "ไม่มี") facList.push('ที่จอดรถยนต์' + (h.parkingFee ? ` (ค่าจอด ${h.parkingFee} บาท)` : h.parkingFeeNote ? ` (${h.parkingFeeNote})` : ''));
 
-  // ใช้ tagList(facList) เพื่อให้ดึงสีเขียวเดิมมาใช้ทันที
   if (facList.length) {
     p5 += tagList(facList);
   }
