@@ -62,6 +62,7 @@
   .card:hover, .card.selected{ background:#f2ecd9; }
   .card-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
   .card-top .name{ font-weight:700; font-size:14px; color:var(--emerald-deep);}
+  .name-th{ font-size:11px; color:var(--muted); font-weight:500; display:block; }
   .card-top .radius-tag{ font-size:10.5px; padding:2px 8px; border-radius:10px; white-space:nowrap; background:#e4f0e9; color:var(--emerald-deep); font-weight:600; }
   .card-top .radius-tag.far{ background:var(--gold-light); color:#7a5a1e;}
   .card-meta{ font-size:12px; color:var(--muted); margin-top:4px; }
@@ -200,8 +201,8 @@
       <div class="row">
         <select id="distFilter">
           <option value="all">ระยะ: ทั้งหมด</option>
-          <option value="near">ในวง 3 กม.</option>
-          <option value="far">3–6 กม.</option>
+          <option value="near"> 3 กม.</option>
+          <option value="far">6 กม.</option>
         </select>
         <select id="typeFilter">
           <option value="all">ประเภท: ทั้งหมด</option>
@@ -246,6 +247,8 @@
  
 <script>
 const CENTER = [13.744982862662434, 100.56469591898168];
+// จุดหน้ามหาวิทยาลัย ใช้เป็นจุดเริ่ม/สิ้นสุดของ "เส้นทางการเดินทาง" โดยเฉพาะ (คนละจุดกับ CENTER ที่ใช้วาดวงรัศมี 3/6 กม.)
+const UNI_GATE = { lat: 13.745008896871706, lng: 100.56260886539863, label: "มศว ประสานมิตร" };
 const GOOGLE_MAPS_API_KEY = "AIzaSyDbWLSw01m60YRiHBu_BOmcejMoDwy1VNE";
  
 function haversineKm(lat1, lng1, lat2, lng2){
@@ -278,12 +281,11 @@ function tStyle(mode){ return TRANSPORT_STYLE[mode] || { icon:'📍', color:'#8b
 // ==================================================================
 const housing = [
   {
-    name: "Life asoke hype",
+    name: "Life Asoke Hype", nameTh: "ไลฟ์ อโศก ไฮป์",
     type: "คอนโดมิเนียม",
-    lat: 13.7542914, lng: 100.5628927,
+    lat: 13.7542266, lng: 100.5636255,
     placeId: "ChIJdeYACoSf4jARU5jqqoUHz0U",
     respondent: { gender: "หญิง", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน" },
- 
     roomSize: "32 ตร.ม.", floor: "33", occupants: "1 คน",
     furnishing: "มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
  
@@ -298,13 +300,13 @@ const housing = [
     // ขาไป: ยังไม่มีชื่อสถานี (ใช้บริการเรียกรถ ไม่ผ่านระบบขนส่งรางอยู่แล้ว)
     routeTo: [
       { label:"ที่พัก", lat:13.7542914, lng:100.5628927 },
-      { mode:"เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)", label:"มศว ประสานมิตร", lat:CENTER[0], lng:CENTER[1] }
+      { mode:"เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)", label:UNI_GATE.label, lat:UNI_GATE.lat, lng:UNI_GATE.lng }
     ],
     // ขากลับ (ตามข้อมูลจริง): มศว → เดิน → MRT เพชรบุรี (ขึ้นตรงตึกสิงห์คอมเพล็กซ์) → นั่ง MRT → MRT พระราม 9 (ออกทางฟอร์จูน) → เดิน (ข้ามสะพาน) → ที่พัก
     routeBack: [
-      { label:"มศว ประสานมิตร", lat:CENTER[0], lng:CENTER[1] },
-      { mode:"เดิน", label:"MRT เพชรบุรี (สิงห์คอมเพล็กซ์)", lat:13.7491523, lng:100.5633874 },
-      { mode:"MRT", label:"MRT พระราม 9 (ทางออกฟอร์จูน)", lat:13.7579217, lng:100.5655678 },
+      { label:UNI_GATE.label, lat:UNI_GATE.lat, lng:UNI_GATE.lng },
+      { mode:"เดิน", label:"MRT เพชรบุรี", lat:13.7491523, lng:100.5633874 },
+      { mode:"MRT", label:"MRT พระราม 9", lat:13.7579217, lng:100.5655678 },
       { mode:"เดิน", label:"ที่พัก", lat:13.7542914, lng:100.5628927 }
     ],
     travelCostDay: 43, travelTimeMin: "",
@@ -326,7 +328,7 @@ const housing = [
     ratings: { location:5, cleanliness:5, safety:5, service:5, facilities:5, parking:5, value:5 }
   },
   {
-    name: "ลุมพินี พาร์ค พระราม 9 - รัชดา",
+    name: "Lumpini Park Rama 9 - Ratchada", nameTh: "ลุมพินี พาร์ค พระราม 9 - รัชดา",
     type: "คอนโดมิเนียม",
     lat: 13.753266810804732, lng: 100.57633129182052,
     respondent: { gender: "หญิง", age: 20, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท/เดือน" },
@@ -363,7 +365,7 @@ const housing = [
     ratings: { location:4, cleanliness:5, safety:5, service:4, facilities:4, parking:5, value:5 }
   },
   {
-    name: "The Rich Place",
+    name: "The Rich Place", nameTh: "เดอะ ริช เพลส",
     type: "อะพาร์ตเมนต์",
     lat: 13.771949775481755, lng: 100.56751795118954,
     respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท/เดือน" },
@@ -397,7 +399,7 @@ const housing = [
     ratings: { location:3, cleanliness:5, safety:4, service:5, facilities:4, parking:2, value:4 }
   },
   {
-    name: "Sukhumvit living town",
+    name: "Sukhumvit Living Town", nameTh: "สุขุมวิท ลิฟวิ่ง ทาวน์",
     type: "คอนโดมิเนียม",
     lat: 13.7460866, lng: 100.5624754,
     placeId: "ChIJowyJH_Ce4jAR2KAKCnAGha0",
@@ -434,7 +436,7 @@ const housing = [
     ratings: { location:5, cleanliness:5, safety:4, service:5, facilities:5, parking:5, value:5 }
   },
   {
-    name: "Bangkok Apartment",
+    name: "Bangkok Apartment", nameTh: "แบงค็อก อพาร์ตเมนต์",
     type: "อะพาร์ตเมนต์",
     lat: 13.782801669865771, lng: 100.57301603390567,
     respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน" },
@@ -475,8 +477,8 @@ housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h
 function normalizeRoute(h, simpleArr, houseIsStart){
   const real = (simpleArr || []).filter(s => s && s !== 'จบการเดินทาง');
   if(!real.length) return null;
-  const startPt = houseIsStart ? {label:'ที่พัก', lat:h.lat, lng:h.lng} : {label:'มศว ประสานมิตร', lat:CENTER[0], lng:CENTER[1]};
-  const endPt   = houseIsStart ? {label:'มศว ประสานมิตร', lat:CENTER[0], lng:CENTER[1]} : {label:'ที่พัก', lat:h.lat, lng:h.lng};
+  const startPt = houseIsStart ? {label:'ที่พัก', lat:h.lat, lng:h.lng} : {label:UNI_GATE.label, lat:UNI_GATE.lat, lng:UNI_GATE.lng};
+  const endPt   = houseIsStart ? {label:UNI_GATE.label, lat:UNI_GATE.lat, lng:UNI_GATE.lng} : {label:'ที่พัก', lat:h.lat, lng:h.lng};
   // ไม่มีจุดแวะจริง ใช้โหมดแรกที่ไม่ใช่เดินเป็นสีเส้น แสดงเป็นเส้นเดียว
   return [ startPt, { mode: real.find(s=>s!=='เดิน') || real[0], label: endPt.label, lat: endPt.lat, lng: endPt.lng } ];
 }
@@ -517,10 +519,19 @@ function avgRating(h){
   const vals = Object.values(h.ratings);
   return (vals.reduce((a,b)=>a+b,0) / vals.length).toFixed(1);
 }
+// พิกัด Street View แยกจากพิกัดหมุด/คำนวณระยะทาง — ใช้กรณีพิกัดจริงชี้เข้าไปในตึก/มุมกล้องไม่ตรง
+// ใส่ svLat/svLng/svHeading ในข้อมูลที่พักเพื่อ override ได้ทีละที่
+function svCoords(h){
+  return {
+    lat: h.svLat !== undefined ? h.svLat : h.lat,
+    lng: h.svLng !== undefined ? h.svLng : h.lng,
+    heading: h.svHeading !== undefined ? h.svHeading : 210
+  };
+}
 function searchableText(h){
   const applianceNames = (h.appliances || []).map(a => a.name).join(' ');
   const securityText = h.security ? Object.values(h.security).join(' ') : '';
-  return [h.name, h.type, h.quote, h.buildingCondition, applianceNames, securityText]
+  return [h.name, h.nameTh, h.type, h.quote, h.buildingCondition, applianceNames, securityText]
     .filter(Boolean).join(' ').toLowerCase();
 }
 function hasAmenity(h, key){
@@ -555,11 +566,13 @@ function curvedPoints(from, to, bend){
   return pts;
 }
  
-// เรียก OSRM (ฟรี ไม่ต้องมี API key) ให้คำนวณเส้นทางเดินเท้าจริงตามถนน
+// เรียก OSRM (ฟรี ไม่ต้องมี API key) ให้คำนวณเส้นทางเกาะถนนจริง
+// เดิน -> ใช้โปรไฟล์ foot (เดินเท้า), โหมดอื่นทั้งหมด (MRT/BTS/รถ ฯลฯ) -> ใช้โปรไฟล์ car เพราะส่วนใหญ่วิ่งไปตามถนน/แนวราง
 // หมายเหตุ: เปิดไฟล์แบบ file:// ตรงๆ เบราว์เซอร์จะบล็อกการเรียกนี้เสมอ ต้องทดสอบผ่านเว็บที่อัปโหลดจริง (https://) เท่านั้น
-async function fetchWalkingRoute(from, to){
+async function fetchRoadRoute(from, to, mode){
+  const profile = mode === 'เดิน' ? 'foot' : 'car';
   try{
-    const url = `https://routing.openstreetmap.de/routed-foot/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`;
+    const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`;
     const res = await fetch(url);
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
@@ -568,8 +581,8 @@ async function fetchWalkingRoute(from, to){
     }
     throw new Error('ไม่มีข้อมูลเส้นทางในผลลัพธ์');
   }catch(e){
-    console.warn('[เส้นทางเดิน] เรียก OSRM ไม่สำเร็จ ใช้เส้นตรงสำรองแทน — ถ้าเปิดไฟล์แบบ file:// ตรงๆ นี่คือสาเหตุที่พบบ่อยที่สุด (ลองเปิดผ่านเว็บที่ deploy จริงแทน):', e);
-    return { points: [[from.lat, from.lng], [to.lat, to.lng]], routed:false };
+    console.warn(`[เส้นทาง:${mode}] เรียก OSRM (${profile}) ไม่สำเร็จ ใช้เส้นโค้งสำรองแทน — ถ้าเปิดไฟล์แบบ file:// ตรงๆ นี่คือสาเหตุที่พบบ่อยที่สุด (ลองเปิดผ่านเว็บที่ deploy จริงแทน):`, e);
+    return { points: curvedPoints(from, to), routed:false };
   }
 }
  
@@ -582,17 +595,11 @@ async function drawRoute(h, direction){
   for(let i=1;i<route.length;i++){
     const from = route[i-1], to = route[i];
     const st = tStyle(to.mode);
-    let points, routed = true;
-    if(to.mode === 'เดิน'){
-      const result = await fetchWalkingRoute(from, to);
-      points = result.points; routed = result.routed;
-    } else {
-      points = curvedPoints(from, to);
-    }
+    const result = await fetchRoadRoute(from, to, to.mode);
     if(myRequestId !== routeRequestId) return; // ผู้ใช้คลิกที่อื่นไปแล้วระหว่างรอโหลด ยกเลิกการวาดทิ้ง
-    const line = L.polyline(points, {
+    const line = L.polyline(result.points, {
       color:st.color, weight:4.5, opacity:0.85, lineCap:'round',
-      dashArray: (to.mode === 'เดิน' && !routed) ? '2 8' : null // เส้นประ = ยังไม่ได้เกาะถนนจริง (fallback)
+      dashArray: result.routed ? null : '2 8' // เส้นประ = เกาะถนนไม่สำเร็จ ใช้เส้นโค้งสำรอง
     }).addTo(map);
     routeLayers.push(line);
     if(i < route.length - 1){
@@ -614,15 +621,17 @@ housing.forEach((h, i) => {
   });
   const m = L.marker([h.lat, h.lng], { icon }).addTo(map);
   m.on('click', () => drawRoute(h, 'to'));
+  const sv = svCoords(h);
   m.bindPopup(`
     <div class="mini-popup">
       <div class="sv-wrap">
         <iframe class="sv-thumb"
-          src="https://www.google.com/maps/embed/v1/streetview?key=${GOOGLE_MAPS_API_KEY}&location=${h.lat},${h.lng}&heading=210&pitch=5&fov=80"
+          src="https://www.google.com/maps/embed/v1/streetview?key=${GOOGLE_MAPS_API_KEY}&location=${sv.lat},${sv.lng}&heading=${sv.heading}&pitch=5&fov=80"
           loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         ${avgRating(h) ? `<div class="rating-badge">⭐ ${avgRating(h)}</div>` : ''}
       </div>
       <h3>${h.name}</h3>
+      ${h.nameTh ? `<div style="font-size:11px;color:var(--muted);margin-top:-2px;margin-bottom:2px;">${h.nameTh}</div>` : ''}
       <div class="area">${h.type} · ${h.distanceKm.toFixed(1)} กม. จาก มศว</div>
       <div class="rent">${h.rent.toLocaleString()} บาท/เดือน</div>
       ${h.quote ? `<div class="review">"${h.quote}"</div>` : ''}
@@ -676,7 +685,7 @@ function render(){
     card.className = 'card';
     card.innerHTML = `
       <div class="card-top">
-        <span class="name">${typeIcon(h.type)} ${h.name}</span>
+        <span class="name">${typeIcon(h.type)} ${h.name}${h.nameTh ? `<span class="name-th">${h.nameTh}</span>` : ''}</span>
         <span class="radius-tag ${near ? '' : 'far'}">${h.distanceKm.toFixed(1)} กม.</span>
       </div>
       <div class="card-meta">${h.type}</div>
@@ -708,7 +717,9 @@ function updateSuggest(){
   searchClear.style.display = q ? 'block' : 'none';
   render();
   if(!q){ searchSuggest.classList.remove('show'); searchSuggest.innerHTML=''; return; }
-  const matches = housing.map((h, i) => ({ h, i })).filter(o => o.h.name.toLowerCase().includes(q.toLowerCase())).slice(0, 8);
+  const matches = housing.map((h, i) => ({ h, i }))
+    .filter(o => o.h.name.toLowerCase().includes(q.toLowerCase()) || (o.h.nameTh && o.h.nameTh.toLowerCase().includes(q.toLowerCase())))
+    .slice(0, 8);
   if(!matches.length){
     searchSuggest.innerHTML = `<div class="sg-empty">ไม่พบที่พักชื่อ "${q}"</div>`;
   } else {
@@ -716,7 +727,7 @@ function updateSuggest(){
       <div class="sg-item" data-index="${i}">
         <span>${typeIcon(h.type)}</span>
         <div>
-          <div class="sg-name">${highlightMatch(h.name, q)}</div>
+          <div class="sg-name">${highlightMatch(h.name, q)}${h.nameTh ? `<span class="name-th">${highlightMatch(h.nameTh, q)}</span>` : ''}</div>
           <div class="sg-meta">${h.type} · ${h.rent.toLocaleString()} บาท/เดือน · ${h.distanceKm.toFixed(1)} กม.</div>
         </div>
       </div>
@@ -789,7 +800,7 @@ function openDrawer(i){
     <span class="badge">${typeIcon(h.type)} ${h.type}</span>
     <span class="badge dist">${h.distanceKm.toFixed(1)} กม. จาก มศว</span>
   `;
-  document.getElementById('dName').textContent = h.name;
+  document.getElementById('dName').innerHTML = h.name + (h.nameTh ? `<span class="name-th" style="margin-top:2px;">${h.nameTh}</span>` : '');
   document.getElementById('dArea').textContent = h.floor ? `ชั้น ${h.floor}` : '';
   document.getElementById('dRent').textContent = h.rent.toLocaleString();
   document.getElementById('dRentNote').textContent = h.rentNote || '';
@@ -797,7 +808,7 @@ function openDrawer(i){
   let body = `
     <div class="streetview-wrap" style="padding:14px 22px 0;">
       <iframe
-        src="https://www.google.com/maps/embed/v1/streetview?key=${GOOGLE_MAPS_API_KEY}&location=${h.lat},${h.lng}&heading=210&pitch=5&fov=80"
+        src="https://www.google.com/maps/embed/v1/streetview?key=${GOOGLE_MAPS_API_KEY}&location=${svCoords(h).lat},${svCoords(h).lng}&heading=${svCoords(h).heading}&pitch=5&fov=80"
         style="width:100%;height:190px;border:0;border-radius:10px;display:block;"
         loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
@@ -916,3 +927,4 @@ document.getElementById('overlay').addEventListener('click', closeDrawer);
 </script>
 </body>
 </html>
+
