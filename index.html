@@ -201,8 +201,8 @@
       <div class="row">
         <select id="distFilter">
           <option value="all">ระยะ: ทั้งหมด</option>
-          <option value="near">ในวง 3 กม.</option>
-          <option value="far">3–6 กม.</option>
+          <option value="near">3 กม.</option>
+          <option value="far">6 กม.</option>
         </select>
         <select id="typeFilter">
           <option value="all">ประเภท: ทั้งหมด</option>
@@ -315,11 +315,11 @@ const housing = [
       { label:"ที่พัก", lat:13.7542914, lng:100.5628927 },
       { mode:"เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)", label:UNI_GATE.label, lat:UNI_GATE.lat, lng:UNI_GATE.lng }
     ],
-    // ขากลับ (ตามข้อมูลจริง): มศว → เดิน → MRT เพชรบุรี (ขึ้นตรงตึกสิงห์คอมเพล็กซ์) → นั่ง MRT → MRT พระราม 9 (ออกทางฟอร์จูน) → เดิน (ข้ามสะพาน) → ที่พัก
+    // ขากลับ (ตามข้อมูลจริง): มศว → เดิน → MRT เพชรบุรี→ นั่ง MRT → MRT พระราม 9→ เดิน (ข้ามสะพาน) → ที่พัก
     routeBack: [
       { label:UNI_GATE.label, lat:UNI_GATE.lat, lng:UNI_GATE.lng },
-      { mode:"เดิน", label:"MRT เพชรบุรี (สิงห์คอมเพล็กซ์)", lat:STATIONS['MRT เพชรบุรี'].lat, lng:STATIONS['MRT เพชรบุรี'].lng },
-      { mode:"MRT", label:"MRT พระราม 9 (ทางออกฟอร์จูน)", lat:STATIONS['MRT พระราม 9'].lat, lng:STATIONS['MRT พระราม 9'].lng },
+      { mode:"เดิน", label:"MRT เพชรบุรี", lat:STATIONS['MRT เพชรบุรี'].lat, lng:STATIONS['MRT เพชรบุรี'].lng },
+      { mode:"MRT", label:"MRT พระราม 9", lat:STATIONS['MRT พระราม 9'].lat, lng:STATIONS['MRT พระราม 9'].lng },
       { mode:"เดิน", label:"ที่พัก", lat:13.7542914, lng:100.5628927 }
     ],
     travelCostDay: 43, travelTimeMin: "",
@@ -803,7 +803,6 @@ function routeCostHTML(h, direction){
   }
   return '';
 }
-
 let currentDrawerHousing = null;
 function switchRouteTab(direction){
   const h = currentDrawerHousing;
@@ -814,7 +813,6 @@ function switchRouteTab(direction){
   document.getElementById('routeCost').innerHTML = routeCostHTML(h, direction);
   drawRoute(h, direction); // วาดเส้นบนแผนที่เฉพาะตอนกดแท็บเลือกทิศทางเท่านั้น
 }
-
 function openDrawer(i){
   const h = housing[i];
   currentDrawerHousing = h;
@@ -828,7 +826,6 @@ function openDrawer(i){
   document.getElementById('dArea').textContent = h.floor ? `ชั้น ${h.floor}` : '';
   document.getElementById('dRent').textContent = h.rent.toLocaleString();
   document.getElementById('dRentNote').textContent = h.rentNote || '';
-
   let body = `
     <div class="streetview-wrap" style="padding:14px 22px 0;">
       <iframe
@@ -837,7 +834,6 @@ function openDrawer(i){
         loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
   `;
-
   const p1 = kv('ประเภท', h.type) + kv('ขนาดห้อง', h.roomSize) + kv('ชั้น', h.floor) + kv('จำนวนผู้พัก', h.occupants)
     + kv('การตกแต่ง', h.furnishing) + kv('อาศัยมาแล้ว', h.stayDuration);
   if(p1) body += `<details class="section" open><summary>ข้อมูลที่พัก</summary><div class="section-content">${p1}</div></details>`;
@@ -929,7 +925,6 @@ function closeDrawer(){
 }
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 document.getElementById('overlay').addEventListener('click', closeDrawer);
-
 (function initBottomSheet() {
   const sheet = sidebarEl;
   const handle = sheet ? sheet.querySelector('.drag-handle') : null;
