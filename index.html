@@ -8,20 +8,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root{
-    --ink:#1c1a15;
-    --red: #DA2128;
-    --gray: #636466;
-    --paper:#f5f1e8;
-    --panel:#fffdf9;
-    --line:#e4dcc5;
-    --emerald:#0f4d3a;
-    --emerald-deep:#0a352a;
-    --gold:#b98b3e;
-    --gold-light:#f0dfb0;
-    --muted:#8b8371;
-    --warn-bg:#fbf1e4;
-    --warn-line:#e0b877;
-    --warn-text:#8a5a24;
+    --ink:#1c1a15; --red:#DA2128; --gray:#636466;
+    --paper:#f5f1e8; --panel:#fffdf9; --line:#e4dcc5;
+    --emerald:#0f4d3a; --emerald-deep:#0a352a;
+    --gold:#b98b3e; --gold-light:#f0dfb0; --muted:#8b8371;
+    --warn-bg:#fbf1e4; --warn-line:#e0b877; --warn-text:#8a5a24;
   }
   *{box-sizing:border-box;}
   html,body{ margin:0; padding:0; height:100%;
@@ -29,9 +20,7 @@
     background:var(--paper); color:var(--ink);
   }
   .app{ display:grid; grid-template-columns: 350px 1fr; height:100vh; position:relative; overflow:hidden; }
-  @media (max-width: 820px){ .app{ grid-template-columns: 1fr; grid-template-rows: 38vh 62vh; } }
-
-  /* ---------- Sidebar ---------- */
+ 
   .sidebar{ border-right:1px solid var(--line); background:var(--panel); display:flex; flex-direction:column; overflow:hidden; }
   .sb-head{ padding:22px 20px 14px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#fffdf9,#f9f4e9); }
   .eyebrow{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); font-weight:700; margin:0 0 6px; }
@@ -39,17 +28,35 @@
   .sb-head p{ font-size:12.5px; color:var(--muted); margin:0; line-height:1.6; }
   .legend{ display:flex; gap:14px; padding:12px 20px; border-bottom:1px solid var(--line); font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
   .legend span{display:flex; align-items:center; gap:6px;}
-  .dot{width:10px; height:10px; border-radius:50%; display:inline-block;}
   .swatch-ring{width:14px; height:14px; border-radius:50%; display:inline-block; border:2px solid;}
-
+ 
+  .search-wrap{ position:relative; padding:12px 20px 0; background:#fbf8f1; border-bottom:1px solid var(--line); }
+  .search-box{ display:flex; align-items:center; gap:8px; background:var(--panel); border:1.5px solid var(--line); border-radius:10px; padding:9px 12px; margin-bottom:12px; }
+  .search-box:focus-within{ border-color:var(--gold); }
+  .search-icon{ font-size:13px; opacity:.6; }
+  .search-box input{ flex:1; border:none; outline:none; font-size:13px; font-family:inherit; background:transparent; color:var(--ink); }
+  .search-clear{ cursor:pointer; color:var(--muted); font-size:12px; padding:2px 4px; }
+  .search-suggest{ position:absolute; left:20px; right:20px; top:100%; z-index:50; background:var(--panel); border:1px solid var(--line); border-top:none; border-radius:0 0 10px 10px; box-shadow:0 10px 24px rgba(15,77,58,.15); max-height:260px; overflow-y:auto; display:none; }
+  .search-suggest.show{ display:block; }
+  .search-suggest .sg-item{ display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--line); }
+  .search-suggest .sg-item:last-child{ border-bottom:none; }
+  .search-suggest .sg-item:hover{ background:#f2ecd9; }
+  .search-suggest .sg-name{ font-size:12.5px; font-weight:600; color:var(--emerald-deep); }
+  .search-suggest .sg-name mark{ background:var(--gold-light); color:var(--emerald-deep); border-radius:2px; }
+  .search-suggest .sg-meta{ font-size:11px; color:var(--muted); }
+  .search-suggest .sg-empty{ padding:14px; text-align:center; font-size:12px; color:var(--muted); }
+ 
   .controls{ padding:12px 20px; border-bottom:1px solid var(--line); display:flex; flex-direction:column; gap:8px; background:#fbf8f1; }
-  .controls .row{ display:flex; gap:8px; }
-  .controls select{
-    flex:1; padding:8px 10px; font-size:12px; border-radius:8px; border:1px solid var(--line);
-    background:var(--panel); color:var(--ink); font-family:inherit; cursor:pointer;
-  }
+  .controls .row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .controls select{ flex:1; min-width:0; padding:8px 10px; font-size:12px; border-radius:8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); font-family:inherit; cursor:pointer; }
   .controls select:focus{ outline:2px solid var(--gold); }
-
+  .amenity-filters{ margin-top:2px; }
+  .amenity-filters summary{ list-style:none; cursor:pointer; font-size:11.5px; color:var(--emerald-deep); font-weight:700; padding:4px 0; }
+  .amenity-filters summary::-webkit-details-marker{ display:none; }
+  .amenity-grid{ display:flex; flex-wrap:wrap; gap:6px 10px; padding:6px 2px 2px; }
+  .amenity-grid label{ display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--ink); cursor:pointer; }
+  .amenity-grid input{ accent-color:var(--emerald); cursor:pointer; }
+ 
   .list{ flex:1; overflow-y:auto; padding:6px 0; }
   .card{ padding:14px 20px; border-bottom:1px solid var(--line); cursor:pointer; transition:background .15s; }
   .card:hover, .card.selected{ background:#f2ecd9; }
@@ -60,62 +67,39 @@
   .card-meta{ font-size:12px; color:var(--muted); margin-top:4px; }
   .card-price{ font-size:13px; margin-top:6px; color:var(--gold); font-weight:700;}
   .sb-foot{ padding:12px 20px; border-top:1px solid var(--line); font-size:11px; color:var(--muted); }
-
-  /* ---------- Map ---------- */
+ 
   #map{ width:100%; height:100%; background:#eae7dc; }
   .leaflet-popup-content-wrapper{ background:var(--panel); border-radius:12px; box-shadow:0 10px 28px rgba(15,77,58,.22); }
   .leaflet-popup-tip{ background:var(--panel); }
-  .mini-popup{ font-family:inherit; width:230px; }
-  .mini-popup .sv-thumb{ width:100%; height:100px; border:0; border-radius:8px; display:block; margin-bottom:8px; }
+  .leaflet-popup-content{ margin:10px 12px !important; }
+  .mini-popup{ font-family:inherit; width:100%; max-width:240px; }
+  .mini-popup .sv-wrap{ position:relative; margin-bottom:8px; }
+  .mini-popup .sv-thumb{ width:100%; height:100px; border:0; border-radius:8px; display:block; }
+  .mini-popup .rating-badge{
+    position:absolute; top:6px; right:6px; background:rgba(10,53,42,0.88); color:#f0dfb0;
+    font-size:11px; font-weight:800; padding:3px 8px; border-radius:10px; display:flex; align-items:center; gap:3px;
+    box-shadow:0 2px 6px rgba(0,0,0,.3);
+  }
   .mini-popup h3{ margin:0 0 2px; font-size:14.5px; color:var(--emerald-deep); }
   .mini-popup .area{ font-size:11.5px; color:var(--muted); margin-bottom:4px; }
   .mini-popup .rent{ font-size:16px; font-weight:800; color:var(--gold); margin-bottom:6px; }
-  .mini-popup .review{
-    font-size:11px; font-style:italic; color:var(--ink); background:#fbf8f1; border-left:2.5px solid var(--gold);
-    padding:5px 8px; margin-bottom:9px; line-height:1.5;
-    max-height: 80px; 
-    overflow-y: auto;
-    white-space: normal;
-  }
-  .mini-popup button{
-    width:100%; padding:8px 0; border:none; border-radius:8px; background:var(--emerald); color:#fff;
-    font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;
-  }
+  .mini-popup .review{ font-size:11px; font-style:italic; color:var(--ink); background:#fbf8f1; border-left:2.5px solid var(--gold); padding:5px 8px; margin-bottom:9px; line-height:1.5; max-height:80px; overflow-y:auto; white-space:normal; }
+  .mini-popup button{ width:100%; padding:8px 0; border:none; border-radius:8px; background:var(--emerald); color:#fff; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; }
   .mini-popup button:hover{ background:var(--emerald-deep); }
-
-  .center-badge{
-  width:38px; height:38px; border-radius:50%;
-  background:var(--red); border:3px solid #fff;
-  box-shadow:0 3px 10px rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; font-size:19px;
-}
-  .pin-badge{
-    width:34px; height:34px; border-radius:50% 50% 50% 4px; transform:rotate(-45deg);
-    border:2.5px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,.35);
-    display:flex; align-items:center; justify-content:center;
-  }
+ 
+  .center-badge{ width:38px; height:38px; border-radius:50%; background:var(--red); border:3px solid #fff; box-shadow:0 3px 10px rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; font-size:19px; }
+  .pin-badge{ width:34px; height:34px; border-radius:50% 50% 50% 4px; transform:rotate(-45deg); border:2.5px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; }
   .pin-badge .pin-icon{ transform:rotate(45deg); font-size:16px; line-height:1; }
   .pin-near{ background:var(--emerald); }
   .pin-far{ background:var(--gold); }
-
-  /* ---------- Detail Drawer ---------- */
-  .drawer-overlay{
-    position:absolute; inset:0; background:rgba(15,77,58,.28);
-    opacity:0; pointer-events:none; transition:opacity .25s; z-index:1000;
-  }
+  .route-waypoint{ width:12px; height:12px; border-radius:50%; border:2px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,.35); }
+ 
+  .drawer-overlay{ position:absolute; inset:0; background:rgba(15,77,58,.28); opacity:0; pointer-events:none; transition:opacity .25s; z-index:1600; }
   .drawer-overlay.open{ opacity:1; pointer-events:auto; }
-  .drawer{
-    position:absolute; top:0; right:0; height:100%; width:430px; max-width:92vw;
-    background:var(--panel); box-shadow:-12px 0 30px rgba(15,77,58,.25);
-    transform:translateX(100%); transition:transform .3s ease; z-index:1001;
-    display:flex; flex-direction:column;
-  }
+  .drawer{ position:absolute; top:0; right:0; height:100%; width:430px; max-width:92vw; background:var(--panel); box-shadow:-12px 0 30px rgba(15,77,58,.25); transform:translateX(100%); transition:transform .3s ease; z-index:1601; display:flex; flex-direction:column; }
   .drawer.open{ transform:translateX(0); }
   .drawer-head{ padding:22px 22px 16px; border-bottom:1px solid var(--line); position:relative; background:#fbf8f1; }
-  .drawer-close{
-    position:absolute; top:16px; right:16px; width:30px; height:30px; border-radius:50%;
-    border:1px solid var(--line); background:var(--panel); cursor:pointer; font-size:16px; color:var(--muted);
-    display:flex; align-items:center; justify-content:center;
-  }
+  .drawer-close{ position:absolute; top:16px; right:16px; width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:var(--panel); cursor:pointer; font-size:16px; color:var(--muted); display:flex; align-items:center; justify-content:center; }
   .drawer-close:hover{ background:#eee; }
   .badge-row{ display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
   .badge{ font-size:10.5px; padding:3px 9px; border-radius:10px; background:#e4f0e9; color:var(--emerald-deep); font-weight:600; }
@@ -127,12 +111,9 @@
   .drawer-price .unit{ font-size:12.5px; color:#d8e6de; margin-left:4px; }
   .drawer-price .note{ font-size:11.5px; color:#cfe0d6; margin-top:4px; line-height:1.5; }
   .drawer-body{ flex:1; overflow-y:auto; padding:10px 0 20px; }
-
+ 
   details.section{ border-bottom:1px solid var(--line); }
-  details.section summary{
-    list-style:none; cursor:pointer; padding:13px 22px; font-size:13px; font-weight:700;
-    color:var(--emerald-deep); display:flex; align-items:center; justify-content:space-between;
-  }
+  details.section summary{ list-style:none; cursor:pointer; padding:13px 22px; font-size:13px; font-weight:700; color:var(--emerald-deep); display:flex; align-items:center; justify-content:space-between; }
   details.section summary::-webkit-details-marker{ display:none; }
   details.section summary::after{ content:'+'; font-size:16px; color:var(--gold); font-weight:700; }
   details.section[open] summary::after{ content:'–'; }
@@ -141,117 +122,55 @@
   .kv{ display:flex; padding:5px 0; gap:10px; border-bottom:1px dashed #eee; }
   .kv:last-child{ border-bottom:none; }
   .kv .k{ width:120px; flex-shrink:0; color:var(--muted); }
-  .kv .v{ font-weight:600; color:var(--ink); }
-  .tag-wrap{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
-  .tag-wrap span{ font-size:11px; background:#e4f0e9; color:var(--emerald-deep); padding:3px 9px; border-radius:8px; }
+  .kv .v{ font-weight:600; color:var(--ink); word-break:break-word; }
+  .tag-wrap{ display:flex !important; flex-wrap:wrap !important; gap:6px !important; width:100% !important; margin-top:4px; }
+  .tag-wrap span{ font-size:11px; background:#e4f0e9; color:var(--emerald-deep); padding:3px 9px; border-radius:8px; white-space:normal !important; line-height:1.4; }
   .tag-wrap span.no{ background:var(--gold-light); color:#7a5a1e; }
   .quote-block{ margin:14px 22px 0; font-size:12.5px; font-style:italic; color:var(--ink); background:#fbf8f1; border-left:3px solid var(--gold); padding:10px 12px; line-height:1.6; }
   .quote-src{ font-size:10.5px; color:var(--muted); text-align:right; margin-top:6px; font-style:normal; }
-  .gmaps-link{
-    display:flex; align-items:center; justify-content:center; gap:7px; margin:16px 22px 4px; padding:11px 0;
-    border-radius:9px; background:var(--emerald); color:#fff; text-decoration:none; font-size:13px; font-weight:600;
-  }
+  .gmaps-link{ display:flex; align-items:center; justify-content:center; gap:7px; margin:16px 22px 4px; padding:11px 0; border-radius:9px; background:var(--emerald); color:#fff; text-decoration:none; font-size:13px; font-weight:600; }
   .gmaps-link:hover{ background:var(--emerald-deep); }
   .gmaps-link svg{ width:14px; height:14px; }
-  .tag-wrap {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 6px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    word-break: break-word;
-  }
-  .tag-wrap span {
-    max-width: 100%;
-    white-space: normal !important;
-    line-height: 1.4;
-  }
-  .kv .v {
-    word-break: break-word;
-  }
-  .controls .row {
-    flex-wrap: wrap;
-  }
-  .controls select {
-    min-width: 0;
-  }
-  .mini-popup { 
-    font-family: inherit; 
-    width: 100%;
-    max-width: 240px; 
-  }
-  .leaflet-popup-content {
-    margin: 10px 12px !important;
-  }
+ 
+  .route-tabs{ display:flex; gap:6px; margin-bottom:10px; }
+  .route-tab{ flex:1; padding:7px 0; text-align:center; font-size:12px; font-weight:700; border-radius:8px; border:1.5px solid var(--line); background:var(--panel); color:var(--muted); cursor:pointer; }
+  .route-tab.active{ background:var(--emerald); color:#fff; border-color:var(--emerald); }
+  .route-flow{ display:flex; align-items:center; flex-wrap:wrap; gap:4px; margin-top:6px; }
+  .route-chip{ display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; color:#fff; padding:4px 9px; border-radius:12px; white-space:nowrap; }
+  .route-arrow{ color:var(--muted); font-size:12px; }
+  .stars-row{ display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px dashed #eee; font-size:12px; }
+  .stars-row:last-child{ border-bottom:none; }
+  .stars-row .stars{ color:var(--gold); font-weight:700; }
+ 
   @media (max-width: 820px) {
-    html, body {
-      overflow: hidden !important;
-      height: 100% !important;
-      position: fixed !important;
-      width: 100% !important;
+    html, body{ overflow:hidden !important; height:100% !important; position:fixed !important; width:100% !important; }
+    .app{ display:block !important; position:relative !important; height:100dvh !important; width:100vw !important; overflow:hidden !important; }
+    #map{ position:absolute !important; top:0; left:0; width:100% !important; height:100% !important; z-index:1; }
+    .sidebar{
+      position:absolute !important; left:0; right:0; bottom:0; z-index:10;
+      height:82dvh !important; transform:translateY(calc(100% - 130px));
+      transition:transform 0.3s cubic-bezier(0.25,1,0.5,1);
+      background:var(--panel) !important; border-radius:20px 20px 0 0 !important;
+      box-shadow:0 -4px 20px rgba(0,0,0,0.2) !important;
+      display:flex !important; flex-direction:column !important; overflow:hidden !important;
     }
-
-    .app {
-      display: block !important;
-      position: relative !important;
-      height: 100dvh !important;
-      width: 100vw !important;
-      overflow: hidden !important;
-    }
-
-    #map {
-      position: absolute !important;
-      top: 0; left: 0;
-      width: 100% !important;
-      height: 100% !important;
-      z-index: 1;
-    }
-
-    .sidebar {
-      position: absolute !important;
-      left: 0; right: 0; bottom: 0;
-      z-index: 10;
-      height: 82dvh !important;
-      transform: translateY(calc(100% - 130px)); 
-      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-      background: var(--panel) !important;
-      border-radius: 20px 20px 0 0 !important;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.2) !important;
-      display: flex !important;
-      flex-direction: column !important;
-      overflow: hidden !important;
-    }
-    .drag-handle {
-      width: 40px;
-      height: 5px;
-      background: #ccc;
-      border-radius: 3px;
-      margin: 8px auto 4px;
-      flex-shrink: 0;
-      cursor: grab;
-    }
-    .sidebar.expanded {
-      transform: translateY(0) !important;
-    }
-    .sb-head { padding: 4px 16px 6px !important; }
-    .sb-head h1 { font-size: 15px !important; margin: 0 !important; }
-    .sb-head p, .eyebrow { display: none !important; }
-    .legend { padding: 4px 16px !important; font-size: 10.5px !important; }
-    .controls { padding: 6px 16px !important; }
-    #housingList {
-      flex: 1 !important;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch !important;
-      padding: 10px 16px 30px !important;
-    }
+    .drag-handle{ width:40px; height:5px; background:#ccc; border-radius:3px; margin:8px auto 4px; flex-shrink:0; cursor:grab; }
+    .sidebar.expanded{ transform:translateY(0) !important; }
+    .sb-head{ padding:4px 16px 6px !important; }
+    .sb-head h1{ font-size:15px !important; margin:0 !important; }
+    .sb-head p, .eyebrow{ display:none !important; }
+    .legend{ padding:4px 16px !important; font-size:10.5px !important; }
+    .controls{ padding:6px 16px !important; }
+    .search-wrap{ padding:8px 16px 0 !important; }
+    .list{ flex:1 !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch !important; padding:10px 16px 30px !important; }
   }
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar" id="mobileSheet">
-  <div class="drag-handle"></div>
-  <div class="sb-head">
+    <div class="drag-handle"></div>
+    <div class="sb-head">
       <p class="eyebrow">ผลสำรวจและงานวิจัย</p>
       <h1>ที่พักรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร</h1>
       <p>แสดงพิกัดที่พักในระยะ 3 กม. และ 6 กม. จากสนามกีฬากลาง มศว พร้อมข้อมูลจากผู้พักอาศัยจริง</p>
@@ -260,6 +179,14 @@
       <span><span class="swatch-ring" style="border-color:var(--gray);background:var(--red)"></span>มศว ประสานมิตร</span>
       <span><span class="swatch-ring" style="border-color:var(--emerald);background:#bfe0cd"></span> 3 กม.</span>
       <span><span class="swatch-ring" style="border-color:var(--gold);background:var(--gold-light)"></span> 6 กม.</span>
+    </div>
+    <div class="search-wrap">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="ค้นหาชื่อที่พัก..." autocomplete="off">
+        <span class="search-clear" id="searchClear" style="display:none">✕</span>
+      </div>
+      <div class="search-suggest" id="searchSuggest"></div>
     </div>
     <div class="controls">
       <div class="row">
@@ -273,22 +200,34 @@
       <div class="row">
         <select id="distFilter">
           <option value="all">ระยะ: ทั้งหมด</option>
-          <option value="near"> 3 กม.</option>
-          <option value="far">6 กม.</option>
+          <option value="near">ในวง 3 กม.</option>
+          <option value="far">3–6 กม.</option>
         </select>
         <select id="typeFilter">
           <option value="all">ประเภท: ทั้งหมด</option>
           <option value="คอนโดมิเนียม">คอนโดมิเนียม</option>
-          <option value="อพาร์ตเมนต์">อะพาร์ตเมนต์</option>
+          <option value="อะพาร์ตเมนต์">อะพาร์ตเมนต์</option>
         </select>
       </div>
+      <details class="amenity-filters">
+        <summary>+ ตัวกรองเพิ่มเติม (สิ่งอำนวยความสะดวก)</summary>
+        <div class="amenity-grid">
+          <label><input type="checkbox" data-amenity="แอร์" class="amenityCheck"> มีแอร์</label>
+          <label><input type="checkbox" data-amenity="เตา" class="amenityCheck"> มีเตาทำอาหาร</label>
+          <label><input type="checkbox" data-amenity="ตู้เย็น" class="amenityCheck"> มีตู้เย็น</label>
+          <label><input type="checkbox" data-amenity="เครื่องซักผ้าในห้อง" class="amenityCheck"> เครื่องซักผ้าในห้อง</label>
+          <label><input type="checkbox" data-amenity="สระว่ายน้ำ" class="amenityCheck"> มีสระว่ายน้ำ</label>
+          <label><input type="checkbox" data-amenity="ฟิตเนส" class="amenityCheck"> มีฟิตเนส</label>
+          <label><input type="checkbox" data-amenity="ที่จอดรถ" class="amenityCheck"> มีที่จอดรถ</label>
+        </div>
+      </details>
     </div>
     <div class="list" id="list"></div>
     <div class="sb-foot">คลิกหมุดหรือรายการ เพื่อดูรายละเอียดจากแบบสอบถามวิจัย</div>
   </aside>
-
+ 
   <div id="map"></div>
-
+ 
   <div class="drawer-overlay" id="overlay"></div>
   <div class="drawer" id="drawer">
     <div class="drawer-head">
@@ -303,18 +242,12 @@
     </div>
     <div class="drawer-body" id="dBody"></div>
   </div>
-
 </div>
-
+ 
 <script>
-// ==================================================================
-// จุดศูนย์กลาง: สนามกีฬา มศว ประสานมิตร
-// ==================================================================
 const CENTER = [13.744982862662434, 100.56469591898168];
-
-// Google Maps Embed API key — ใช้สำหรับฝัง Street View
 const GOOGLE_MAPS_API_KEY = "AIzaSyDbWLSw01m60YRiHBu_BOmcejMoDwy1VNE";
-
+ 
 function haversineKm(lat1, lng1, lat2, lng2){
   const R = 6371;
   const dLat = (lat2-lat1) * Math.PI/180;
@@ -322,290 +255,246 @@ function haversineKm(lat1, lng1, lat2, lng2){
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-// ข้อมูลที่พัก — Google Form/Sheet
+ 
+// สีและไอคอนของแต่ละประเภทการเดินทาง (อิงสีจริงของสายรถไฟฟ้า)
+const TRANSPORT_STYLE = {
+  'เดิน':                                 { icon:'🚶', color:'#8b5e34', label:'เดิน' },
+  'MRT':                                  { icon:'🚇', color:'#1f4e9c', label:'MRT' },
+  'BTS':                                  { icon:'🚈', color:'#0a7a3d', label:'BTS' },
+  'Airport Rail Link':                    { icon:'🚆', color:'#c0392b', label:'Airport Link' },
+  'เรือ':                                 { icon:'🛶', color:'#0891b2', label:'เรือ' },
+  'รถโดยสารประจำทาง':                      { icon:'🚌', color:'#7c3aed', label:'รถเมล์' },
+  'รถส่วนตัว':                             { icon:'🚗', color:'#555555', label:'รถส่วนตัว' },
+  'วินมอเตอร์ไซค์รับจ้าง':                  { icon:'🏍️', color:'#e07b1f', label:'วินมอเตอร์ไซค์' },
+  'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)':     { icon:'📱', color:'#0e7c86', label:'เรียกรถผ่านแอป' }
+};
+function tStyle(mode){ return TRANSPORT_STYLE[mode] || { icon:'📍', color:'#8b8371', label: mode }; }
+ 
+// ==================================================================
+// ข้อมูลที่พัก — อ้างอิงจากชีทคำตอบ "Final response วิจัย" (5 รายการ)
+// โครงสร้าง route (ใหม่): array ของ "จุดแวะ" ตามลำดับจริง แต่ละจุดมี label/lat/lng
+// และ mode = วิธีเดินทางจากจุดก่อนหน้ามาจุดนี้ (จุดแรกไม่มี mode)
+// ถ้ายังไม่รู้ชื่อสถานี/พิกัดจริง ใช้ routeToSimple/routeBackSimple (array ชื่อโหมดล้วนๆ) แทนได้
+// ==================================================================
 const housing = [
   {
-    name: "Life Asoke Hype",
+    name: "Life asoke hype",
     type: "คอนโดมิเนียม",
-      lat: 13.7542266, lng:100.5636255,
-     placeId: "ChIJdeYACoSf4jARU5jqqoUHz0U", 
-    respondent: { gender: "หญิง", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน"},
-    roomSize: "32 ตร.ม.",
-    floor: "33",
-    occupants: "1 คน",
+    lat: 13.7542914, lng: 100.5628927,
+    placeId: "ChIJdeYACoSf4jARU5jqqoUHz0U",
+    respondent: { gender: "หญิง", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน" },
+ 
+    roomSize: "32 ตร.ม.", floor: "33", occupants: "1 คน",
     furnishing: "มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
-
-    rent: 20000,
-    rentNote: "",
-    paymentTiming: "ชำระค่าเช่าทุกต้นเดือน",
-    initialCost: 60000,
-    contractDuration: "มากกว่า 1 ปี",
-
-    electricity: "ชำระตามเรทรัฐบาล",
-    water: "ชำระตามยูนิต",
-    waternote: "20 บาท/ยูนิต",
+ 
+    rent: 20000, paymentTiming: "ชำระค่าเช่าทุกต้นเดือน", initialCost: 60000,
+    contractDuration: "มากกว่า 1 ปี", stayDuration: "1 ปี 3 เดือน",
+ 
+    electricity: "ชำระตามเรทการไฟฟ้า",
+    water: "ชำระตามยูนิต", waterNote: "20 บาท/ยูนิต",
     commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
-    wifi: "ไม่มี / ติดตั้งเอง / ใช้เน็ตมือถือ",
-
-    transportPrimary: "รถรับจ้าง/บริการผ่านแอป",
-    travelCostMonth: 1000,
-
-    appliances: ["เครื่องปรับอากาศ (แอร์)", "โทรทัศน์ (TV)", "ตู้เย็น", "ไมโครเวฟ", "เครื่องทำน้ำอุ่น", "เตาไฟฟ้า (สำหรับทำอาหาร)"],
-
-    laundry: "มีเครื่องซักผ้าส่วนตัว (อยู่ภายในห้องพัก/ระเบียง)",
-    laundryDistance: "",
-
-    fitness: "มี",
-    pool: "มี", pooldistance: "75 เมตร",
-    elevator: "มี", elevatorNote: "7 ตัว",
-    parking: "มี", parkingcount: "530 คัน", parkingFeeNote: "",
-    security: "ระบบสแกนใบหน้า (Face Scan)",
-
+    wifi: "ไม่มี / ติดตั้งเอง / ใช้เน็ตมือถือ", wifiSelfCost: 426.93,
+ 
+    // ขาไป: ยังไม่มีชื่อสถานี (ใช้บริการเรียกรถ ไม่ผ่านระบบขนส่งรางอยู่แล้ว)
+    routeTo: [
+      { label:"ที่พัก", lat:13.7542914, lng:100.5628927 },
+      { mode:"เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)", label:"มศว ประสานมิตร", lat:CENTER[0], lng:CENTER[1] }
+    ],
+    // ขากลับ (ตามข้อมูลจริง): มศว → เดิน → MRT เพชรบุรี (ขึ้นตรงตึกสิงห์คอมเพล็กซ์) → นั่ง MRT → MRT พระราม 9 (ออกทางฟอร์จูน) → เดิน (ข้ามสะพาน) → ที่พัก
+    routeBack: [
+      { label:"มศว ประสานมิตร", lat:CENTER[0], lng:CENTER[1] },
+      { mode:"เดิน", label:"MRT เพชรบุรี (สิงห์คอมเพล็กซ์)", lat:13.7491523, lng:100.5633874 },
+      { mode:"MRT", label:"MRT พระราม 9 (ทางออกฟอร์จูน)", lat:13.7579217, lng:100.5655678 },
+      { mode:"เดิน", label:"ที่พัก", lat:13.7542914, lng:100.5628927 }
+    ],
+    travelCostDay: 43, travelTimeMin: "",
+ 
+    appliances: [
+      { name:"เครื่องปรับอากาศ (แอร์)", qty:2 }, { name:"โทรทัศน์ (TV)", qty:1 },
+      { name:"ตู้เย็น", qty:1 }, { name:"ไมโครเวฟ", qty:1 },
+      { name:"เครื่องทำน้ำอุ่น", qty:1 }, { name:"เตาไฟฟ้า (สำหรับทำอาหาร)", qty:2 }
+    ],
+    laundry: "มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
+ 
+    fitness: "มี", pool: "มี", poolDistance: "75 เมตร",
+    elevator: "มี", elevatorCount: "7",
+    parking: "มี", parkingCount: "530", parkingFeeNote: "ไม่มี/ไม่เก็บเพิ่ม",
+    security: { building: "ระบบสแกนใบหน้า (Face Scan)", elevator: "ระบบสแกนใบหน้า (Face Scan)", room: "ระบบสแกนลายนิ้วมือ (Fingerprint), กดรหัสผ่าน" },
+ 
     buildingCondition: "ใหม่ (ดูทันสมัย / เพิ่งสร้าง / หรือเพิ่งปรับปรุงใหม่)",
-    quote: "ส่วนกลางดีมาก สะดวกสบาย ใกล้ห้าง ใกล้มหาลัย"
+    quote: "ส่วนกลางดีมาก ทำเลเดินทางได้ง่าย ใกล้ห้าง ใกล้มอ ใช้ชีวิตได้สะดวก",
+    ratings: { location:5, cleanliness:5, safety:5, service:5, facilities:5, parking:5, value:5 }
   },
   {
-    name: "Sukhumvit living town",
+    name: "ลุมพินี พาร์ค พระราม 9 - รัชดา",
     type: "คอนโดมิเนียม",
-      lat: 13.74608703698388, lng: 100.56256420048993,
-    respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "5,001-10,000 บาท/เดือน"},
-    roomSize: "77.08 ตร.ม.",
-    floor: "23",
-    occupants: "4 คนขึ้นไป",
-    furnishing: "มีเฟอร์นิเจอร์หรือเครื่องใช้ไฟฟ้าหลักบางชิ้น (เช่น มีเฉพาะตู้เสื้อผ้า Built-in, เตียง หรือแอร์)",
-
-    rent: 22000,
-    rentNote: "",
-    paymentTiming: "ชำระค่าเช่าทุกต้นเดือน",
-    initialCost: 88000,
-    contractDuration: "1 ปี",
-
-    electricity: "ชำระตามเรทรัฐบาล",
-    water: "ชำระตามยูนิต",
-    waternote: "20 บาท/ยูนิต",
+    lat: 13.753266810804732, lng: 100.57633129182052,
+    respondent: { gender: "หญิง", age: 20, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท/เดือน" },
+ 
+    roomSize: "26.75 ตร.ม.", floor: "11", occupants: "1 คน",
+    furnishing: "มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
+ 
+    rent: 10000, paymentTiming: "ชำระค่าเช่าทุกกลางเดือน", initialCost: 30000,
+    contractDuration: "1 ปี", stayDuration: "1 ปี 3 เดือน",
+ 
+    electricity: "ชำระตามเรทการไฟฟ้า",
+    water: "ชำระตามยูนิต", waterNote: "19 บาท/ยูนิต",
     commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
-    wifi: "ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม",
-
-    transportPrimary: "เดิน",
-    travelCostMonth: "0",
-
-    appliances: ["เครื่องปรับอากาศ (แอร์)", "ตู้เย็น", "เครื่องทำน้ำอุ่น", "เตาไฟฟ้า (สำหรับทำอาหาร)"],
-
-    laundry: "มีเครื่องซักผ้าส่วนตัว (อยู่ภายในห้องพัก/ระเบียง)",
-    laundryDistance: "",
-
-    fitness: "มี",
-    pool: "มี", pooldistance: "25 เมตร",
-    elevator: "มี", elevatorNote: "6 ตัว",
-    parking: "มี", parkingcount: "540 คัน", parkingFeeNote: "",
-    security: "ระบบคีย์การ์ด (Keycard)",
-
+    wifi: "ไม่มี / ติดตั้งเอง / ใช้เน็ตมือถือ", wifiSelfCost: 540,
+ 
+    routeToSimple: ["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
+    routeBackSimple: ["เดิน", "วินมอเตอร์ไซค์รับจ้าง"],
+    travelCostDay: 80, travelTimeMin: "",
+ 
+    appliances: [
+      { name:"เครื่องปรับอากาศ (แอร์)", qty:1 }, { name:"โทรทัศน์ (TV)", qty:1 },
+      { name:"ตู้เย็น", qty:1 }, { name:"ไมโครเวฟ", qty:1 },
+      { name:"เครื่องทำน้ำอุ่น", qty:1 }, { name:"เตาไฟฟ้า (สำหรับทำอาหาร)", qty:1 }
+    ],
+    laundry: "มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
+ 
+    fitness: "มี", pool: "มี", poolDistance: "25 เมตร",
+    elevator: "มี", elevatorCount: "3",
+    parking: "มี", parkingCount: "580", parkingFeeNote: "เสียค่าใช้จ่ายเพิ่มเติม 200 บาท/เดือน",
+    security: { building: "ระบบคีย์การ์ด (Keycard)", elevator: "ระบบคีย์การ์ด (Keycard)", room: "กุญแจ" },
+ 
     buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
-    quote: "สะดวก ใกล้แหล่งของกิน และแหล่งอำนวยความสะดวก เช่น ร้านตัดผม ที่ส่งของ ตลาด เซเว่น วัตสัน เดินไปmrt และ btsได้ ใกล้มอ คอนโดมีห้องซ้อมเต้นใช้อัดคลิปได้"
+    quote: "สะดวก ใกล้มหาวิทยาลัย ใกล้ทางด่วน facility ครบ มีวินมอเตอร์ไซค์หน้าคอนโด หาของกินง่าย",
+    ratings: { location:4, cleanliness:5, safety:5, service:4, facilities:4, parking:5, value:5 }
   },
   {
     name: "The Rich Place",
     type: "อะพาร์ตเมนต์",
-      lat: 13.771949775481755,lng: 100.56751795118954,
-    respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท/เดือน"},
-    roomSize: "22 ตร.ม.",
-    floor: "3",
-    occupants: "2 คน",
+    lat: 13.771949775481755, lng: 100.56751795118954,
+    respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท/เดือน" },
+ 
+    roomSize: "22 ตร.ม.", floor: "3", occupants: "2 คน",
     furnishing: "มีเฟอร์นิเจอร์หรือเครื่องใช้ไฟฟ้าหลักบางชิ้น (เช่น มีเฉพาะตู้เสื้อผ้า Built-in, เตียง หรือแอร์)",
-
-    rent: 5200,
-    rentNote: "",
-    paymentTiming: "ชำระค่าเช่าทุกสิ้นเดือน",
-    initialCost: 13600,
-    contractDuration: "1 ปี",
-
-    electricity: "ชำระตามเรทหอพัก (คิดราคาตามยูนิตที่ใช้)",
-    electricitynote: "8 บาท/ยูนิต",
-    water: "ชำระตามยูนิต",
-    waternote: "18 บาท/ยูนิต",
+ 
+    rent: 5200, paymentTiming: "ชำระค่าเช่าทุกสิ้นเดือน", initialCost: 13600,
+    contractDuration: "1 ปี", stayDuration: "11 เดือน",
+ 
+    electricity: "ชำระตามเรทหอพัก (คิดราคาตามยูนิตที่ใช้)", electricityNote: "8 บาท/ยูนิต",
+    water: "ชำระตามยูนิต", waterNote: "18 บาท/ยูนิต",
     commonFee: "ไม่มี",
-    wifi: "ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม",
-
-    transportPrimary: "MRT",
-    travelCostMonth: "1300",
-
-    appliances: ["เครื่องปรับอากาศ (แอร์)", "เครื่องทำน้ำอุ่น","พัดลม"],
-
+    wifi: "ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม", wifiExtraFee: 300,
+ 
+    routeToSimple: ["เดิน", "วินมอเตอร์ไซค์รับจ้าง", "MRT", "เดิน"],
+    routeBackSimple: ["เดิน", "MRT", "วินมอเตอร์ไซค์รับจ้าง"],
+    travelCostDay: 70, travelTimeMin: "",
+ 
+    appliances: [ { name:"เครื่องปรับอากาศ (แอร์)", qty:1 }, { name:"เครื่องทำน้ำอุ่น", qty:1 } ],
     laundry: "ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
-    laundryDistance: "",
-
-    fitness: "ไม่มี",
-    pool: "ไม่มี", pooldistance: "",
-    elevator: "มี", elevatorNote: "1 ตัว",
-    parking: "มี", parkingcount: "6 คัน", parkingFeeNote: "เสียค่าใช้จ่ายเพิ่มเติม",
-    security: "ระบบคีย์การ์ด (Keycard)",
-
+    laundryDistance: "50",
+ 
+    fitness: "มี", pool: "ไม่มี", poolDistance: "",
+    elevator: "มี", elevatorCount: "",
+    parking: "มี", parkingCount: "", parkingFeeNote: "ไม่มี/ไม่เก็บเพิ่ม",
+    security: { building: "ระบบคีย์การ์ด (Keycard)", elevator: "ไม่มีระบบควบคุมการเข้าออก", room: "กุญแจ" },
+ 
     buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
-    quote: "ที่จอดรถค่อนข้างน้อย ถนนในซอยแคบมากและมีการก่อสร้างอยู่บ่อยครั้ง แต่แถวนี้เหมือนชุมชนมีของกินเยอะ"
+    quote: "ที่จอดรถค่อนข้างน้อย ถนนในซอยแคบมาก มีการก่อสร้างบ่อยครั้ง แถวนี้เหมือนชุมชน มีของกินเยอะ",
+    ratings: { location:3, cleanliness:5, safety:4, service:5, facilities:4, parking:2, value:4 }
+  },
+  {
+    name: "Sukhumvit living town",
+    type: "คอนโดมิเนียม",
+    lat: 13.7460866, lng: 100.5624754,
+    placeId: "ChIJowyJH_Ce4jAR2KAKCnAGha0",
+    respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "5,001-10,000 บาท/เดือน" },
+ 
+    roomSize: "77.08 ตร.ม.", floor: "23", occupants: "4 คนขึ้นไป",
+    furnishing: "มีเฟอร์นิเจอร์หรือเครื่องใช้ไฟฟ้าหลักบางชิ้น (เช่น มีเฉพาะตู้เสื้อผ้า Built-in, เตียง หรือแอร์)",
+ 
+    rent: 22000, paymentTiming: "ชำระค่าเช่าทุกต้นเดือน", initialCost: 88000,
+    contractDuration: "1 ปี", stayDuration: "3 ปี 1 เดือน",
+ 
+    electricity: "ชำระตามเรทการไฟฟ้า",
+    water: "ชำระตามยูนิต", waterNote: "20 บาท/ยูนิต",
+    commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
+    wifi: "ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม", wifiSelfCost: 149,
+ 
+    routeToSimple: ["เดิน"],
+    routeBackSimple: ["เดิน"],
+    travelCostDay: 0, travelTimeMin: "",
+ 
+    appliances: [
+      { name:"เครื่องปรับอากาศ (แอร์)", qty:3 }, { name:"ตู้เย็น", qty:1 },
+      { name:"เครื่องทำน้ำอุ่น", qty:2 }, { name:"เตาไฟฟ้า (สำหรับทำอาหาร)", qty:2 }
+    ],
+    laundry: "มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
+ 
+    fitness: "มี", pool: "มี", poolDistance: "25 เมตร",
+    elevator: "มี", elevatorCount: "6",
+    parking: "มี", parkingCount: "540", parkingFeeNote: "ไม่มี/ไม่เก็บเพิ่ม",
+    security: { building: "ไม่มีระบบควบคุมการเข้าออก", elevator: "ระบบคีย์การ์ด (Keycard)", room: "กุญแจ" },
+ 
+    buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
+    quote: "สะดวก ใกล้แหล่งของกินและแหล่งอำนวยความสะดวก เช่น ร้านตัดผม ที่ส่งของ ตลาด เซเว่น วัตสัน เดินไป MRT และ BTS ได้ ใกล้มอ คอนโดมีห้องซ้อมเต้น ใช้อัดคลิปได้",
+    ratings: { location:5, cleanliness:5, safety:4, service:5, facilities:5, parking:5, value:5 }
   },
   {
     name: "Bangkok Apartment",
     type: "อะพาร์ตเมนต์",
-      lat: 13.782801669865771,lng: 100.57301603390567,
-    respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน"},
-    roomSize: "24 ตร.ม.",
-    floor: "5",
-    occupants: "1 คน",
+    lat: 13.782801669865771, lng: 100.57301603390567,
+    respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน" },
+ 
+    roomSize: "24 ตร.ม.", floor: "5", occupants: "1 คน",
     furnishing: "มีเฟอร์นิเจอร์หรือเครื่องใช้ไฟฟ้าหลักบางชิ้น (เช่น มีเฉพาะตู้เสื้อผ้า Built-in, เตียง หรือแอร์)",
-
-    rent: 4200,
-    rentNote: "",
-    paymentTiming: "ชำระค่าเช่าทุกสิ้นเดือน",
-    initialCost: 13200,
-    contractDuration: "6 เดือน",
-
-    electricity: "ชำระตามเรทหอพัก (คิดราคาตามยูนิตที่ใช้)",
-    electricitynote: "7 บาท/ยูนิต",
-    water: "เหมาจ่ายรายเดือน",
-    waternote: "100 บาท",
+ 
+    rent: 4200, paymentTiming: "ชำระค่าเช่าทุกสิ้นเดือน", initialCost: 13200,
+    contractDuration: "6 เดือน", stayDuration: "2 ปี",
+ 
+    electricity: "ชำระตามเรทหอพัก (คิดราคาตามยูนิตที่ใช้)", electricityNote: "7 บาท/ยูนิต",
+    water: "เหมาจ่ายรายเดือน", waterNote: "100 บาท",
     commonFee: "ไม่มี",
     wifi: "ฟรี / รวมในค่าเช่า",
-
-    transportPrimary: "MRT",
-    travelCostMonth: "600",
-
-    appliances: ["เครื่องปรับอากาศ (แอร์)", "เครื่องทำน้ำอุ่น",],
-
+ 
+    routeToSimple: ["เดิน", "MRT", "เดิน"],
+    routeBackSimple: ["เดิน", "รถโดยสารประจำทาง", "เดิน"],
+    travelCostDay: 50, travelTimeMin: "",
+ 
+    appliances: [ { name:"เครื่องปรับอากาศ (แอร์)", qty:1 } ],
     laundry: "ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
     laundryDistance: "",
-
-    fitness: "ไม่มี",
-    pool: "ไม่มี", pooldistance: "",
-    elevator: "ไม่มี", elevatorNote: "",
-    parking: "ไม่มี", parkingcount: "", parkingFeeNote: "",
-    security: "ระบบคีย์การ์ด (Keycard)",
-
+ 
+    fitness: "ไม่มี", pool: "ไม่มี", poolDistance: "",
+    elevator: "ไม่มี", elevatorCount: "",
+    parking: "ไม่มี", parkingCount: "", parkingFeeNote: "ไม่มี/ไม่เก็บเพิ่ม",
+    security: { building: "ระบบคีย์การ์ด (Keycard)", elevator: "ไม่มีระบบควบคุมการเข้าออก", room: "กุญแจ" },
+ 
     buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
-    quote: "ถูก ใกล้ มีไวไฟแรงให้ฟรี ของกินเยอะ ไม่มีลิฟต์"
-  },
-  {
-    name: "Lumpini Park Rama 9 - Ratchada",
-    type: "คอนโดมิเนียม",
-      lat:13.753266810804732,lng: 100.57633129182052,
-    respondent: { gender: "หญิง", age: 20, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท/เดือน"},
-    roomSize: "26.75 ตร.ม.",
-    floor: "11",
-    occupants: "1 คน",
-    furnishing: "มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
-
-    rent: 10000,
-    rentNote: "",
-    paymentTiming: "ชำระค่าเช่าทุกกลางเดือน",
-    initialCost: 30000,
-    contractDuration: "1 ปี",
-
-    electricity: "ชำระตามเรทรัฐบาล",
-    electricitynote: "",
-    water: "ชำระตามยูนิต",
-    waternote: "19 บาท/ยูนิต",
-    commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
-    wifi: "ไม่มี / ติดตั้งเอง / ใช้เน็ตมือถือ",
-
-    transportPrimary: "รถรับจ้าง/บริการผ่านแอป",
-    travelCostMonth: "1000",
-
-    appliances: ["เครื่องปรับอากาศ (แอร์)", "โทรทัศน์ (TV)", "ตู้เย็น", "ไมโครเวฟ", "เครื่องทำน้ำอุ่น", "เตาไฟฟ้า (สำหรับทำอาหาร)"],
-
-    laundry: "มีเครื่องซักผ้าส่วนตัว (อยู่ภายในห้องพัก/ระเบียง)",
-    laundryDistance: "",
-
-    fitness: "มี",
-    pool: "มี", pooldistance: "25",
-    elevator: "มี", elevatorNote: "3 ตัว",
-    parking: "มี", parkingcount: "580 คัน", parkingFeeNote: "เสียค่าใช้จ่ายเพิ่มเติม 200 บาท/เดือน",
-    security: "ระบบคีย์การ์ด (Keycard)",
-
-    buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
-    quote: "สะดวก ใกล้มหาวิทยาลัย ใกล้ทางด่วน facilityครบ มีวินมอไซค์หน้าคอนโด หาของกินง่าย"
-  },
-  {
-    name: "Witwiboon Apartment W7",
-    type: "อะพาร์ตเมนต์",
-      lat: 13.771263910258723,lng: 100.56919282092218,
-    respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "10,001-15,000 บาท/เดือน"},
-    roomSize: "17 ตร.ม.",
-    floor: "6",
-    occupants: "1 คน",
-    furnishing: "มีเฟอร์นิเจอร์หรือเครื่องใช้ไฟฟ้าหลักบางชิ้น (เช่น มีเฉพาะตู้เสื้อผ้า Built-in, เตียง หรือแอร์)",
-
-    rent: 4900,
-    rentNote: "",
-    paymentTiming: "ชำระค่าเช่าทุกต้นเดือน",
-    initialCost: 13220,
-    contractDuration: "6 เดือน",
-
-    electricity: "ชำระตามเรทหอพัก (คิดราคาตามยูนิตที่ใช้)",
-    electricitynote: "8 บาท/ยูนิต",
-    water: "ชำระตามยูนิต",
-    waternote: "18 บาท/ยูนิต",
-    commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
-    wifi: "ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม",
-
-    transportPrimary: "รถรับจ้าง/บริการผ่านแอป",
-    travelCostMonth: "1400",
-
-    appliances: ["เครื่องปรับอากาศ (แอร์)"],
-
-    laundry: "ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
-    laundryDistance: "",
-
-    fitness: "ไม่มี",
-    pool: "ไม่มี", pooldistance: "",
-    elevator: "มี", elevatorNote: "1 ตัว",
-    parking: "ไม่มี", parkingcount: "", parkingFeeNote: "",
-    security: "ระบบคีย์การ์ด (Keycard)",
-
-    buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
-    quote: "ซอยแคบ ทำถนนบ่อย"
-  },
-  {
-    name: "Pano Ville",
-    type: "คอนโดมิเนียม",
-      lat: 13.80004658963635, lng: 100.57356272363907,
-    respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน"},
-    roomSize: "32 ตร.ม.",
-    floor: "8",
-    occupants: "1 คน",
-    furnishing: "มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
-
-    rent: 12000,
-    rentNote: "",
-    paymentTiming: "ชำระค่าเช่าทุกต้นเดือน",
-    initialCost: 24000,
-    contractDuration: "มากกว่า 1 ปี",
-
-    electricity: "ชำระตามเรทรัฐบาล",
-    water: "ชำระตามยูนิต",
-    waternote: "19 บาท/ยูนิต",
-    commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
-    wifi: "ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม",
-
-    transportPrimary: "MRT",
-    travelCostMonth: 1280,
-
-    appliances: ["เครื่องปรับอากาศ (แอร์)", "โทรทัศน์ (TV)", "ตู้เย็น", "เครื่องทำน้ำอุ่น", "เตาไฟฟ้า (สำหรับทำอาหาร)"],
-
-    laundry: "มีเครื่องซักผ้าส่วนตัว (อยู่ภายในห้องพัก/ระเบียง)",
-    laundryDistance: "",
-
-    fitness: "มี",
-    pool: "มี", pooldistance: "25 เมตร",
-    elevator: "มี", elevatorNote: "2 ตัว",
-    parking: "มี", parkingcount: "40 คัน", parkingFeeNote: "",
-    security: "ระบบคีย์การ์ด (Keycard)",
-
-    buildingCondition: "ใหม่ (ดูทันสมัย / เพิ่งสร้าง / หรือเพิ่งปรับปรุงใหม่)",
-    quote: "สะดวก ใกล้รถไฟฟ้า ไม่ค่อยมีของกิน"
+    quote: "ถูก ใกล้ มีWiFiฟรี ของกินเยอะ แต่เดินเหนื่อยไม่มีลิฟต์",
+    ratings: { location:4, cleanliness:3, safety:3, service:2, facilities:4, parking:1, value:5 }
   }
 ];
-
+ 
 housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h.lng); });
-
+ 
+// แปลง routeToSimple/routeBackSimple (แค่ชื่อโหมด) ให้เป็นรูปแบบ route จุดแวะ (ที่พัก<->มศว เส้นตรง) อัตโนมัติ
+function normalizeRoute(h, simpleArr, houseIsStart){
+  const real = (simpleArr || []).filter(s => s && s !== 'จบการเดินทาง');
+  if(!real.length) return null;
+  const startPt = houseIsStart ? {label:'ที่พัก', lat:h.lat, lng:h.lng} : {label:'มศว ประสานมิตร', lat:CENTER[0], lng:CENTER[1]};
+  const endPt   = houseIsStart ? {label:'มศว ประสานมิตร', lat:CENTER[0], lng:CENTER[1]} : {label:'ที่พัก', lat:h.lat, lng:h.lng};
+  // ไม่มีจุดแวะจริง ใช้โหมดแรกที่ไม่ใช่เดินเป็นสีเส้น แสดงเป็นเส้นเดียว
+  return [ startPt, { mode: real.find(s=>s!=='เดิน') || real[0], label: endPt.label, lat: endPt.lat, lng: endPt.lng } ];
+}
+function getRoute(h, direction){
+  if(direction === 'to') return h.routeTo || normalizeRoute(h, h.routeToSimple, true);
+  return h.routeBack || normalizeRoute(h, h.routeBackSimple, false);
+}
+function routeModesForChips(h, direction){
+  // คืนค่ารายการ {mode, fromLabel, toLabel} สำหรับแสดงเป็น chip พร้อมชื่อสถานี (ถ้ามี)
+  const route = getRoute(h, direction);
+  if(!route) return [];
+  const chips = [];
+  for(let i=1;i<route.length;i++){
+    chips.push({ mode: route[i].mode, fromLabel: route[i-1].label, toLabel: route[i].label });
+  }
+  return chips;
+}
+ 
 // ==================================================================
 // แผนที่
 // ==================================================================
@@ -618,13 +507,103 @@ L.circle(CENTER, { radius:6000, color:'#b98b3e', weight:2.5, fillColor:'#f0dfb0'
 L.circle(CENTER, { radius:3000, color:'#0f4d3a', weight:2.5, fillColor:'#7ec9a3', fillOpacity:0.3 }).addTo(map);
 L.marker(CENTER, { icon: L.divIcon({ className:'', html:'<div class="center-badge">🏟️</div>', iconSize:[38,38] }) })
   .addTo(map).bindPopup('<b>สนามกีฬา มศว ประสานมิตร</b><br><span style="font-size:11px;color:#DA2128">จุดอ้างอิงระยะทาง</span>');
+ 
 function typeIcon(type){
-  const icons = {
-    'คอนโดมิเนียม': '🏢',
-    'อะพาร์ตเมนต์': '🏨'
-  };
+  const icons = { 'คอนโดมิเนียม': '🏢', 'อะพาร์ตเมนต์': '🏨' };
   return icons[type] || '📍';
 }
+function avgRating(h){
+  if(!h.ratings) return null;
+  const vals = Object.values(h.ratings);
+  return (vals.reduce((a,b)=>a+b,0) / vals.length).toFixed(1);
+}
+function searchableText(h){
+  const applianceNames = (h.appliances || []).map(a => a.name).join(' ');
+  const securityText = h.security ? Object.values(h.security).join(' ') : '';
+  return [h.name, h.type, h.quote, h.buildingCondition, applianceNames, securityText]
+    .filter(Boolean).join(' ').toLowerCase();
+}
+function hasAmenity(h, key){
+  switch(key){
+    case 'แอร์': return (h.appliances||[]).some(a => a.name.includes('แอร์'));
+    case 'เตา': return (h.appliances||[]).some(a => a.name.includes('เตา'));
+    case 'ตู้เย็น': return (h.appliances||[]).some(a => a.name.includes('ตู้เย็น'));
+    case 'เครื่องซักผ้าในห้อง': return !!(h.laundry && h.laundry.includes('ภายในห้องพัก'));
+    case 'สระว่ายน้ำ': return h.pool === 'มี';
+    case 'ฟิตเนส': return h.fitness === 'มี';
+    case 'ที่จอดรถ': return h.parking === 'มี';
+    default: return true;
+  }
+}
+ 
+let routeLayers = [];
+let routeRequestId = 0;
+function clearRoute(){ routeLayers.forEach(l => map.removeLayer(l)); routeLayers = []; }
+ 
+// เส้นโค้งเบา ๆ สำหรับช่วงที่ไม่มีถนนให้เกาะ (เช่น MRT ใต้ดิน) แทนเส้นตรงกระด้าง
+function curvedPoints(from, to, bend){
+  bend = bend === undefined ? 0.12 : bend;
+  const dx = to.lng - from.lng, dy = to.lat - from.lat;
+  const midLat = (from.lat + to.lat) / 2 - dx * bend;
+  const midLng = (from.lng + to.lng) / 2 + dy * bend;
+  const pts = [];
+  for(let t = 0; t <= 1.0001; t += 0.05){
+    const lat = (1-t)*(1-t)*from.lat + 2*(1-t)*t*midLat + t*t*to.lat;
+    const lng = (1-t)*(1-t)*from.lng + 2*(1-t)*t*midLng + t*t*to.lng;
+    pts.push([lat, lng]);
+  }
+  return pts;
+}
+ 
+// เรียก OSRM (ฟรี ไม่ต้องมี API key) ให้คำนวณเส้นทางเดินเท้าจริงตามถนน
+// หมายเหตุ: เปิดไฟล์แบบ file:// ตรงๆ เบราว์เซอร์จะบล็อกการเรียกนี้เสมอ ต้องทดสอบผ่านเว็บที่อัปโหลดจริง (https://) เท่านั้น
+async function fetchWalkingRoute(from, to){
+  try{
+    const url = `https://routing.openstreetmap.de/routed-foot/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if(data && data.routes && data.routes[0]){
+      return { points: data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]), routed:true };
+    }
+    throw new Error('ไม่มีข้อมูลเส้นทางในผลลัพธ์');
+  }catch(e){
+    console.warn('[เส้นทางเดิน] เรียก OSRM ไม่สำเร็จ ใช้เส้นตรงสำรองแทน — ถ้าเปิดไฟล์แบบ file:// ตรงๆ นี่คือสาเหตุที่พบบ่อยที่สุด (ลองเปิดผ่านเว็บที่ deploy จริงแทน):', e);
+    return { points: [[from.lat, from.lng], [to.lat, to.lng]], routed:false };
+  }
+}
+ 
+async function drawRoute(h, direction){
+  const myRequestId = ++routeRequestId;
+  clearRoute();
+  const route = getRoute(h, direction || 'to');
+  if(!route) return;
+ 
+  for(let i=1;i<route.length;i++){
+    const from = route[i-1], to = route[i];
+    const st = tStyle(to.mode);
+    let points, routed = true;
+    if(to.mode === 'เดิน'){
+      const result = await fetchWalkingRoute(from, to);
+      points = result.points; routed = result.routed;
+    } else {
+      points = curvedPoints(from, to);
+    }
+    if(myRequestId !== routeRequestId) return; // ผู้ใช้คลิกที่อื่นไปแล้วระหว่างรอโหลด ยกเลิกการวาดทิ้ง
+    const line = L.polyline(points, {
+      color:st.color, weight:4.5, opacity:0.85, lineCap:'round',
+      dashArray: (to.mode === 'เดิน' && !routed) ? '2 8' : null // เส้นประ = ยังไม่ได้เกาะถนนจริง (fallback)
+    }).addTo(map);
+    routeLayers.push(line);
+    if(i < route.length - 1){
+      const wp = L.marker([to.lat,to.lng], {
+        icon: L.divIcon({ className:'', html:`<div class="route-waypoint" style="background:${st.color}"></div>`, iconSize:[12,12] })
+      }).addTo(map).bindTooltip(to.label, { permanent:false });
+      routeLayers.push(wp);
+    }
+  }
+}
+ 
 const markers = {};
 housing.forEach((h, i) => {
   const near = h.distanceKm <= 3;
@@ -634,11 +613,15 @@ housing.forEach((h, i) => {
     iconSize:[34,34], iconAnchor:[17,32]
   });
   const m = L.marker([h.lat, h.lng], { icon }).addTo(map);
+  m.on('click', () => drawRoute(h, 'to'));
   m.bindPopup(`
     <div class="mini-popup">
-      <iframe class="sv-thumb"
-        src="https://www.google.com/maps/embed/v1/streetview?key=${GOOGLE_MAPS_API_KEY}&location=${h.lat},${h.lng}&heading=210&pitch=5&fov=80"
-        loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="sv-wrap">
+        <iframe class="sv-thumb"
+          src="https://www.google.com/maps/embed/v1/streetview?key=${GOOGLE_MAPS_API_KEY}&location=${h.lat},${h.lng}&heading=210&pitch=5&fov=80"
+          loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        ${avgRating(h) ? `<div class="rating-badge">⭐ ${avgRating(h)}</div>` : ''}
+      </div>
       <h3>${h.name}</h3>
       <div class="area">${h.type} · ${h.distanceKm.toFixed(1)} กม. จาก มศว</div>
       <div class="rent">${h.rent.toLocaleString()} บาท/เดือน</div>
@@ -648,31 +631,45 @@ housing.forEach((h, i) => {
   `, { maxWidth:260 });
   markers[i] = m;
 });
-
+ 
 // ==================================================================
-// Sidebar list + filter + sort
+// Sidebar list + filter + sort + search
 // ==================================================================
 const listEl = document.getElementById('list');
 const sortSelect = document.getElementById('sortSelect');
 const distFilter = document.getElementById('distFilter');
 const typeFilter = document.getElementById('typeFilter');
-
+const searchInput = document.getElementById('searchInput');
+const searchClear = document.getElementById('searchClear');
+const searchSuggest = document.getElementById('searchSuggest');
+const sidebarEl = document.getElementById('mobileSheet');
+ 
 function render(){
   let items = housing.map((h, i) => ({ h, i }));
-
+ 
+  const q = searchInput.value.trim().toLowerCase();
+  if(q) items = items.filter(o => searchableText(o.h).includes(q));
+ 
   const dist = distFilter.value;
   if(dist === 'near') items = items.filter(o => o.h.distanceKm <= 3);
   if(dist === 'far') items = items.filter(o => o.h.distanceKm > 3);
-
+ 
   const type = typeFilter.value;
   if(type !== 'all') items = items.filter(o => o.h.type === type);
-
+ 
+  const checkedAmenities = Array.from(document.querySelectorAll('.amenityCheck:checked')).map(cb => cb.dataset.amenity);
+  if(checkedAmenities.length) items = items.filter(o => checkedAmenities.every(a => hasAmenity(o.h, a)));
+ 
   const sort = sortSelect.value;
   if(sort === 'price-asc') items.sort((a,b) => a.h.rent - b.h.rent);
   if(sort === 'price-desc') items.sort((a,b) => b.h.rent - a.h.rent);
   if(sort === 'dist-asc') items.sort((a,b) => a.h.distanceKm - b.h.distanceKm);
-
+ 
   listEl.innerHTML = '';
+  if(!items.length){
+    listEl.innerHTML = `<div style="padding:30px 20px; text-align:center; color:var(--muted); font-size:12.5px;">ไม่พบที่พักตามเงื่อนไขที่เลือก<br>ลองปรับตัวกรองหรือคำค้นหาดูครับ</div>`;
+    return;
+  }
   items.forEach(({h, i}) => {
     const near = h.distanceKm <= 3;
     const card = document.createElement('div');
@@ -688,16 +685,65 @@ function render(){
     card.addEventListener('click', () => {
       map.setView([h.lat, h.lng], 15, { animate:true });
       markers[i].openPopup();
+      drawRoute(h, 'to');
       document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
+      if(window.innerWidth <= 820) sidebarEl.classList.remove('expanded');
     });
     listEl.appendChild(card);
   });
 }
 render();
-
 [sortSelect, distFilter, typeFilter].forEach(el => el.addEventListener('change', render));
-
+document.querySelectorAll('.amenityCheck').forEach(cb => cb.addEventListener('change', render));
+ 
+function highlightMatch(name, q){
+  if(!q) return name;
+  const idx = name.toLowerCase().indexOf(q.toLowerCase());
+  if(idx === -1) return name;
+  return name.slice(0, idx) + '<mark>' + name.slice(idx, idx+q.length) + '</mark>' + name.slice(idx+q.length);
+}
+function updateSuggest(){
+  const q = searchInput.value.trim();
+  searchClear.style.display = q ? 'block' : 'none';
+  render();
+  if(!q){ searchSuggest.classList.remove('show'); searchSuggest.innerHTML=''; return; }
+  const matches = housing.map((h, i) => ({ h, i })).filter(o => o.h.name.toLowerCase().includes(q.toLowerCase())).slice(0, 8);
+  if(!matches.length){
+    searchSuggest.innerHTML = `<div class="sg-empty">ไม่พบที่พักชื่อ "${q}"</div>`;
+  } else {
+    searchSuggest.innerHTML = matches.map(({h, i}) => `
+      <div class="sg-item" data-index="${i}">
+        <span>${typeIcon(h.type)}</span>
+        <div>
+          <div class="sg-name">${highlightMatch(h.name, q)}</div>
+          <div class="sg-meta">${h.type} · ${h.rent.toLocaleString()} บาท/เดือน · ${h.distanceKm.toFixed(1)} กม.</div>
+        </div>
+      </div>
+    `).join('');
+    searchSuggest.querySelectorAll('.sg-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const i = parseInt(el.dataset.index);
+        const h = housing[i];
+        map.setView([h.lat, h.lng], 16, { animate:true });
+        markers[i].openPopup();
+        drawRoute(h, 'to');
+        searchInput.value = h.name;
+        searchSuggest.classList.remove('show');
+        render();
+        if(window.innerWidth <= 820) sidebarEl.classList.remove('expanded');
+      });
+    });
+  }
+  searchSuggest.classList.add('show');
+}
+searchInput.addEventListener('input', updateSuggest);
+searchInput.addEventListener('focus', () => { if(searchInput.value.trim()) searchSuggest.classList.add('show'); });
+document.addEventListener('click', (e) => { if(!e.target.closest('.search-wrap')) searchSuggest.classList.remove('show'); });
+searchClear.addEventListener('click', () => {
+  searchInput.value = ''; searchClear.style.display = 'none'; searchSuggest.classList.remove('show'); render(); searchInput.focus();
+});
+ 
 // ==================================================================
 // Detail Drawer
 // ==================================================================
@@ -709,16 +755,36 @@ function tagList(arr){
   if(!arr || !arr.length) return '';
   return `<div class="tag-wrap">${arr.map(a=>`<span>${a}</span>`).join('')}</div>`;
 }
-function yn(label, value, note){
-  if(!value) return '';
-  const has = value.trim() === 'มี';
-  const extra = note ? ` (${note})` : '';
-  return `<div class="tag-wrap"><span class="${has ? '' : 'no'}">${label}${has ? extra : ' — ไม่มี'}</span></div>`;
+function routeChipsHTML(h, direction){
+  const chips = routeModesForChips(h, direction);
+  if(!chips.length) return '<div style="color:var(--muted);font-size:12px;">ไม่มีข้อมูล</div>';
+  return `<div class="route-flow">${chips.map((c, idx) => {
+    const st = tStyle(c.mode);
+    const named = (c.fromLabel && c.toLabel && st.label !== 'เดิน') ? `: ${c.fromLabel} → ${c.toLabel}` : '';
+    const arrow = idx < chips.length - 1 ? '<span class="route-arrow">→</span>' : '';
+    return `<span class="route-chip" style="background:${st.color}">${st.icon} ${st.label}${named}</span>${arrow}`;
+  }).join('')}</div>`;
 }
-
+function starsRow(label, n){
+  if(n === undefined || n === null) return '';
+  return `<div class="stars-row"><span>${label}</span><span class="stars">${'⭐'.repeat(n)} (${n})</span></div>`;
+}
+ 
+let currentDrawerHousing = null;
+function switchRouteTab(direction){
+  const h = currentDrawerHousing;
+  if(!h) return;
+  document.getElementById('routeTabTo').classList.toggle('active', direction === 'to');
+  document.getElementById('routeTabBack').classList.toggle('active', direction === 'back');
+  document.getElementById('routeChips').innerHTML = routeChipsHTML(h, direction);
+  drawRoute(h, direction);
+}
+ 
 function openDrawer(i){
   const h = housing[i];
-
+  currentDrawerHousing = h;
+  drawRoute(h, 'to');
+ 
   document.getElementById('dBadges').innerHTML = `
     <span class="badge">${typeIcon(h.type)} ${h.type}</span>
     <span class="badge dist">${h.distanceKm.toFixed(1)} กม. จาก มศว</span>
@@ -727,7 +793,7 @@ function openDrawer(i){
   document.getElementById('dArea').textContent = h.floor ? `ชั้น ${h.floor}` : '';
   document.getElementById('dRent').textContent = h.rent.toLocaleString();
   document.getElementById('dRentNote').textContent = h.rentNote || '';
-
+ 
   let body = `
     <div class="streetview-wrap" style="padding:14px 22px 0;">
       <iframe
@@ -736,42 +802,65 @@ function openDrawer(i){
         loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </div>
   `;
-
-  const p1 = kv('ประเภท', h.type) + kv('ขนาดห้อง', h.roomSize) + kv('ชั้น', h.floor) + kv('จำนวนผู้พัก', h.occupants) + kv('การตกแต่ง', h.furnishing);
+ 
+  const p1 = kv('ประเภท', h.type) + kv('ขนาดห้อง', h.roomSize) + kv('ชั้น', h.floor) + kv('จำนวนผู้พัก', h.occupants)
+    + kv('การตกแต่ง', h.furnishing) + kv('อาศัยมาแล้ว', h.stayDuration);
   if(p1) body += `<details class="section" open><summary>ข้อมูลที่พัก</summary><div class="section-content">${p1}</div></details>`;
-
+ 
   const p2 = kv('รูปแบบจ่าย', h.paymentTiming) + kv('ค่าแรกเข้า', h.initialCost ? h.initialCost.toLocaleString() + ' บาท' : '') + kv('ระยะสัญญา', h.contractDuration);
   if(p2) body += `<details class="section"><summary>ค่าเช่าและสัญญา</summary><div class="section-content">${p2}</div></details>`;
-
-  const p3 = kv('ค่าไฟ', h.electricity+ (h.electricitynote ? ` (${h.electricitynote})` : '')) + kv('ค่าน้ำ', h.water + (h.waternote ? ` (${h.waternote})` : '')) + kv('ค่าส่วนกลาง', h.commonFee) + kv('อินเทอร์เน็ต/WiFi', h.wifi);
+ 
+  let wifiText = h.wifi;
+  if(h.wifiExtraFee) wifiText += ` (+${h.wifiExtraFee} บาท/เดือน)`;
+  if(h.wifiSelfCost) wifiText += ` — ค่าใช้จ่ายเอง ${h.wifiSelfCost} บาท/เดือน`;
+  const p3 = kv('ค่าไฟ', h.electricity + (h.electricityNote ? ` (${h.electricityNote})` : ''))
+    + kv('ค่าน้ำ', h.water + (h.waterNote ? ` (${h.waterNote})` : ''))
+    + kv('ค่าส่วนกลาง', h.commonFee) + kv('อินเทอร์เน็ต/WiFi', wifiText);
   if(p3) body += `<details class="section"><summary>ค่าน้ำ-ไฟ-ส่วนกลาง-เน็ต</summary><div class="section-content">${p3}</div></details>`;
-
-  const p4 = kv('วิธีหลัก', h.transportPrimary) + kv('ค่าเดินทาง/เดือน', h.travelCostMonth ? h.travelCostMonth.toLocaleString() + ' บาท' : '');
-  if(p4) body += `<details class="section"><summary>การเดินทางสู่ มศว</summary><div class="section-content">${p4}</div></details>`;
-
-  if(h.appliances && h.appliances.length) body += `<details class="section"><summary>เครื่องใช้ไฟฟ้าในห้อง</summary><div class="section-content">${tagList(h.appliances)}</div></details>`;
-let p5 = '';
-  p5 += kv('เครื่องซักผ้า', h.laundry);
-  p5 += kv('ระยะทางร้านซักรีด', h.laundryDistance ? h.laundryDistance + ' เมตร' : '');
-
+ 
+  // การเดินทาง — แท็บขาไป/ขากลับ
+  let p4 = `
+    <div class="route-tabs">
+      <div class="route-tab active" id="routeTabTo" onclick="switchRouteTab('to')">🡒 ขาไป มศว</div>
+      <div class="route-tab" id="routeTabBack" onclick="switchRouteTab('back')">🡐 ขากลับที่พัก</div>
+    </div>
+    <div id="routeChips">${routeChipsHTML(h, 'to')}</div>
+  `;
+  p4 += kv('ค่าเดินทางเฉลี่ย/วัน', h.travelCostDay !== undefined && h.travelCostDay !== '' ? h.travelCostDay.toLocaleString() + ' บาท' : '');
+  p4 += kv('เวลาเดินทางโดยประมาณ', h.travelTimeMin ? h.travelTimeMin + ' นาที' : 'ยังไม่มีข้อมูล');
+  body += `<details class="section" open><summary>การเดินทางสู่ มศว</summary><div class="section-content">${p4}</div></details>`;
+ 
+  const applianceTags = (h.appliances || []).map(a => a.qty > 1 ? `${a.name} ×${a.qty}` : a.name);
+  const hasInRoomLaundry = h.laundry && h.laundry.includes('ภายในห้องพัก');
+  if(hasInRoomLaundry) applianceTags.push('เครื่องซักผ้า');
+  if(applianceTags.length) body += `<details class="section"><summary>เครื่องใช้ไฟฟ้าในห้อง</summary><div class="section-content">${tagList(applianceTags)}</div></details>`;
+ 
+  let p5 = '';
+  if(!hasInRoomLaundry){
+    p5 += kv('เครื่องซักผ้า', h.laundry);
+    p5 += kv('ระยะทางร้านซักรีด', h.laundryDistance ? h.laundryDistance + ' เมตร' : '');
+  }
   const facList = [];
   if (h.fitness && h.fitness !== "ไม่มี") facList.push('ฟิตเนส');
-  if (h.pool && h.pool !== "ไม่มี") facList.push('สระว่ายน้ำ' + (h.pooldistance ? ` (${h.pooldistance})` : ''));
-  if (h.elevator && h.elevator !== "ไม่มี") facList.push('ลิฟต์โดยสาร' + (h.elevatorNote ? ` (${h.elevatorNote})` : ''));
-  if (h.parking && h.parking !== "ไม่มี") facList.push('ที่จอดรถยนต์' + (h.parkingFee ? ` (ค่าจอด ${h.parkingFee} บาท)` : h.parkingFeeNote ? ` (${h.parkingFeeNote})` : ''));
-
-  if (facList.length) {
-    p5 += tagList(facList);
-  }
-
-p5 += kv('ระบบรักษาความปลอดภัย', h.security);
+  if (h.pool && h.pool !== "ไม่มี") facList.push('สระว่ายน้ำ' + (h.poolDistance ? ` (${h.poolDistance})` : ''));
+  if (h.elevator && h.elevator !== "ไม่มี") facList.push('ลิฟต์โดยสาร' + (h.elevatorCount ? ` (${h.elevatorCount} ตัว)` : ''));
+  if (h.parking && h.parking !== "ไม่มี") facList.push('ที่จอดรถยนต์' + (h.parkingCount ? ` (${h.parkingCount} คัน)` : '') + (h.parkingFeeNote && h.parkingFeeNote !== 'ไม่มี/ไม่เก็บเพิ่ม' ? ` — ${h.parkingFeeNote}` : ''));
+  if(facList.length) p5 += tagList(facList);
+  if(h.security) p5 += kv('ความปลอดภัย: เข้าตัวอาคาร', h.security.building) + kv('เข้าลิฟต์', h.security.elevator) + kv('เข้าห้องพัก', h.security.room);
   if(p5) body += `<details class="section"><summary>สิ่งอำนวยความสะดวกส่วนกลาง</summary><div class="section-content">${p5}</div></details>`;
-
+ 
   const p6 = kv('สภาพอาคาร', h.buildingCondition);
   if(p6) body += `<details class="section"><summary>สภาพอาคาร</summary><div class="section-content">${p6}</div></details>`;
-
+ 
+  if(h.ratings){
+    const r = h.ratings;
+    const p7 = starsRow('ทำเลที่ตั้ง', r.location) + starsRow('ความสะอาด', r.cleanliness) + starsRow('ความปลอดภัย', r.safety)
+      + starsRow('การบริการ', r.service) + starsRow('สิ่งอำนวยความสะดวก', r.facilities) + starsRow('ที่จอดรถ', r.parking) + starsRow('ความคุ้มค่ากับราคา', r.value);
+    body += `<details class="section"><summary>คะแนนรีวิวรายด้าน</summary><div class="section-content">${p7}</div></details>`;
+  }
+ 
   document.getElementById('dBody').innerHTML = body;
-
+ 
   let quoteSrc = 'ผู้ตอบแบบสอบถาม';
   if(h.respondent){
     const r = h.respondent;
@@ -780,68 +869,50 @@ p5 += kv('ระบบรักษาความปลอดภัย', h.secur
     if(r.faculty) parts.push(r.faculty);
     quoteSrc = parts.join(', ') || quoteSrc;
   }
-const gmapsUrl = h.placeId
-  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name)}&query_place_id=${h.placeId}`
-  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + ' ' + h.lat + ',' + h.lng)}`;
-const extra = document.createElement('div');
-extra.innerHTML = `
-  ${h.quote ? `<div class="quote-block">"${h.quote}"<div class="quote-src">— ${quoteSrc}</div></div>` : ''}
-  <a class="gmaps-link" href="${gmapsUrl}" target="_blank" rel="noopener">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-    ดูตำแหน่งนี้ใน Google Maps
-  </a>
-`;
-document.getElementById('dBody').appendChild(extra);
-
+  const gmapsUrl = h.placeId
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name)}&query_place_id=${h.placeId}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.name + ' ' + h.lat + ',' + h.lng)}`;
+  const extra = document.createElement('div');
+  extra.innerHTML = `
+    ${h.quote ? `<div class="quote-block">"${h.quote}"<div class="quote-src">— ${quoteSrc}</div></div>` : ''}
+    <a class="gmaps-link" href="${gmapsUrl}" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+      ดูตำแหน่งนี้ใน Google Maps
+    </a>
+  `;
+  document.getElementById('dBody').appendChild(extra);
+ 
   document.getElementById('drawer').classList.add('open');
   document.getElementById('overlay').classList.add('open');
+  if(window.innerWidth <= 820) sidebarEl.classList.remove('expanded');
 }
-
+ 
 function closeDrawer(){
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('overlay').classList.remove('open');
 }
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 document.getElementById('overlay').addEventListener('click', closeDrawer);
-
-      (function initBottomSheet() {
-        const sheet = document.getElementById('mobileSheet');
-        const handle = sheet ? sheet.querySelector('.drag-handle') : null;
-        if (!sheet || !handle) return;
-
-        let startY = 0;
-        let currentY = 0;
-        let isDragging = false;
-
-        handle.addEventListener('click', () => {
-          sheet.classList.toggle('expanded');
-        });
-
-        sheet.addEventListener('touchstart', (e) => {
-          if (e.target.closest('#housingList') && sheet.classList.contains('expanded')) return;
-          startY = e.touches[0].clientY;
-          isDragging = true;
-        }, { passive: true });
-
-        sheet.addEventListener('touchmove', (e) => {
-          if (!isDragging) return;
-          currentY = e.touches[0].clientY;
-          const diff = currentY - startY;
-
-          if (diff > 50) {
-            sheet.classList.remove('expanded');
-            isDragging = false;
-          } 
-          else if (diff < -50) {
-            sheet.classList.add('expanded');
-            isDragging = false;
-          }
-        }, { passive: true });
-
-        sheet.addEventListener('touchend', () => {
-          isDragging = false;
-        });
-      })();
-    </script>
-  </body>
+ 
+(function initBottomSheet() {
+  const sheet = sidebarEl;
+  const handle = sheet ? sheet.querySelector('.drag-handle') : null;
+  if (!sheet || !handle) return;
+  let startY = 0, currentY = 0, isDragging = false;
+  handle.addEventListener('click', () => { sheet.classList.toggle('expanded'); });
+  sheet.addEventListener('touchstart', (e) => {
+    if (e.target.closest('.list') && sheet.classList.contains('expanded')) return;
+    startY = e.touches[0].clientY; isDragging = true;
+  }, { passive: true });
+  sheet.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    currentY = e.touches[0].clientY;
+    const diff = currentY - startY;
+    if (diff > 50) { sheet.classList.remove('expanded'); isDragging = false; }
+    else if (diff < -50) { sheet.classList.add('expanded'); isDragging = false; }
+  }, { passive: true });
+  sheet.addEventListener('touchend', () => { isDragging = false; });
+})();
+</script>
+</body>
 </html>
