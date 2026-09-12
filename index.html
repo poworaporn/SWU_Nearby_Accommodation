@@ -295,7 +295,7 @@ const housing = [
   {
     name: "Life Asoke Hype", nameTh: "ไลฟ์ อโศก ไฮป์",
     type: "คอนโดมิเนียม",
-    lat: 13.7542914, lng: 100.5628927,
+    lat: 13.7542266, lng: 100.5636255,
     placeId: "ChIJdeYACoSf4jARU5jqqoUHz0U",
     respondent: { gender: "หญิง", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท/เดือน" },
 
@@ -414,7 +414,7 @@ const housing = [
   {
     name: "Sukhumvit Living Town", nameTh: "สุขุมวิท ลิฟวิ่ง ทาวน์",
     type: "คอนโดมิเนียม",
-    lat: 13.7460866, lng: 100.5624754,
+    lat: 13.74608703698388, lng: 100.56256420048993,
     placeId: "ChIJowyJH_Ce4jAR2KAKCnAGha0",
     respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "5,001-10,000 บาท/เดือน" },
 
@@ -579,12 +579,14 @@ function curvedPoints(from, to, bend){
   return pts;
 }
 
-// เรียก OSRM (ฟรี ไม่ต้องมี API key) ให้คำนวณเส้นทางเดินเท้าจริงตามถนน — ใช้เฉพาะช่วง "เดิน" เท่านั้น
-// ช่วง MRT/BTS/รถ ฯลฯ ใช้เส้นโค้งเรียบแทน (เร็ว ไม่พึ่งเน็ต ไม่มีโอกาสพังหรือขึ้นเส้นประกวนตา)
+// เรียก OSRM (ฟรี ไม่ต้องมี API key) ให้คำนวณเส้นทางเกาะถนนจริง
+// เดิน -> ใช้โปรไฟล์ foot (เดินเท้า), โหมดอื่นทั้งหมด (MRT/BTS/รถ ฯลฯ) -> ใช้โปรไฟล์ car เพราะส่วนใหญ่วิ่งไปตามถนน/แนวราง
 // หมายเหตุ: เปิดไฟล์แบบ file:// ตรงๆ เบราว์เซอร์จะบล็อกการเรียกนี้เสมอ ต้องทดสอบผ่านเว็บที่อัปโหลดจริง (https://) เท่านั้น
-async function fetchWalkingRoute(from, to){
+async function fetchRoadRoute(from, to, mode){
+  const profile = mode === 'เดิน' ? 'foot' : 'car';
+  const excludeParam = profile === 'car' ? '&exclude=motorway' : ''; // คนใช้วินมอเตอร์ไซค์/รถรับจ้างในซอยมักไม่ขึ้นทางด่วน
   try{
-    const url = `https://routing.openstreetmap.de/routed-foot/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`;
+    const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson${excludeParam}`;
     const res = await fetch(url);
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
@@ -593,7 +595,7 @@ async function fetchWalkingRoute(from, to){
     }
     throw new Error('ไม่มีข้อมูลเส้นทางในผลลัพธ์');
   }catch(e){
-    console.warn('[เส้นทางเดิน] เรียก OSRM ไม่สำเร็จ ใช้เส้นโค้งสำรองแทน — ถ้าเปิดไฟล์แบบ file:// ตรงๆ นี่คือสาเหตุที่พบบ่อยที่สุด (ลองเปิดผ่านเว็บที่ deploy จริงแทน):', e);
+    console.warn(`[เส้นทาง:${mode}] เรียก OSRM (${profile}) ไม่สำเร็จ ใช้เส้นโค้งสำรองแทน — ถ้าเปิดไฟล์แบบ file:// ตรงๆ นี่คือสาเหตุที่พบบ่อยที่สุด (ลองเปิดผ่านเว็บที่ deploy จริงแทน):`, e);
     return { points: curvedPoints(from, to), routed:false };
   }
 }
@@ -607,17 +609,11 @@ async function drawRoute(h, direction){
   for(let i=1;i<route.length;i++){
     const from = route[i-1], to = route[i];
     const st = tStyle(to.mode);
-    let points, routed = true;
-    if(to.mode === 'เดิน'){
-      const result = await fetchWalkingRoute(from, to);
-      points = result.points; routed = result.routed;
-    } else {
-      points = curvedPoints(from, to);
-    }
+    const result = await fetchRoadRoute(from, to, to.mode);
     if(myRequestId !== routeRequestId) return; // ผู้ใช้คลิกที่อื่นไปแล้วระหว่างรอโหลด ยกเลิกการวาดทิ้ง
-    const line = L.polyline(points, {
+    const line = L.polyline(result.points, {
       color:st.color, weight:7, opacity:0.88, lineCap:'round',
-      dashArray: (to.mode === 'เดิน' && !routed) ? '2 8' : null // เส้นประ = เฉพาะตอนเดินแล้วเกาะถนนไม่สำเร็จเท่านั้น
+      dashArray: result.routed ? null : '2 8' // เส้นประ = เกาะถนนไม่สำเร็จ ใช้เส้นโค้งสำรอง
     }).addTo(map);
     routeLayers.push(line);
     if(i < route.length - 1){
