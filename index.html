@@ -253,7 +253,7 @@ const GOOGLE_MAPS_API_KEY = "AIzaSyDbWLSw01m60YRiHBu_BOmcejMoDwy1VNE";
 
 // พิกัดสถานีขนส่งสาธารณะ (ใช้ตอนสร้าง route waypoint ให้ที่พักอื่น ๆ ต่อได้)
 const STATIONS = {
-  'MRT เพชรบุรี':          { lat: 13.748578898709184, lng: 100.5632601630838 },
+  'MRT เพชรบุรี':          { lat: 13.7484838, lng: 100.5634913 },
   'MRT พระราม 9':          { lat: 13.75719441255959,  lng: 100.56520406911824 },
   'MRT ศูนย์วัฒนธรรมฯ':     { lat: 13.766224680662813, lng: 100.5703080869481 },
   'MRT ห้วยขวาง':          { lat: 13.778469691738785, lng: 100.57365628401017 },
@@ -315,11 +315,11 @@ const housing = [
       { label:"ที่พัก", lat:13.7542266, lng:100.5636255 },
       { mode:"เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)", label:UNI_GATE.label, lat:UNI_GATE.lat, lng:UNI_GATE.lng }
     ],
-    // ขากลับ (ตามข้อมูลจริง): มศว → เดิน → MRT เพชรบุรี (ขึ้นตรงตึกสิงห์คอมเพล็กซ์) → นั่ง MRT → MRT พระราม 9 (ออกทางฟอร์จูน) → เดิน (ข้ามสะพาน) → ที่พัก
+    // ขากลับ (ตามข้อมูลจริง): มศว → เดิน → MRT เพชรบุรี → นั่ง MRT → MRT พระราม 9 → เดิน (ข้ามสะพาน) → ที่พัก
     routeBack: [
       { label:UNI_GATE.label, lat:UNI_GATE.lat, lng:UNI_GATE.lng },
-      { mode:"เดิน", label:"MRT เพชรบุรี (สิงห์คอมเพล็กซ์)", lat:STATIONS['MRT เพชรบุรี'].lat, lng:STATIONS['MRT เพชรบุรี'].lng },
-      { mode:"MRT", label:"MRT พระราม 9 (ทางออกฟอร์จูน)", lat:STATIONS['MRT พระราม 9'].lat, lng:STATIONS['MRT พระราม 9'].lng },
+      { mode:"เดิน", label:"MRT เพชรบุรี", lat:STATIONS['MRT เพชรบุรี'].lat, lng:STATIONS['MRT เพชรบุรี'].lng },
+      { mode:"MRT", label:"MRT พระราม 9", lat:STATIONS['MRT พระราม 9'].lat, lng:STATIONS['MRT พระราม 9'].lng },
       { mode:"เดิน", label:"ที่พัก", lat:13.7542266, lng:100.5636255 }
     ],
     travelCostDay: 43, travelTimeMin: "",
@@ -357,8 +357,17 @@ const housing = [
     commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
     wifi: "ไม่มี / ติดตั้งเอง / ใช้เน็ตมือถือ", wifiSelfCost: 540,
 
-    routeToSimple: ["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
-    routeBackSimple: ["เดิน", "วินมอเตอร์ไซค์รับจ้าง"],
+    // ไป-กลับใช้เส้นทางเดียวกัน: เลี้ยวเข้าแยกเพชรบุรี-อโศก ไม่ผ่านแยกพระราม 9 และไม่ขึ้นทางด่วน
+    routeTo: [
+      { label:"ที่พัก", lat:13.753266810804732, lng:100.57633129182052 },
+      { mode:"เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)", label:"แยกเพชรบุรี-อโศก", lat:STATIONS['MRT เพชรบุรี'].lat, lng:STATIONS['MRT เพชรบุรี'].lng },
+      { mode:"เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)", label:UNI_GATE.label, lat:UNI_GATE.lat, lng:UNI_GATE.lng }
+    ],
+    routeBack: [
+      { label:UNI_GATE.label, lat:UNI_GATE.lat, lng:UNI_GATE.lng },
+      { mode:"วินมอเตอร์ไซค์รับจ้าง", label:"แยกเพชรบุรี-อโศก", lat:STATIONS['MRT เพชรบุรี'].lat, lng:STATIONS['MRT เพชรบุรี'].lng },
+      { mode:"วินมอเตอร์ไซค์รับจ้าง", label:"ที่พัก", lat:13.753266810804732, lng:100.57633129182052 }
+    ],
     travelCostDay: 80, travelTimeMin: "",
 
     appliances: [
@@ -611,7 +620,7 @@ async function drawRoute(h, direction){
     const result = await fetchRoadRoute(from, to, to.mode);
     if(myRequestId !== routeRequestId) return; // ผู้ใช้คลิกที่อื่นไปแล้วระหว่างรอโหลด ยกเลิกการวาดทิ้ง
     const line = L.polyline(result.points, {
-      color:st.color, weight:7, opacity:0.88, lineCap:'round',
+      color:st.color, weight:4.5, opacity:0.85, lineCap:'round',
       dashArray: result.routed ? null : '2 8' // เส้นประ = เกาะถนนไม่สำเร็จ ใช้เส้นโค้งสำรอง
     }).addTo(map);
     routeLayers.push(line);
