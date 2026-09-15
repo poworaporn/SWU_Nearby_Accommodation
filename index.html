@@ -374,6 +374,8 @@ const housing = [
     routeToSteps:["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
     routeBackSteps:["เดิน","MRT","เดิน"],
     travelCostDay:43,
+    travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
+    travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:2},{name:"โทรทัศน์ (TV)",qty:1},{name:"ตู้เย็น",qty:1},{name:"ไมโครเวฟ",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1},{name:"เตาไฟฟ้า (สำหรับทำอาหาร)",qty:2}],
     laundry:"มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
     fitness:"มี", pool:"มี", poolSize:"75 เมตร",
@@ -398,6 +400,8 @@ const housing = [
     routeToSteps:["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
     routeBackSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง"],
     travelCostDay:80,
+    travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
+    travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"โทรทัศน์ (TV)",qty:1},{name:"ตู้เย็น",qty:1},{name:"ไมโครเวฟ",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1},{name:"เตาไฟฟ้า (สำหรับทำอาหาร)",qty:1}],
     laundry:"มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
     fitness:"มี", pool:"มี", poolSize:"25 เมตร",
@@ -422,6 +426,8 @@ const housing = [
     routeToSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง","MRT","เดิน"],
     routeBackSteps:["เดิน","MRT","วินมอเตอร์ไซค์รับจ้าง"],
     travelCostDay:70,
+    travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
+    travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1}],
     laundry:"ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
     laundryDistance:"50",
@@ -447,6 +453,8 @@ const housing = [
     routeToSteps:["เดิน"],
     routeBackSteps:["เดิน"],
     travelCostDay:0,
+    travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
+    travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:3},{name:"ตู้เย็น",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:2},{name:"เตาไฟฟ้า (สำหรับทำอาหาร)",qty:2}],
     laundry:"มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
     fitness:"มี", pool:"มี", poolSize:"25 เมตร",
@@ -471,6 +479,8 @@ const housing = [
     routeToSteps:["เดิน","MRT","เดิน"],
     routeBackSteps:["เดิน","รถโดยสารประจำทาง","เดิน"],
     travelCostDay:50,
+    travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
+    travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1}],
     laundry:"ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
     fitness:"ไม่มี", pool:"ไม่มี", poolSize:"",
@@ -520,32 +530,43 @@ function buildSpans(h, direction){
 }
 
 // เส้นรถไฟฟ้า: ไล่ผ่านสถานีระหว่างทางจริง ทำให้เส้นเกาะแนวรางไม่ตัดตรงข้ามเมือง
-function stationPolyline(lineKey, a, b){
+function stationSequence(lineKey, a, b){
   const order = LINES[lineKey];
-  if(!order) return [[ST[a][0],ST[a][1]],[ST[b][0],ST[b][1]]];
-  let i = order.indexOf(a), j = order.indexOf(b);
-  if(i === -1 || j === -1) return [[ST[a][0],ST[a][1]],[ST[b][0],ST[b][1]]];
+  const mk = n => ({ lat:ST[n][0], lng:ST[n][1], name:n });
+  if(!order) return [mk(a), mk(b)];
+  const i = order.indexOf(a), j = order.indexOf(b);
+  if(i === -1 || j === -1) return [mk(a), mk(b)];
   const slice = i <= j ? order.slice(i, j+1) : order.slice(j, i+1).reverse();
-  return slice.filter(n => ST[n]).map(n => [ST[n][0], ST[n][1]]);
+  return slice.filter(n => ST[n]).map(mk);
 }
 
 // แบ่งเส้น polyline ออกเป็นหลายท่อนตามสัดส่วนน้ำหนัก (ใช้ตอน 1 ช่วงมีหลายวิธีเดินทาง เช่น เดิน→รถเมล์→เดิน)
-function splitPolyline(points, weights){
-  if(weights.length === 1) return [points];
-  const segLen = [];
-  let total = 0;
-  for(let i=1;i<points.length;i++){
-    const d = haversineKm(points[i-1][0], points[i-1][1], points[i][0], points[i][1]);
-    segLen.push(d); total += d;
-  }
-  if(total === 0) return weights.map(() => points);
-  const wTotal = weights.reduce((a,b)=>a+b,0);
+function polylineLengthKm(points){
+  let t = 0;
+  for(let i=1;i<points.length;i++) t += haversineKm(points[i-1][0],points[i-1][1],points[i][0],points[i][1]);
+  return t;
+}
+// แบ่งเส้นออกเป็นหลายท่อนตามวิธีเดินทาง
+// ช่วง "เดิน" จำกัดไม่เกิน 600 เมตรต่อท่อน เพื่อไม่ให้เส้นเดินยาวผิดความจริงเวลาอยู่คู่กับรถเมล์/วิน
+const MAX_WALK_KM = 0.6;
+function splitByModes(points, modes){
+  if(modes.length === 1) return [points];
+  const total = polylineLengthKm(points);
+  if(total === 0) return modes.map(() => points);
+
+  const walkCount = modes.filter(m => m === 'เดิน').length;
+  const rideCount = modes.length - walkCount;
+  let walkShare = Math.min(MAX_WALK_KM, total / (modes.length * 2));
+  if(rideCount === 0) walkShare = total / modes.length;   // ทุกช่วงเป็นการเดิน แบ่งเท่า ๆ กัน
+  const rideShare = rideCount ? (total - walkShare*walkCount) / rideCount : 0;
+  const lens = modes.map(m => m === 'เดิน' ? walkShare : rideShare);
+
   const cuts = []; let acc = 0;
-  weights.slice(0,-1).forEach(w => { acc += w/wTotal; cuts.push(acc*total); });
+  lens.slice(0,-1).forEach(L => { acc += L; cuts.push(acc); });
 
   const out = []; let current = [points[0]]; let walked = 0, ci = 0;
   for(let i=1;i<points.length;i++){
-    const d = segLen[i-1];
+    const d = haversineKm(points[i-1][0],points[i-1][1],points[i][0],points[i][1]);
     while(ci < cuts.length && walked + d >= cuts[ci]){
       const t = d === 0 ? 0 : (cuts[ci]-walked)/d;
       const lat = points[i-1][0] + (points[i][0]-points[i-1][0])*t;
@@ -555,7 +576,7 @@ function splitPolyline(points, weights){
     walked += d; current.push(points[i]);
   }
   out.push(current);
-  while(out.length < weights.length) out.push([points[points.length-1]]);
+  while(out.length < modes.length) out.push([points[points.length-1]]);
   return out;
 }
 
@@ -585,9 +606,16 @@ function svCoords(h){
 }
 
 // OSRM (ฟรี ไม่ต้องมี API key) — ต้องเปิดผ่านเว็บจริง (https://) เท่านั้น เปิดไฟล์ file:// เบราว์เซอร์จะบล็อก
-async function fetchRoad(from, to, profile){
+// เลือกโปรไฟล์ตามวิธีเดินทาง: เดิน=foot, วิน/เรียกรถ=bike (ขึ้นทางด่วนไม่ได้ จึงเกาะถนนพื้นราบตามจริง), รถเมล์/รถยนต์=car
+function profileFor(mode){
+  if(mode === 'เดิน') return 'foot';
+  if(mode === 'วินมอเตอร์ไซค์รับจ้าง' || mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return 'bike';
+  return 'car';
+}
+async function fetchRoad(waypoints, profile){
+  const coords = waypoints.map(w => `${w.lng},${w.lat}`).join(';');
   try{
-    const url = `https://router.project-osrm.org/route/v1/${profile}/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`;
+    const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${coords}?overview=full&geometries=geojson`;
     const res = await fetch(url);
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
@@ -595,7 +623,7 @@ async function fetchRoad(from, to, profile){
     throw new Error('no route');
   }catch(e){
     console.warn('[OSRM] ใช้เส้นตรงสำรอง:', e.message);
-    return [[from.lat,from.lng],[to.lat,to.lng]];
+    return waypoints.map(w => [w.lat, w.lng]);
   }
 }
 
@@ -613,15 +641,16 @@ async function drawRoute(h, direction){
   for(const span of spans){
     let pts;
     if(span.rail){
-      pts = stationPolyline(span.rail.line, span.rail.a, span.rail.b);
+      // ให้เส้นรถไฟฟ้าเกาะแนวถนนจริง (MRT วิ่งใต้ถนนรัชดา-อโศก) โดยส่งสถานีระหว่างทางเป็นจุดผ่าน
+      const seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
+      pts = await fetchRoad(seq, 'car');
     } else {
-      const allWalk = span.steps.every(s => s === 'เดิน');
-      pts = await fetchRoad(span.from, span.to, allWalk ? 'foot' : 'driving');
+      const rideMode = span.steps.find(s => s !== 'เดิน');
+      pts = await fetchRoad([span.from, span.to], profileFor(rideMode || 'เดิน'));
     }
     if(myReq !== routeReq) return;
 
-    const weights = span.steps.map(s => s === 'เดิน' ? 1 : 4);
-    const parts = splitPolyline(pts, weights);
+    const parts = splitByModes(pts, span.steps);
     span.steps.forEach((mode, k) => {
       const st = tStyle(mode);
       if(!parts[k] || parts[k].length < 2) return;
@@ -631,7 +660,7 @@ async function drawRoute(h, direction){
     });
 
     if(span.rail){
-      [[span.from, span.rail.a],[span.to, span.rail.b]].forEach(([pt]) => {
+      [span.from, span.to].forEach(pt => {
         const st = tStyle(span.rail.line);
         const mk = L.marker([pt.lat, pt.lng], {
           icon: L.divIcon({ className:'', html:`<div class="station-dot" style="border-color:${st.color};color:${st.color}">${st.icon}</div>`, iconSize:[22,22] })
@@ -810,12 +839,24 @@ function routeChipsHTML(h, direction){
   return `<div class="route-flow">${chips.join('<span class="route-arrow">→</span>')}</div>`;
 }
 
+function routeCostHTML(h, direction){
+  const cost = direction==='to' ? h.travelCostGo  : h.travelCostBack;
+  const time = direction==='to' ? h.travelTimeGo  : h.travelTimeBack;
+  const word = direction==='to' ? 'ขาไป' : 'ขากลับ';
+  let out = '';
+  if(cost !== undefined && cost !== '') out += kv(`ค่าเดินทาง${word}`, Number(cost).toLocaleString()+' บาท');
+  if(time !== undefined && time !== '') out += kv(`เวลาเดินทาง${word}`, time+' นาที');
+  return out;
+}
+
 let currentH = null;
 function switchRouteTab(direction){
   if(!currentH) return;
   document.getElementById('routeTabTo').classList.toggle('active', direction==='to');
   document.getElementById('routeTabBack').classList.toggle('active', direction==='back');
   document.getElementById('routeChips').innerHTML = routeChipsHTML(currentH, direction);
+  const cEl = document.getElementById('routeCost');
+  if(cEl) cEl.innerHTML = routeCostHTML(currentH, direction);
   drawRoute(currentH, direction);
 }
 
@@ -858,8 +899,8 @@ function openDrawer(i){
       <div class="route-tab" id="routeTabBack" onclick="switchRouteTab('back')">🡐 ขากลับที่พัก</div>
     </div>
     <div id="routeChips" style="color:var(--muted);font-size:12px;">เลือก "ขาไป" หรือ "ขากลับ" เพื่อดูขั้นตอนและเส้นทางบนแผนที่</div>`;
-  p4 += kv('ค่าเดินทางไป-กลับ', h.travelCostDay !== undefined ? h.travelCostDay.toLocaleString()+' บาท/วัน' : '');
-  p4 += kv('เวลาเดินทาง', h.travelTimeMin ? h.travelTimeMin+' นาที' : 'ยังไม่มีข้อมูล');
+  p4 += `<div id="routeCost"></div>`;
+  p4 += kv('ค่าเดินทางรวมไป-กลับ', h.travelCostDay !== undefined && h.travelCostDay !== '' ? h.travelCostDay.toLocaleString()+' บาท/วัน' : '');
   body += `<details class="section" open><summary>การเดินทางสู่ มศว</summary><div class="section-content">${p4}</div></details>`;
 
   const appTags = (h.appliances||[]).map(a => a.qty>1 ? `${a.name} ×${a.qty}` : a.name);
