@@ -374,8 +374,8 @@ const housing = [
     routeToSteps:["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
     routeBackSteps:["เดิน","MRT","เดิน"],
     travelCostDay:43,
-    travelCostGo:26, travelCostBack:17,
-    travelTimeGo:10, travelTimeBack:20,
+    travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
+    travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:2},{name:"โทรทัศน์ (TV)",qty:1},{name:"ตู้เย็น",qty:1},{name:"ไมโครเวฟ",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1},{name:"เตาไฟฟ้า (สำหรับทำอาหาร)",qty:2}],
     laundry:"มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
     fitness:"มี", pool:"มี", poolSize:"75 เมตร",
@@ -399,7 +399,6 @@ const housing = [
     wifi:"ไม่มี / ติดตั้งเอง", wifiSelfCost:540,
     routeToSteps:["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
     routeBackSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง"],
-    returnPickup: { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" },
     travelCostDay:80,
     travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
     travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
@@ -479,7 +478,6 @@ const housing = [
     wifi:"ฟรี / รวมในค่าเช่า",
     routeToSteps:["เดิน","MRT","เดิน"],
     routeBackSteps:["เดิน","รถโดยสารประจำทาง","เดิน"],
-    returnPickup: { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" },
     travelCostDay:50,
     travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
     travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
@@ -500,7 +498,7 @@ housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h
 // ==================================================================
 function buildSpans(h, direction){
   const raw = (direction==='to' ? h.routeToSteps : h.routeBackSteps) || [];
-  const steps = raw.filter(s => s && s !== 'จบการเดินทาง').slice();
+  const steps = raw.filter(s => s && s !== 'จบการเดินทาง');
   const home = { lat:h.lat, lng:h.lng, label:'ที่พัก' };
   const uni  = { lat:UNI_GATE.lat, lng:UNI_GATE.lng, label:UNI_GATE.label };
   const start = direction==='to' ? home : uni;
@@ -509,18 +507,10 @@ function buildSpans(h, direction){
   const spans = [];
   let cursor = start, pending = [];
 
-  // ขากลับ: ถ้าระบุจุดขึ้นรถไว้ (เช่น ฝั่งตรงข้าม มศว ที่รถวิ่งตรงกลับห้อง) ให้เดินไปจุดนั้นก่อนแล้วค่อยขึ้นรถ
-  // จะได้ไม่ต้องกลับรถและค่าโดยสารถูกกว่า ตรงกับพฤติกรรมจริง
-  if(direction === 'back' && h.returnPickup && steps[0] === 'เดิน' && steps.length > 1 && !RAIL_MODES.includes(steps[1])){
-    const pick = { lat:h.returnPickup.lat, lng:h.returnPickup.lng, label:h.returnPickup.label || 'จุดขึ้นรถ' };
-    spans.push({ from:cursor, to:pick, steps:['เดิน'] });
-    cursor = pick;
-    steps.shift();
-  }
-
   steps.forEach(mode => {
     if(RAIL_MODES.includes(mode)){
       const homeSide = nearestStation(h.lat, h.lng, mode);
+      // ฝั่งมหาลัย: MRT ใช้สถานีเพชรบุรีเป็นค่าเริ่มต้น (ใกล้ มศว ที่สุด) สายอื่นหาสถานีใกล้ที่สุดให้เอง
       const uniSide = (mode==='MRT') ? DEFAULT_UNI_STATION : nearestStation(UNI_GATE.lat, UNI_GATE.lng, mode);
       const bName = direction==='to' ? homeSide : uniSide;
       const aName = direction==='to' ? uniSide  : homeSide;
@@ -619,8 +609,7 @@ function svCoords(h){
 // เลือกโปรไฟล์ตามวิธีเดินทาง: เดิน=foot, วิน/เรียกรถ=bike (ขึ้นทางด่วนไม่ได้ จึงเกาะถนนพื้นราบตามจริง), รถเมล์/รถยนต์=car
 function profileFor(mode){
   if(mode === 'เดิน') return 'foot';
-  if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return 'bike';   // มอเตอร์ไซค์ลัดซอยได้ ขึ้นทางด่วนไม่ได้
-  if(mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return 'car'; // รถยนต์ ไม่วิ่งทางเดินเท้า
+  if(mode === 'วินมอเตอร์ไซค์รับจ้าง' || mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return 'bike';
   return 'car';
 }
 async function fetchRoad(waypoints, profile){
@@ -642,23 +631,6 @@ let routeLayers = [];
 let routeReq = 0;
 function clearRoute(){ routeLayers.forEach(l => map.removeLayer(l)); routeLayers = []; }
 
-// ทำให้เส้นหักมุมน้อยลง โค้งเอียงตามแนวสถานีจริง (Chaikin) — ใช้ได้ผลเมื่อมีสถานีระหว่างทาง 3 จุดขึ้นไป
-function smoothLine(points, passes){
-  let pts = points;
-  for(let p=0; p<(passes||2); p++){
-    if(pts.length < 3) return pts;
-    const out = [pts[0]];
-    for(let i=0;i<pts.length-1;i++){
-      const a = pts[i], b = pts[i+1];
-      out.push([a[0]+(b[0]-a[0])*0.25, a[1]+(b[1]-a[1])*0.25]);
-      out.push([a[0]+(b[0]-a[0])*0.75, a[1]+(b[1]-a[1])*0.75]);
-    }
-    out.push(pts[pts.length-1]);
-    pts = out;
-  }
-  return pts;
-}
-
 async function drawRoute(h, direction){
   const myReq = ++routeReq;
   clearRoute();
@@ -669,9 +641,9 @@ async function drawRoute(h, direction){
   for(const span of spans){
     let pts;
     if(span.rail){
-      // รถไฟฟ้าวิ่งทางเดียวไม่กลับรถ จึงลากตามลำดับสถานีจริง แล้วเกลาให้โค้งเอียงตามแนวราง
+      // ให้เส้นรถไฟฟ้าเกาะแนวถนนจริง (MRT วิ่งใต้ถนนรัชดา-อโศก) โดยส่งสถานีระหว่างทางเป็นจุดผ่าน
       const seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
-      pts = smoothLine(seq.map(w => [w.lat, w.lng]), 2);
+      pts = await fetchRoad(seq, 'car');
     } else {
       const rideMode = span.steps.find(s => s !== 'เดิน');
       pts = await fetchRoad([span.from, span.to], profileFor(rideMode || 'เดิน'));
