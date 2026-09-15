@@ -640,15 +640,15 @@ async function drawRoute(h, direction){
   for(const span of spans){
     let pts;
     if(span.rail){
-      // ให้เส้นรถไฟฟ้าเกาะแนวถนนจริง (MRT วิ่งใต้ถนนรัชดา-อโศก) โดยส่งสถานีระหว่างทางเป็นจุดผ่าน
+        // รถไฟฟ้าวิ่งทางเดียวไม่กลับรถ จึงลากตามลำดับสถานีจริง แล้วเกลาให้โค้งเอียงตามแนวราง
       const seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
-      pts = await fetchRoad(seq, 'car');
+      pts = smoothLine(seq.map(w => [w.lat, w.lng]), 2);
     } else {
       const rideMode = span.steps.find(s => s !== 'เดิน');
       pts = await fetchRoad([span.from, span.to], profileFor(rideMode || 'เดิน'));
     }
     if(myReq !== routeReq) return;
-
+    
     const parts = splitByModes(pts, span.steps);
     span.steps.forEach((mode, k) => {
       const st = tStyle(mode);
