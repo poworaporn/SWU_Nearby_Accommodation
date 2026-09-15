@@ -609,8 +609,7 @@ function svCoords(h){
 // เลือกโปรไฟล์ตามวิธีเดินทาง: เดิน=foot, วิน/เรียกรถ=bike (ขึ้นทางด่วนไม่ได้ จึงเกาะถนนพื้นราบตามจริง), รถเมล์/รถยนต์=car
 function profileFor(mode){
   if(mode === 'เดิน') return 'foot';
-  if(mode === 'วินมอเตอร์ไซค์รับจ้าง' || mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return 'bike';
-  return 'car';
+  if(mode === 'วินมอเตอร์ไซค์รับจ้าง' || mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)')return 'car';
 }
 async function fetchRoad(waypoints, profile){
   const coords = waypoints.map(w => `${w.lng},${w.lat}`).join(';');
