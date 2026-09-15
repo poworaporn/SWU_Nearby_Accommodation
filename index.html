@@ -232,7 +232,6 @@
 const CENTER = [13.744982862662434, 100.56469591898168];
 const UNI_GATE = { lat: 13.745008896871706, lng: 100.56260886539863, label: "มศว ประสานมิตร" };
 const GOOGLE_MAPS_API_KEY = "AIzaSyDbWLSw01m60YRiHBu_BOmcejMoDwy1VNE";
-
 // BTS/MRT (GeoJSON) + ARL
 const ST = {
   "On Nut": [13.705433, 100.601034],
@@ -283,7 +282,8 @@ const ST = {
   "Kampaeng Pet": [13.798074, 100.548828],
   "Bangsue": [13.803377, 100.539322],
   "Pho Nimit": [13.718957, 100.484734],
-  "Talat Phlu": [13.713934, 100.476344],
+  "Talat Phlu": [13.713934, 100.476344]
+,
   "ARL Phaya Thai": [13.7569, 100.5347],
   "ARL Ratchaprarop": [13.7550148, 100.5421080],
   "ARL Makkasan": [13.7511939, 100.5604649],
@@ -293,14 +293,13 @@ const ST = {
   "ARL Lat Krabang": [13.7230, 100.7283],
   "ARL Suvarnabhumi": [13.6922, 100.7501]
 };
-
 const LINES = {
   MRT: ["Hua Lamphong","Sam Yan","Silom","Lumphini","Klong Toei","Queen Sirikit","Sukhumwit","Phetchaburi","Phra Ram 9","Thailand Cultural","Huai Khwang","Sutthisan","Ratchadaphisek","Lad Phrao","Phahon Yothin","Chatuchak Park","Kampaeng Pet","Bangsue"],
   BTS: ["Mo Chit","Saphan Khwai","Ari","Sanam Pao","Victory Monument","Phaya Thai","Rachathewi","Siam Exchange Station","Chit Lom","Ploen Chit","Asoke","Phrom Phong","Thong Lo","Ekkamai","Phra Khanong","On Nut","Bang Chak","Punnawithi","Udomsuk","Bangna","Baring"],
   BTS_SILOM: ["National Stadium","Siam Exchange Station","Ratchadamri","Saladang","Chong Nonsi","Surasak","Taksin ","Krung Thonburi","Wong Wien Yai","Pho Nimit","Talat Phlu"],
   "Airport Rail Link": ["ARL Phaya Thai","ARL Ratchaprarop","ARL Makkasan","ARL Ramkhamhaeng","ARL Hua Mak","ARL Ban Thap Chang","ARL Lat Krabang","ARL Suvarnabhumi"]
 };
-
+// BTS/MRT/ARL : TH
 const ST_TH = {
   "Phetchaburi":"เพชรบุรี", "Phra Ram 9":"พระราม 9", "Thailand Cultural":"ศูนย์วัฒนธรรมฯ",
   "Huai Khwang":"ห้วยขวาง", "Sutthisan":"สุทธิสาร", "Sukhumwit":"สุขุมวิท", "Queen Sirikit":"ศูนย์ฯ สิริกิติ์",
@@ -308,10 +307,9 @@ const ST_TH = {
   "Thong Lo":"ทองหล่อ", "Ekkamai":"เอกมัย", "Nana":"นานา", "Ploen Chit":"เพลินจิต", "Chit Lom":"ชิดลม",
   "ARL Makkasan":"มักกะสัน", "ARL Ratchaprarop":"ราชปรารภ", "ARL Phaya Thai":"พญาไท", "ARL Hua Mak":"หัวหมาก"
 };
-
 function stTh(n){ return ST_TH[n] || n; }
+// MRT Default
 const DEFAULT_UNI_STATION = "Phetchaburi";
-
 function haversineKm(lat1, lng1, lat2, lng2){
   const R = 6371;
   const dLat = (lat2-lat1) * Math.PI/180;
@@ -319,7 +317,7 @@ function haversineKm(lat1, lng1, lat2, lng2){
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-
+// Find nearby station
 function nearestStation(lat, lng, lineKey){
   const names = LINES[lineKey] || Object.keys(ST);
   let best = null, bestD = Infinity;
@@ -330,7 +328,6 @@ function nearestStation(lat, lng, lineKey){
   });
   return best;
 }
-
 const TRANSPORT_STYLE = {
   'เดิน':                                 { icon:'🚶', color:'#8b5e34', label:'เดิน' },
   'MRT':                                  { icon:'🚇', color:'#1f4e9c', label:'MRT' },
@@ -342,10 +339,9 @@ const TRANSPORT_STYLE = {
   'วินมอเตอร์ไซค์รับจ้าง':                  { icon:'🏍️', color:'#e07b1f', label:'วินมอเตอร์ไซค์' },
   'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)':     { icon:'📱', color:'#0e7c86', label:'เรียกรถผ่านแอป' }
 };
-
 function tStyle(mode){ return TRANSPORT_STYLE[mode] || { icon:'📍', color:'#8b8371', label: mode }; }
 const RAIL_MODES = ['MRT','BTS','Airport Rail Link'];
-
+// ข้อมูลที่พัก routeToSteps / routeBackSteps(ขั้นตอนที่ 1..6)
 const housing = [
   {
     name: "Life Asoke Hype", nameTh: "ไลฟ์ อโศก ไฮป์",
@@ -481,10 +477,8 @@ const housing = [
     ratings:{ location:4, cleanliness:3, safety:3, service:2, facilities:4, parking:1, value:5 }
   }
 ];
-
 housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h.lng); });
-
-// สร้างละติจูด-ลองจิจูดสำหรับแต่ละ Span การเดินทางอย่างถูกต้อง
+// Automatic Route from data
 function buildSpans(h, direction){
   const raw = (direction==='to' ? h.routeToSteps : h.routeBackSteps) || [];
   const steps = raw.filter(s => s && s !== 'จบการเดินทาง').slice();
@@ -492,58 +486,36 @@ function buildSpans(h, direction){
   const uni  = { lat:UNI_GATE.lat, lng:UNI_GATE.lng, label:UNI_GATE.label };
   const start = direction==='to' ? home : uni;
   const end   = direction==='to' ? uni  : home;
-  
   const spans = [];
-  let cursor = start;
-  let i = 0;
-
+  let cursor = start, pending = [];
+  // pickup piont case
   if(direction === 'back' && h.returnPickup && steps[0] === 'เดิน' && steps.length > 1 && !RAIL_MODES.includes(steps[1])){
     const pick = { lat:h.returnPickup.lat, lng:h.returnPickup.lng, label:h.returnPickup.label || 'จุดขึ้นรถ' };
-    spans.push({ from:cursor, to:pick, mode:'เดิน' });
+    spans.push({ from:cursor, to:pick, steps:['เดิน'] });
     cursor = pick;
-    i++;
+    steps.shift();
   }
-
-  while(i < steps.length){
-    const mode = steps[i];
+  steps.forEach(mode => {
     if(RAIL_MODES.includes(mode)){
       const homeSide = nearestStation(h.lat, h.lng, mode);
       const uniSide = (mode==='MRT') ? DEFAULT_UNI_STATION : nearestStation(UNI_GATE.lat, UNI_GATE.lng, mode);
       const bName = direction==='to' ? homeSide : uniSide;
       const aName = direction==='to' ? uniSide  : homeSide;
-      
-      if(ST[bName] && ST[aName]){
-        const board  = { lat:ST[bName][0], lng:ST[bName][1], label:`${mode} ${stTh(bName)}` };
-        const alight = { lat:ST[aName][0], lng:ST[aName][1], label:`${mode} ${stTh(aName)}` };
-        
-        // ถ้าจุดก่อนหน้ายังไม่ถึงสถานีรถไฟฟ้า ให้เชื่อมจาก cursor มาจุดขึ้นรถไฟฟ้าก่อน
-        if(cursor.lat !== board.lat || cursor.lng !== board.lng){
-            spans.push({ from:cursor, to:board, mode: steps[i-1] || 'เดิน' });
-        }
-        
-        spans.push({ from:board, to:alight, mode:mode, rail:{ line:mode, a:bName, b:aName } });
-        cursor = alight;
-      }
+      if(!ST[bName] || !ST[aName]) return;
+      const board  = { lat:ST[bName][0], lng:ST[bName][1], label:`${mode} ${stTh(bName)}` };
+      const alight = { lat:ST[aName][0], lng:ST[aName][1], label:`${mode} ${stTh(aName)}` };
+      if(pending.length) spans.push({ from:cursor, to:board, steps:pending.slice() });
+      pending = [];
+      spans.push({ from:board, to:alight, steps:[mode], rail:{ line:mode, a:bName, b:aName } });
+      cursor = alight;
     } else {
-      // ตรวจสอบว่าโหมดถัดไปเป็นรถไฟฟ้าหรือไม่
-      let nextTarget = end;
-      if(i + 1 < steps.length && RAIL_MODES.includes(steps[i+1])){
-        const modeNext = steps[i+1];
-        const homeSide = nearestStation(h.lat, h.lng, modeNext);
-        const uniSide = (modeNext==='MRT') ? DEFAULT_UNI_STATION : nearestStation(UNI_GATE.lat, UNI_GATE.lng, modeNext);
-        const bName = direction==='to' ? homeSide : uniSide;
-        if(ST[bName]) nextTarget = { lat:ST[bName][0], lng:ST[bName][1], label:`${modeNext} ${stTh(bName)}` };
-      }
-      
-      spans.push({ from:cursor, to:nextTarget, mode:mode });
-      cursor = nextTarget;
+      pending.push(mode);
     }
-    i++;
-  }
-
+  });
+  if(pending.length) spans.push({ from:cursor, to:end, steps:pending.slice() });
   return spans;
 }
-
+// Line MRT/ BTS Station
 function stationSequence(lineKey, a, b){
   const order = LINES[lineKey];
   const mk = n => ({ lat:ST[n][0], lng:ST[n][1], name:n });
@@ -553,13 +525,47 @@ function stationSequence(lineKey, a, b){
   const slice = i <= j ? order.slice(i, j+1) : order.slice(j, i+1).reverse();
   return slice.filter(n => ST[n]).map(mk);
 }
-
+// polyline for any step
+function polylineLengthKm(points){
+  let t = 0;
+  for(let i=1;i<points.length;i++) t += haversineKm(points[i-1][0],points[i-1][1],points[i][0],points[i][1]);
+  return t;
+}
+// seperate route walk max : 600 m
+const MAX_WALK_KM = 0.6;
+function splitByModes(points, modes){
+  if(modes.length === 1) return [points];
+  const total = polylineLengthKm(points);
+  if(total === 0) return modes.map(() => points);
+  const walkCount = modes.filter(m => m === 'เดิน').length;
+  const rideCount = modes.length - walkCount;
+  let walkShare = Math.min(MAX_WALK_KM, total / (modes.length * 2));
+  if(rideCount === 0) walkShare = total / modes.length;
+  const rideShare = rideCount ? (total - walkShare*walkCount) / rideCount : 0;
+  const lens = modes.map(m => m === 'เดิน' ? walkShare : rideShare);
+  const cuts = []; let acc = 0;
+  lens.slice(0,-1).forEach(L => { acc += L; cuts.push(acc); });
+  const out = []; let current = [points[0]]; let walked = 0, ci = 0;
+  for(let i=1;i<points.length;i++){
+    const d = haversineKm(points[i-1][0],points[i-1][1],points[i][0],points[i][1]);
+    while(ci < cuts.length && walked + d >= cuts[ci]){
+      const t = d === 0 ? 0 : (cuts[ci]-walked)/d;
+      const lat = points[i-1][0] + (points[i][0]-points[i-1][0])*t;
+      const lng = points[i-1][1] + (points[i][1]-points[i-1][1])*t;
+      current.push([lat,lng]); out.push(current); current = [[lat,lng]]; ci++;
+    }
+    walked += d; current.push(points[i]);
+  }
+  out.push(current);
+  while(out.length < modes.length) out.push([points[points.length-1]]);
+  return out;
+}
+// MAP
 const map = L.map('map', { zoomControl:false }).setView(CENTER, 13);
 L.control.zoom({ position:'bottomright' }).addTo(map);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution:'&copy; OpenStreetMap contributors', maxZoom:19
 }).addTo(map);
-
 L.circle(CENTER, { radius:6000, color:'#b98b3e', weight:2.5, fillColor:'#f0dfb0', fillOpacity:0.22 }).addTo(map);
 L.circle(CENTER, { radius:3000, color:'#0f4d3a', weight:2.5, fillColor:'#7ec9a3', fillOpacity:0.3 }).addTo(map);
 L.marker(CENTER, { icon:L.divIcon({ className:'', html:'<div class="center-badge">🏟️</div>', iconSize:[38,38] }) })
@@ -576,30 +582,28 @@ function svCoords(h){
            lng: h.svLng !== undefined ? h.svLng : h.lng,
            heading: h.svHeading !== undefined ? h.svHeading : 210 };
 }
-
-// ระบบดึงข้อมูลเส้นทางจริงจาก OSRM
+// OSRM important 
 function profileFor(mode){
   if(mode === 'เดิน') return 'foot';
-  return 'car'; // รถยนต์, มอเตอร์ไซค์, วิน, รถเมล์ ให้ใช้เส้นทางบนถนนจริง (driving)
+  if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return 'car';
+  if(mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return 'car';
+  return 'car';
 }
-
 async function fetchRoad(waypoints, profile){
   const coords = waypoints.map(w => `${w.lng},${w.lat}`).join(';');
+  const exclude = profile === 'car' ? '&exclude=motorway' : '';
   try{
-    const url = `https://router.project-osrm.org/route/v1/${profile}/${coords}?overview=full&geometries=geojson`;
+    const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${coords}?overview=full&geometries=geojson${exclude}`;
     const res = await fetch(url);
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
-    if(data.routes && data.routes[0]) {
-      return data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-    }
+    if(data.routes && data.routes[0]) return data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
     throw new Error('no route');
   }catch(e){
-    console.warn('[OSRM] ไม่สามารถหาเส้นทางได้ ใช้เส้นสำรอง:', e.message);
+    console.warn('[OSRM] ใช้เส้นตรงสำรอง:', e.message);
     return waypoints.map(w => [w.lat, w.lng]);
   }
 }
-
 let routeLayers = [];
 let routeReq = 0;
 function clearRoute(){ routeLayers.forEach(l => map.removeLayer(l)); routeLayers = []; }
@@ -609,36 +613,35 @@ async function drawRoute(h, direction){
   clearRoute();
   const spans = buildSpans(h, direction);
   if(!spans.length) return;
-  
   const bounds = [];
-  
   for(const span of spans){
-    let pts = [];
+    let pts;
     if(span.rail){
-      // รถไฟฟ้าลากเส้นตามตำแหน่งสถานีจริงตรงๆ (ไม่ดัดโค้งหลอก)
       let seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
-      pts = seq.map(w => [w.lat, w.lng]);
+      if(seq.length === 2){
+        //smooth line for 2 station 
+        const a = seq[0], b = seq[1];
+        const midLat = (a.lat+b.lat)/2 - (b.lng-a.lng)*0.05;
+        const midLng = (a.lng+b.lng)/2 + (b.lat-a.lat)*0.05;
+        seq = [a, {lat:midLat, lng:midLng}, b];
+      }
+      pts = smoothLine(seq.map(w => [w.lat, w.lng]), 2);
     } else {
-      // สั่งดึงเส้นทางตามแนวถนนจริงผ่าน OSRM API
-      pts = await fetchRoad([span.from, span.to], profileFor(span.mode));
+      const rideMode = span.steps.find(s => s !== 'เดิน');
+      pts = await fetchRoad([span.from, span.to], profileFor(rideMode || 'เดิน'));
     }
-    
     if(myReq !== routeReq) return;
-    
-    const st = tStyle(span.mode);
-    const line = L.polyline(pts, { 
-      color: st.color, 
-      weight: 6, 
-      opacity: 0.85, 
-      lineCap: 'round',
-      dashArray: span.mode === 'เดิน' ? '6, 8' : null // ถ้าเดินให้ใช้เส้นปรุ
-    }).addTo(map);
-    
-    routeLayers.push(line);
-    pts.forEach(p => bounds.push(p));
-
+    const parts = splitByModes(pts, span.steps);
+    span.steps.forEach((mode, k) => {
+      const st = tStyle(mode);
+      if(!parts[k] || parts[k].length < 2) return;
+      const line = L.polyline(parts[k], { color:st.color, weight:5.5, opacity:0.9, lineCap:'round' }).addTo(map);
+      routeLayers.push(line);
+      parts[k].forEach(p => bounds.push(p));
+    });
     if(span.rail){
       [span.from, span.to].forEach(pt => {
+        const st = tStyle(span.rail.line);
         const mk = L.marker([pt.lat, pt.lng], {
           icon: L.divIcon({ className:'', html:`<div class="station-dot" style="border-color:${st.color};color:${st.color}">${st.icon}</div>`, iconSize:[22,22] })
         }).addTo(map).bindTooltip(pt.label, { permanent:false });
@@ -646,10 +649,9 @@ async function drawRoute(h, direction){
       });
     }
   }
-  
   if(bounds.length) map.fitBounds(L.latLngBounds(bounds).pad(0.15));
 }
-
+// Home point + popup
 const markers = {};
 housing.forEach((h, i) => {
   const near = h.distanceKm <= 3;
@@ -673,7 +675,7 @@ housing.forEach((h, i) => {
     </div>`, { maxWidth:260 });
   markers[i] = m;
 });
-
+// summary + find + Filter
 const listEl = document.getElementById('list');
 const sortSelect = document.getElementById('sortSelect');
 const distFilter = document.getElementById('distFilter');
@@ -688,7 +690,6 @@ function searchableText(h){
   const sec = h.security ? Object.values(h.security).join(' ') : '';
   return [h.name,h.nameTh,h.type,h.quote,h.buildingCondition,app,sec,h.furnishing].filter(Boolean).join(' ').toLowerCase();
 }
-
 function hasAmenity(h, key){
   const has = n => (h.appliances||[]).some(a => a.name.includes(n));
   switch(key){
@@ -704,7 +705,6 @@ function hasAmenity(h, key){
     default: return true;
   }
 }
-
 function render(){
   let items = housing.map((h,i)=>({h,i}));
   const q = searchInput.value.trim().toLowerCase();
@@ -749,17 +749,14 @@ function render(){
   });
 }
 render();
-
 [sortSelect,distFilter,typeFilter].forEach(el=>el.addEventListener('change',render));
 document.querySelectorAll('.amenityCheck').forEach(cb=>cb.addEventListener('change',render));
-
 function highlightMatch(name,q){
   if(!q) return name;
   const i = name.toLowerCase().indexOf(q.toLowerCase());
   if(i===-1) return name;
   return name.slice(0,i)+'<mark>'+name.slice(i,i+q.length)+'</mark>'+name.slice(i+q.length);
 }
-
 function updateSuggest(){
   const q = searchInput.value.trim();
   searchClear.style.display = q ? 'block' : 'none';
@@ -790,12 +787,11 @@ function updateSuggest(){
   }
   searchSuggest.classList.add('show');
 }
-
 searchInput.addEventListener('input',updateSuggest);
 searchInput.addEventListener('focus',()=>{ if(searchInput.value.trim()) searchSuggest.classList.add('show'); });
 document.addEventListener('click',e=>{ if(!e.target.closest('.search-wrap')) searchSuggest.classList.remove('show'); });
 searchClear.addEventListener('click',()=>{ searchInput.value=''; searchClear.style.display='none'; searchSuggest.classList.remove('show'); render(); searchInput.focus(); });
-
+// Detail Inside Popup
 function kv(l,v){ return (v===undefined||v===null||v==='') ? '' : `<div class="kv"><span class="k">${l}</span><span class="v">${v}</span></div>`; }
 function tagList(a){ return (!a||!a.length) ? '' : `<div class="tag-wrap">${a.map(x=>`<span>${x}</span>`).join('')}</div>`; }
 function starsRow(l,n){ return (n==null) ? '' : `<div class="stars-row"><span>${l}</span><span class="stars">${'⭐'.repeat(n)} (${n})</span></div>`; }
@@ -804,14 +800,13 @@ function routeChipsHTML(h, direction){
   const spans = buildSpans(h, direction);
   if(!spans.length) return '<div style="color:var(--muted);font-size:12px;">ไม่มีข้อมูล</div>';
   const chips = [];
-  spans.forEach(sp => {
-    const st = tStyle(sp.mode);
+  spans.forEach(sp => sp.steps.forEach(mode => {
+    const st = tStyle(mode);
     const named = sp.rail ? `: ${stTh(sp.rail.a)} → ${stTh(sp.rail.b)}` : '';
     chips.push(`<span class="route-chip" style="background:${st.color}">${st.icon} ${st.label}${named}</span>`);
-  });
+  }));
   return `<div class="route-flow">${chips.join('<span class="route-arrow">→</span>')}</div>`;
 }
-
 function routeCostHTML(h, direction){
   const cost = direction==='to' ? h.travelCostGo  : h.travelCostBack;
   const time = direction==='to' ? h.travelTimeGo  : h.travelTimeBack;
@@ -821,7 +816,6 @@ function routeCostHTML(h, direction){
   if(time !== undefined && time !== '') out += kv(`เวลาเดินทาง${word}`, time+' นาที');
   return out;
 }
-
 let currentH = null;
 function switchRouteTab(direction){
   if(!currentH) return;
@@ -832,7 +826,6 @@ function switchRouteTab(direction){
   if(cEl) cEl.innerHTML = routeCostHTML(currentH, direction);
   drawRoute(currentH, direction);
 }
-
 function openDrawer(i){
   const h = housing[i];
   currentH = h;
@@ -909,7 +902,7 @@ function openDrawer(i){
     if(r.faculty) parts.push(r.faculty);
     src = parts.join(', ') || src;
   }
-  
+  // Direction Google Maps
   const dirUrl = `https://www.google.com/maps/dir/?api=1&origin=${h.lat},${h.lng}&destination=${UNI_GATE.lat},${UNI_GATE.lng}&travelmode=transit`;
   const extra = document.createElement('div');
   extra.innerHTML = `
