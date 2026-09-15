@@ -621,6 +621,8 @@ function profileFor(mode){
   if(mode === 'เดิน') return 'foot';
   if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return 'bike';   // มอเตอร์ไซค์ลัดซอยได้ ขึ้นทางด่วนไม่ได้
   if(mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return 'bike'; // รถยนต์ ไม่วิ่งทางเดินเท้า
+  if(mode === 'รถส่วนตัว') return 'car';
+  if(mode === 'รถโดยสารประจำทาง') return 'car';
 }
 async function fetchRoad(waypoints, profile){
   const coords = waypoints.map(w => `${w.lng},${w.lat}`).join(';');
