@@ -625,6 +625,7 @@ function profileFor(mode){
 }
 async function fetchRoad(waypoints, profile){
   const coords = waypoints.map(w => `${w.lng},${w.lat}`).join(';');
+  const exclude = profile === 'car' ? '&exclude=motorway' : '';
   try{
     const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${coords}?overview=full&geometries=geojson`;
     const res = await fetch(url);
