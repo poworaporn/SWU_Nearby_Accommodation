@@ -399,7 +399,8 @@ const housing = [
     wifi:"ไม่มี / ติดตั้งเอง", wifiSelfCost:540,
     routeToSteps:["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
     routeBackSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง"],
-    returnPickup: { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" },
+    // ไม่เรียกวินหน้ามอ (มีแต่คิวไปทางอโศก แพงและต้องกลับรถ) เดินมาฝั่งแยกเพชรบุรี-อโศกแล้วเรียกวินตรงนั้นกลับห้องแทน
+    returnPickup: { lat:13.7484838, lng:100.5634913, label:"แยกเพชรบุรี-อโศก (จุดขึ้นวิน)" },
     travelCostDay:80,
     travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
     travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
@@ -625,8 +626,9 @@ function profileFor(mode){
 }
 async function fetchRoad(waypoints, profile){
   const coords = waypoints.map(w => `${w.lng},${w.lat}`).join(';');
+  const exclude = profile === 'car' ? '&exclude=motorway' : ''; // เรียกรถผ่านแอป/แท็กซี่ในซอยมักไม่ขึ้นทางด่วน
   try{
-    const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${coords}?overview=full&geometries=geojson`;
+    const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${coords}?overview=full&geometries=geojson${exclude}`;
     const res = await fetch(url);
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
@@ -670,7 +672,14 @@ async function drawRoute(h, direction){
     let pts;
     if(span.rail){
       // รถไฟฟ้าวิ่งทางเดียวไม่กลับรถ จึงลากตามลำดับสถานีจริง แล้วเกลาให้โค้งเอียงตามแนวราง
-      const seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
+      let seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
+      if(seq.length === 2){
+        // สถานีติดกัน 2 จุด ไม่มีจุดกลางให้โค้ง — แต่งจุดกลางเบา ๆ ให้เอียงตามแนวถนนแทนเส้นตรงแข็ง ๆ
+        const a = seq[0], b = seq[1];
+        const midLat = (a.lat+b.lat)/2 - (b.lng-a.lng)*0.05;
+        const midLng = (a.lng+b.lng)/2 + (b.lat-a.lat)*0.05;
+        seq = [a, {lat:midLat, lng:midLng}, b];
+      }
       pts = smoothLine(seq.map(w => [w.lat, w.lng]), 2);
     } else {
       const rideMode = span.steps.find(s => s !== 'เดิน');
@@ -928,7 +937,6 @@ function openDrawer(i){
     </div>
     <div id="routeChips" style="color:var(--muted);font-size:12px;">เลือก "ขาไป" หรือ "ขากลับ" เพื่อดูขั้นตอนและเส้นทางบนแผนที่</div>`;
   p4 += `<div id="routeCost"></div>`;
-  p4 += kv('ค่าเดินทางรวมไป-กลับ', h.travelCostDay !== undefined && h.travelCostDay !== '' ? h.travelCostDay.toLocaleString()+' บาท/วัน' : '');
   body += `<details class="section" open><summary>การเดินทางสู่ มศว</summary><div class="section-content">${p4}</div></details>`;
 
   const appTags = (h.appliances||[]).map(a => a.qty>1 ? `${a.name} ×${a.qty}` : a.name);
