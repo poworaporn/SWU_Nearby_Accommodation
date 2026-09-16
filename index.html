@@ -399,7 +399,7 @@ const housing = [
     wifi:"ไม่มี / ติดตั้งเอง", wifiSelfCost:540,
     routeToSteps:["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
     routeBackSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง"],
-    returnPickup: { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" },
+    // จุดขึ้นวินคำนวณอัตโนมัติเป็นแยกเพชรบุรี-อโศกแล้ว (ไม่มีคิววินหน้ามอ) ไม่ต้องระบุ returnPickup เพิ่ม
     travelCostDay:80,
     travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
     travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
@@ -479,7 +479,7 @@ const housing = [
     wifi:"ฟรี / รวมในค่าเช่า",
     routeToSteps:["เดิน","MRT","เดิน"],
     routeBackSteps:["เดิน","รถโดยสารประจำทาง","เดิน"],
-    returnPickup: { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" },
+    // จุดขึ้นรถเมล์คำนวณอัตโนมัติเป็นป้ายฝั่งตรงข้าม มศว แล้ว ไม่ต้องระบุ returnPickup เพิ่ม
     travelCostDay:50,
     travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
     travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
@@ -498,6 +498,16 @@ housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h
 // ==================================================================
 // สร้างเส้นทางอัตโนมัติจากลำดับวิธีเดินทางที่ผู้ตอบกรอก
 // ==================================================================
+// จุดขึ้นรถขากลับ (ค่าเริ่มต้นตามวิธีเดินทาง): รถเมล์/เรียกรถผ่านแอป ใช้ป้ายฝั่งตรงข้าม มศว ได้ปกติ
+// ส่วนวินมอเตอร์ไซค์ไม่มีคิวหน้ามอ ต้องเดินไปขึ้นที่แยกเพชรบุรี-อโศกซึ่งเป็นที่ตั้งวินจริง
+const BUS_APP_PICKUP    = { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" };
+const MOTORCYCLE_PICKUP = { lat:13.7484838, lng:100.5634913, label:"แยกเพชรบุรี-อโศก (จุดขึ้นวิน)" };
+function defaultPickupFor(mode){
+  if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return MOTORCYCLE_PICKUP;
+  if(mode === 'รถโดยสารประจำทาง' || mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return BUS_APP_PICKUP;
+  return null; // โหมดอื่นไม่ทราบจุดขึ้นรถที่แน่ชัด ให้เดินตรงจากมศวไปที่พักตามปกติ
+}
+
 function buildSpans(h, direction){
   const raw = (direction==='to' ? h.routeToSteps : h.routeBackSteps) || [];
   const steps = raw.filter(s => s && s !== 'จบการเดินทาง').slice();
@@ -509,13 +519,16 @@ function buildSpans(h, direction){
   const spans = [];
   let cursor = start, pending = [];
 
-  // ขากลับ: ถ้าระบุจุดขึ้นรถไว้ (เช่น ฝั่งตรงข้าม มศว ที่รถวิ่งตรงกลับห้อง) ให้เดินไปจุดนั้นก่อนแล้วค่อยขึ้นรถ
-  // จะได้ไม่ต้องกลับรถและค่าโดยสารถูกกว่า ตรงกับพฤติกรรมจริง
-  if(direction === 'back' && h.returnPickup && steps[0] === 'เดิน' && steps.length > 1 && !RAIL_MODES.includes(steps[1])){
-    const pick = { lat:h.returnPickup.lat, lng:h.returnPickup.lng, label:h.returnPickup.label || 'จุดขึ้นรถ' };
-    spans.push({ from:cursor, to:pick, steps:['เดิน'] });
-    cursor = pick;
-    steps.shift();
+  // ขากลับ: เดินไปจุดขึ้นรถที่ถูกต้องตามวิธีเดินทางก่อน (ไม่ต้องกลับรถ ค่าโดยสารถูกกว่า ตรงพฤติกรรมจริง)
+  // ใช้ h.returnPickup เพื่อ override เฉพาะเคส ถ้าไม่ระบุจะเลือกจุดให้อัตโนมัติตามโหมด
+  if(direction === 'back' && steps[0] === 'เดิน' && steps.length > 1 && !RAIL_MODES.includes(steps[1])){
+    const pickup = h.returnPickup || defaultPickupFor(steps[1]);
+    if(pickup){
+      const pick = { lat:pickup.lat, lng:pickup.lng, label:pickup.label || 'จุดขึ้นรถ' };
+      spans.push({ from:cursor, to:pick, steps:['เดิน'] });
+      cursor = pick;
+      steps.shift();
+    }
   }
 
   steps.forEach(mode => {
@@ -620,14 +633,14 @@ function svCoords(h){
 function profileFor(mode){
   if(mode === 'เดิน') return 'foot';
   if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return 'bike';   // มอเตอร์ไซค์ลัดซอยได้ ขึ้นทางด่วนไม่ได้
-  if(mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return 'bike'; return 'car';
-  if(mode === 'รถส่วนตัว') return 'car';
-  if(mode === 'รถโดยสารประจำทาง') return 'car';
+  if(mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return 'car'; // รถยนต์ ไม่วิ่งทางเดินเท้า
+  return 'car';
 }
 async function fetchRoad(waypoints, profile){
   const coords = waypoints.map(w => `${w.lng},${w.lat}`).join(';');
+  const exclude = profile === 'car' ? '&exclude=motorway' : ''; // เรียกรถผ่านแอป/แท็กซี่ในซอยมักไม่ขึ้นทางด่วน
   try{
-    const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${coords}?overview=full&geometries=geojson`;
+    const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${coords}?overview=full&geometries=geojson${exclude}`;
     const res = await fetch(url);
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
@@ -671,7 +684,14 @@ async function drawRoute(h, direction){
     let pts;
     if(span.rail){
       // รถไฟฟ้าวิ่งทางเดียวไม่กลับรถ จึงลากตามลำดับสถานีจริง แล้วเกลาให้โค้งเอียงตามแนวราง
-      const seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
+      let seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
+      if(seq.length === 2){
+        // สถานีติดกัน 2 จุด ไม่มีจุดกลางให้โค้ง — แต่งจุดกลางเบา ๆ ให้เอียงตามแนวถนนแทนเส้นตรงแข็ง ๆ
+        const a = seq[0], b = seq[1];
+        const midLat = (a.lat+b.lat)/2 - (b.lng-a.lng)*0.05;
+        const midLng = (a.lng+b.lng)/2 + (b.lat-a.lat)*0.05;
+        seq = [a, {lat:midLat, lng:midLng}, b];
+      }
       pts = smoothLine(seq.map(w => [w.lat, w.lng]), 2);
     } else {
       const rideMode = span.steps.find(s => s !== 'เดิน');
@@ -872,10 +892,9 @@ function routeCostHTML(h, direction){
   const cost = direction==='to' ? h.travelCostGo  : h.travelCostBack;
   const time = direction==='to' ? h.travelTimeGo  : h.travelTimeBack;
   const word = direction==='to' ? 'ขาไป' : 'ขากลับ';
-  let out = '';
-  if(cost !== undefined && cost !== '') out += kv(`ค่าเดินทาง${word}`, Number(cost).toLocaleString()+' บาท');
-  if(time !== undefined && time !== '') out += kv(`เวลาเดินทาง${word}`, time+' นาที');
-  return out;
+  const costText = (cost !== undefined && cost !== '') ? Number(cost).toLocaleString()+' บาท' : 'ไม่มีข้อมูล';
+  const timeText = (time !== undefined && time !== '') ? time+' นาที' : 'ไม่มีข้อมูล';
+  return kv(`ค่าเดินทาง${word}`, costText) + kv(`เวลาเดินทาง${word}`, timeText);
 }
 
 let currentH = null;
@@ -929,7 +948,6 @@ function openDrawer(i){
     </div>
     <div id="routeChips" style="color:var(--muted);font-size:12px;">เลือก "ขาไป" หรือ "ขากลับ" เพื่อดูขั้นตอนและเส้นทางบนแผนที่</div>`;
   p4 += `<div id="routeCost"></div>`;
-  p4 += kv('ค่าเดินทางรวมไป-กลับ', h.travelCostDay !== undefined && h.travelCostDay !== '' ? h.travelCostDay.toLocaleString()+' บาท/วัน' : '');
   body += `<details class="section" open><summary>การเดินทางสู่ มศว</summary><div class="section-content">${p4}</div></details>`;
 
   const appTags = (h.appliances||[]).map(a => a.qty>1 ? `${a.name} ×${a.qty}` : a.name);
