@@ -632,15 +632,14 @@ function svCoords(h){
 // เลือกโปรไฟล์ตามวิธีเดินทาง: เดิน=foot, วิน/เรียกรถ=bike (ขึ้นทางด่วนไม่ได้ จึงเกาะถนนพื้นราบตามจริง), รถเมล์/รถยนต์=car
 function profileFor(mode){
   if(mode === 'เดิน') return 'foot';
-  if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return 'bike';   // มอเตอร์ไซค์ลัดซอยได้ ขึ้นทางด่วนไม่ได้
-  if(mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return 'car'; // รถยนต์ ไม่วิ่งทางเดินเท้า
+  if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return 'bike';
+  if(mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return 'bike';
   return 'car';
 }
 async function fetchRoad(waypoints, profile){
   const coords = waypoints.map(w => `${w.lng},${w.lat}`).join(';');
-  const exclude = profile === 'car' ? '&exclude=motorway' : ''; // เรียกรถผ่านแอป/แท็กซี่ในซอยมักไม่ขึ้นทางด่วน
   try{
-    const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${coords}?overview=full&geometries=geojson${exclude}`;
+    const url = `https://routing.openstreetmap.de/routed-${profile}/route/v1/driving/${coords}?overview=full&geometries=geojson`;
     const res = await fetch(url);
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
@@ -683,15 +682,8 @@ async function drawRoute(h, direction){
   for(const span of spans){
     let pts;
     if(span.rail){
-      // รถไฟฟ้าวิ่งทางเดียวไม่กลับรถ จึงลากตามลำดับสถานีจริง แล้วเกลาให้โค้งเอียงตามแนวราง
-      let seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
-      if(seq.length === 2){
-        // สถานีติดกัน 2 จุด ไม่มีจุดกลางให้โค้ง — แต่งจุดกลางเบา ๆ ให้เอียงตามแนวถนนแทนเส้นตรงแข็ง ๆ
-        const a = seq[0], b = seq[1];
-        const midLat = (a.lat+b.lat)/2 - (b.lng-a.lng)*0.05;
-        const midLng = (a.lng+b.lng)/2 + (b.lat-a.lat)*0.05;
-        seq = [a, {lat:midLat, lng:midLng}, b];
-      }
+      // รถไฟฟ้าวิ่งทางเดียวไม่กลับรถ จึงลากตามลำดับสถานีจริง (สถานีติดกัน 2 จุดจะเป็นเส้นตรง ถูกต้องแล้ว)
+      const seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
       pts = smoothLine(seq.map(w => [w.lat, w.lng]), 2);
     } else {
       const rideMode = span.steps.find(s => s !== 'เดิน');
