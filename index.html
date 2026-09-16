@@ -233,7 +233,7 @@
 const CENTER = [13.744982862662434, 100.56469591898168];
 const UNI_GATE = { lat: 13.745008896871706, lng: 100.56260886539863, label: "มศว ประสานมิตร" };
 const GOOGLE_MAPS_API_KEY = "AIzaSyDbWLSw01m60YRiHBu_BOmcejMoDwy1VNE";
-// พิกัดสถานี BTS/MRT จากไฟล์ GeoJSON (49 สถานี) + ARL เพิ่มเติม
+// พิกัดสถานี BTS/MRT จากไฟล์ GeoJSON + ARL 
 const ST = {
   "On Nut": [13.705433, 100.601034],
   "Phra Khanong": [13.715143, 100.591378],
@@ -294,16 +294,14 @@ const ST = {
   "ARL Lat Krabang": [13.7230, 100.7283],
   "ARL Suvarnabhumi": [13.6922, 100.7501]
 };
-
-// ลำดับสถานีของแต่ละสาย ใช้วาดเส้นรถไฟฟ้าให้เกาะแนวรางจริง (ไล่ผ่านสถานีระหว่างทาง)
+// เรียงลำดับสถานี ใช้วาดเส้นรถไฟฟ้าให้เกาะแนวราง
 const LINES = {
   MRT: ["Hua Lamphong","Sam Yan","Silom","Lumphini","Klong Toei","Queen Sirikit","Sukhumwit","Phetchaburi","Phra Ram 9","Thailand Cultural","Huai Khwang","Sutthisan","Ratchadaphisek","Lad Phrao","Phahon Yothin","Chatuchak Park","Kampaeng Pet","Bangsue"],
   BTS: ["Mo Chit","Saphan Khwai","Ari","Sanam Pao","Victory Monument","Phaya Thai","Rachathewi","Siam Exchange Station","Chit Lom","Ploen Chit","Asoke","Phrom Phong","Thong Lo","Ekkamai","Phra Khanong","On Nut","Bang Chak","Punnawithi","Udomsuk","Bangna","Baring"],
   BTS_SILOM: ["National Stadium","Siam Exchange Station","Ratchadamri","Saladang","Chong Nonsi","Surasak","Taksin ","Krung Thonburi","Wong Wien Yai","Pho Nimit","Talat Phlu"],
   "Airport Rail Link": ["ARL Phaya Thai","ARL Ratchaprarop","ARL Makkasan","ARL Ramkhamhaeng","ARL Hua Mak","ARL Ban Thap Chang","ARL Lat Krabang","ARL Suvarnabhumi"]
 };
-
-// ชื่อไทยของสถานีที่ใช้บ่อย
+// ชื่อไทย BTS MRT
 const ST_TH = {
   "Phetchaburi":"เพชรบุรี", "Phra Ram 9":"พระราม 9", "Thailand Cultural":"ศูนย์วัฒนธรรมฯ",
   "Huai Khwang":"ห้วยขวาง", "Sutthisan":"สุทธิสาร", "Sukhumwit":"สุขุมวิท", "Queen Sirikit":"ศูนย์ฯ สิริกิติ์",
@@ -312,10 +310,8 @@ const ST_TH = {
   "ARL Makkasan":"มักกะสัน", "ARL Ratchaprarop":"ราชปรารภ", "ARL Phaya Thai":"พญาไท", "ARL Hua Mak":"หัวหมาก"
 };
 function stTh(n){ return ST_TH[n] || n; }
-
-// สถานีที่ใกล้มหาวิทยาลัยที่สุด (ใช้เป็นค่าเริ่มต้นเมื่อผู้ตอบไม่ได้ระบุว่าลงสถานีไหน)
+// MRT Uni Default สถานีหลัก ใช้เป็นค่าเริ่มต้น
 const DEFAULT_UNI_STATION = "Phetchaburi";
-
 function haversineKm(lat1, lng1, lat2, lng2){
   const R = 6371;
   const dLat = (lat2-lat1) * Math.PI/180;
@@ -323,7 +319,7 @@ function haversineKm(lat1, lng1, lat2, lng2){
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-// หาสถานีที่ใกล้จุดที่กำหนดที่สุด ภายในสายที่ระบุ
+// หาสถานีที่ใกล้จุดพิกัดที่สุด nearest.code
 function nearestStation(lat, lng, lineKey){
   const names = LINES[lineKey] || Object.keys(ST);
   let best = null, bestD = Infinity;
@@ -347,9 +343,7 @@ const TRANSPORT_STYLE = {
 };
 function tStyle(mode){ return TRANSPORT_STYLE[mode] || { icon:'📍', color:'#8b8371', label: mode }; }
 const RAIL_MODES = ['MRT','BTS','Airport Rail Link'];
-
-// ข้อมูลที่พัก
-// routeToSteps / routeBackSteps = ลำดับวิธีเดินทางตามที่ผู้ตอบกรอก (ขั้นตอนที่ 1..6)
+// ข้อมูลที่พัก DATA SHEET
 const housing = [
   {
     name: "Life Asoke Hype", nameTh: "ไลฟ์ อโศก ไฮป์",
@@ -492,18 +486,13 @@ const housing = [
   }
 ];
 housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h.lng); });
-
-// สร้างเส้นทางอัตโนมัติจากลำดับวิธีเดินทางที่ผู้ตอบกรอก
-// จุดขึ้นรถขากลับ (ค่าเริ่มต้นตามวิธีเดินทาง): รถเมล์/เรียกรถผ่านแอป ใช้ป้ายฝั่งตรงข้าม มศว ได้ปกติ
-// ส่วนวินมอเตอร์ไซค์ไม่มีคิวหน้ามอ ต้องเดินไปขึ้นที่แยกเพชรบุรี-อโศกซึ่งเป็นที่ตั้งวินจริง
 const BUS_APP_PICKUP    = { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" };
 const MOTORCYCLE_PICKUP = { lat:13.749050000788824, lng:100.56373497738878, label:"แยกเพชรบุรี-อโศก (จุดขึ้นวิน)" };
 function defaultPickupFor(mode){
   if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return MOTORCYCLE_PICKUP;
   if(mode === 'รถโดยสารประจำทาง' || mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return BUS_APP_PICKUP;
-  return null; // โหมดอื่นไม่ทราบจุดขึ้นรถที่แน่ชัด ให้เดินตรงจากมศวไปที่พักตามปกติ
+  return null; // โหมดอื่นไม่ทราบจุดขึ้นรถ ERROR!!
 }
-
 function buildSpans(h, direction){
   const raw = (direction==='to' ? h.routeToSteps : h.routeBackSteps) || [];
   const steps = raw.filter(s => s && s !== 'จบการเดินทาง').slice();
@@ -514,9 +503,7 @@ function buildSpans(h, direction){
 
   const spans = [];
   let cursor = start, pending = [];
-
-  // ขากลับ: เดินไปจุดขึ้นรถที่ถูกต้องตามวิธีเดินทางก่อน (ไม่ต้องกลับรถ ค่าโดยสารถูกกว่า ตรงพฤติกรรมจริง)
-  // ใช้ h.returnPickup เพื่อ override เฉพาะเคส ถ้าไม่ระบุจะเลือกจุดให้อัตโนมัติตามโหมด
+  // ใช้ h.returnPickup เฉพาะเคส override ถ้าไม่ระบุจะเลือกจุดให้ตามโหมดที่ใส่
   if(direction === 'back' && steps[0] === 'เดิน' && steps.length > 1 && !RAIL_MODES.includes(steps[1])){
     const pickup = h.returnPickup || defaultPickupFor(steps[1]);
     if(pickup){
@@ -526,7 +513,6 @@ function buildSpans(h, direction){
       steps.shift();
     }
   }
-
   steps.forEach(mode => {
     if(RAIL_MODES.includes(mode)){
       const homeSide = nearestStation(h.lat, h.lng, mode);
@@ -547,8 +533,7 @@ function buildSpans(h, direction){
   if(pending.length) spans.push({ from:cursor, to:end, steps:pending.slice() });
   return spans;
 }
-
-// เส้นรถไฟฟ้า: ไล่ผ่านสถานีระหว่างทางจริง ทำให้เส้นเกาะแนวรางไม่ตัดตรงข้ามเมือง
+// เส้นรถไฟฟ้าไล่ผ่านสถานีระหว่างทางจริง ปรับให้เส้นเกาะแนวราง
 function stationSequence(lineKey, a, b){
   const order = LINES[lineKey];
   const mk = n => ({ lat:ST[n][0], lng:ST[n][1], name:n });
@@ -558,15 +543,13 @@ function stationSequence(lineKey, a, b){
   const slice = i <= j ? order.slice(i, j+1) : order.slice(j, i+1).reverse();
   return slice.filter(n => ST[n]).map(mk);
 }
-
-// แบ่งเส้น polyline ออกเป็นหลายท่อนตามสัดส่วนน้ำหนัก (ใช้ตอน 1 ช่วงมีหลายวิธีเดินทาง เช่น เดิน→รถเมล์→เดิน)
+// แบ่งเส้น polyline ออกเป็นหลายท่อนตามสัดส่วนน้ำหนัก เฉพาะ 1 ช่วงมีหลายวิธีเดินทาง เช่น เดิน→รถเมล์→เดิน
 function polylineLengthKm(points){
   let t = 0;
   for(let i=1;i<points.length;i++) t += haversineKm(points[i-1][0],points[i-1][1],points[i][0],points[i][1]);
   return t;
 }
-// แบ่งเส้นออกเป็นหลายท่อนตามวิธีเดินทาง
-// ช่วง "เดิน" จำกัดไม่เกิน 600 เมตรต่อท่อน เพื่อไม่ให้เส้นเดินยาวผิดความจริงเวลาอยู่คู่กับรถเมล์/วิน
+// ช่วงเดินจำกัดไม่เกิน 600 เมตรต่อ ไม่ให้เส้นเดินยาวผิดความจริงเวลาอยู่คู่กับรถเมล์/วิน
 const MAX_WALK_KM = 0.6;
 function splitByModes(points, modes){
   if(modes.length === 1) return [points];
@@ -598,7 +581,7 @@ function splitByModes(points, modes){
   while(out.length < modes.length) out.push([points[points.length-1]]);
   return out;
 }
-// แผนที่
+// แผนที่ MAP
 const map = L.map('map', { zoomControl:false }).setView(CENTER, 13);
 L.control.zoom({ position:'bottomright' }).addTo(map);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -620,8 +603,7 @@ function svCoords(h){
            lng: h.svLng !== undefined ? h.svLng : h.lng,
            heading: h.svHeading !== undefined ? h.svHeading : 210 };
 }
-// OSRM
-// เลือกโปรไฟล์ตามวิธีเดินทาง: เดิน=foot, วิน/เรียกรถ=bike (ขึ้นทางด่วนไม่ได้ จึงเกาะถนนพื้นราบตามจริง), รถเมล์/รถยนต์=car
+// OSRM เลือกโปรไฟล์ตามวิธีเดินทาง: เดิน=foot, วิน=bike(ขึ้นทางด่วนไม่ได้), เรียกรถ/รถเมล์/รถยนต์=car
 function profileFor(mode){
   if(mode === 'เดิน') return 'foot';
   if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return 'bike';
@@ -645,8 +627,7 @@ async function fetchRoad(waypoints, profile){
 let routeLayers = [];
 let routeReq = 0;
 function clearRoute(){ routeLayers.forEach(l => map.removeLayer(l)); routeLayers = []; }
-
-// ทำให้เส้นหักมุมน้อยลง โค้งเอียงตามแนวสถานีจริง (Chaikin) — ใช้ได้ผลเมื่อมีสถานีระหว่างทาง 3 จุดขึ้นไป
+// เพิ่มทำให้เส้นหักมุมน้อยลง(Chaikin) — ใช้ได้เคสมีสถานีระหว่างทาง 3 จุดขึ้นไป
 function smoothLine(points, passes){
   let pts = points;
   for(let p=0; p<(passes||2); p++){
@@ -672,7 +653,7 @@ async function drawRoute(h, direction){
   for(const span of spans){
     let pts;
     if(span.rail){
-      // รถไฟฟ้าวิ่งทางเดียวไม่กลับรถ จึงลากตามลำดับสถานีจริง (สถานีติดกัน 2 จุดจะเป็นเส้นตรง ถูกต้องแล้ว)
+      // รถไฟฟ้าวิ่งทางเดียว
       const seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
       pts = smoothLine(seq.map(w => [w.lat, w.lng]), 2);
     } else {
@@ -680,7 +661,6 @@ async function drawRoute(h, direction){
       pts = await fetchRoad([span.from, span.to], profileFor(rideMode || 'เดิน'));
     }
     if(myReq !== routeReq) return;
-
     const parts = splitByModes(pts, span.steps);
     span.steps.forEach((mode, k) => {
       const st = tStyle(mode);
@@ -691,12 +671,11 @@ async function drawRoute(h, direction){
      weight: isWalk ? 5 : 5.5, 
      opacity: 0.9, 
      lineCap: 'round',
-      dashArray: isWalk ? '8, 8' : null // ถ้าเป็น 'เดิน' ให้เป็นเส้นประ (ความยาวเส้น 8px, เว้น 8px)
+      dashArray: isWalk ? '8, 8' : null //ให้'เดิน'เป็นเส้นประ
 }).addTo(map);
       routeLayers.push(line);
       parts[k].forEach(p => bounds.push(p));
     });
-
     if(span.rail){
       [span.from, span.to].forEach(pt => {
         const st = tStyle(span.rail.line);
@@ -709,7 +688,6 @@ async function drawRoute(h, direction){
   }
   if(bounds.length) map.fitBounds(L.latLngBounds(bounds).pad(0.15));
 }
-
 // หมุดที่พัก + popup
 const markers = {};
 housing.forEach((h, i) => {
@@ -734,7 +712,6 @@ housing.forEach((h, i) => {
     </div>`, { maxWidth:260 });
   markers[i] = m;
 });
-
 // รายการ + ค้นหา + ตัวกรอง
 const listEl = document.getElementById('list');
 const sortSelect = document.getElementById('sortSelect');
@@ -854,9 +831,8 @@ searchInput.addEventListener('focus',()=>{ if(searchInput.value.trim()) searchSu
 document.addEventListener('click',e=>{ if(!e.target.closest('.search-wrap')) searchSuggest.classList.remove('show'); });
 searchClear.addEventListener('click',()=>{ searchInput.value=''; searchClear.style.display='none'; searchSuggest.classList.remove('show'); render(); searchInput.focus(); });
 
-// ==================================================================
-// แผงรายละเอียด
-// ==================================================================
+  // ส่วนแผงรายละเอียดด้านใน DETAIL
+
 function kv(l,v){ return (v===undefined||v===null||v==='') ? '' : `<div class="kv"><span class="k">${l}</span><span class="v">${v}</span></div>`; }
 function tagList(a){ return (!a||!a.length) ? '' : `<div class="tag-wrap">${a.map(x=>`<span>${x}</span>`).join('')}</div>`; }
 function starsRow(l,n){ return (n==null) ? '' : `<div class="stars-row"><span>${l}</span><span class="stars">${'⭐'.repeat(n)} (${n})</span></div>`; }
@@ -973,7 +949,7 @@ function openDrawer(i){
     src = parts.join(', ') || src;
   }
   
-  // ใช้ลิงก์ gmapsUrl ที่ระบุเอง หากไม่ได้ใส่ไว้จะดึงอัตโนมัติ
+  // ใช้ลิงก์ gmapsUrl ที่ระบุเอง ถ้าไม่ได้ใส่จะดึงอัตโนมัติ
   const dirUrl = h.gmapsUrl || `https://www.google.com/maps/dir/?api=1&origin=${h.lat},${h.lng}&destination=${UNI_GATE.lat},${UNI_GATE.lng}&travelmode=transit`;
   
   const extra = document.createElement('div');
