@@ -169,7 +169,7 @@
     <div class="search-wrap">
       <div class="search-box">
         <span>🔍</span>
-        <input type="text" id="searchInput" placeholder="ค้นหาชื่อที่พัก / คีย์เวิร์ด..." autocomplete="off">
+        <input type="text" id="searchInput" placeholder="ค้นหาชื่อที่พัก" autocomplete="off">
         <span class="search-clear" id="searchClear" style="display:none">✕</span>
       </div>
       <div class="search-suggest" id="searchSuggest"></div>
@@ -199,24 +199,22 @@
       <details class="amenity-filters">
         <summary>+ ตัวกรองเพิ่มเติม (สิ่งอำนวยความสะดวก)</summary>
         <div class="amenity-grid">
-          <label><input type="checkbox" data-amenity="แอร์" class="amenityCheck"> มีแอร์</label>
-          <label><input type="checkbox" data-amenity="เตา" class="amenityCheck"> มีเตาทำอาหาร</label>
-          <label><input type="checkbox" data-amenity="ตู้เย็น" class="amenityCheck"> มีตู้เย็น</label>
-          <label><input type="checkbox" data-amenity="ทีวี" class="amenityCheck"> มีทีวี</label>
-          <label><input type="checkbox" data-amenity="เครื่องซักผ้าในห้อง" class="amenityCheck"> เครื่องซักผ้าในห้อง</label>
-          <label><input type="checkbox" data-amenity="สระว่ายน้ำ" class="amenityCheck"> มีสระว่ายน้ำ</label>
-          <label><input type="checkbox" data-amenity="ฟิตเนส" class="amenityCheck"> มีฟิตเนส</label>
-          <label><input type="checkbox" data-amenity="ลิฟต์" class="amenityCheck"> มีลิฟต์</label>
-          <label><input type="checkbox" data-amenity="ที่จอดรถ" class="amenityCheck"> มีที่จอดรถ</label>
+          <label><input type="checkbox" data-amenity="แอร์" class="amenityCheck">แอร์</label>
+          <label><input type="checkbox" data-amenity="เตา" class="amenityCheck">เตาทำอาหาร</label>
+          <label><input type="checkbox" data-amenity="ตู้เย็น" class="amenityCheck">ตู้เย็น</label>
+          <label><input type="checkbox" data-amenity="ทีวี" class="amenityCheck">ทีวี</label>
+          <label><input type="checkbox" data-amenity="เครื่องซักผ้าในห้อง" class="amenityCheck">เครื่องซักผ้าในห้อง</label>
+          <label><input type="checkbox" data-amenity="สระว่ายน้ำ" class="amenityCheck"> สระว่ายน้ำ</label>
+          <label><input type="checkbox" data-amenity="ฟิตเนส" class="amenityCheck">ฟิตเนส</label>
+          <label><input type="checkbox" data-amenity="ลิฟต์" class="amenityCheck">ลิฟต์</label>
+          <label><input type="checkbox" data-amenity="ที่จอดรถ" class="amenityCheck">ที่จอดรถ</label>
         </div>
       </details>
     </div>
     <div class="list" id="list"></div>
     <div class="sb-foot">คลิกหมุดหรือรายการ เพื่อดูรายละเอียดจากแบบสอบถามวิจัย</div>
   </aside>
-
   <div id="map"></div>
-
   <div class="drawer-overlay" id="overlay"></div>
   <div class="drawer" id="drawer">
     <div class="drawer-head">
@@ -235,7 +233,6 @@
 const CENTER = [13.744982862662434, 100.56469591898168];
 const UNI_GATE = { lat: 13.745008896871706, lng: 100.56260886539863, label: "มศว ประสานมิตร" };
 const GOOGLE_MAPS_API_KEY = "AIzaSyDbWLSw01m60YRiHBu_BOmcejMoDwy1VNE";
-
 // พิกัดสถานี BTS/MRT จากไฟล์ GeoJSON (49 สถานี) + ARL เพิ่มเติม
 const ST = {
   "On Nut": [13.705433, 100.601034],
@@ -337,7 +334,6 @@ function nearestStation(lat, lng, lineKey){
   });
   return best;
 }
-
 const TRANSPORT_STYLE = {
   'เดิน':                                 { icon:'🚶', color:'#8b5e34', label:'เดิน' },
   'MRT':                                  { icon:'🚇', color:'#1f4e9c', label:'MRT' },
@@ -357,6 +353,7 @@ const RAIL_MODES = ['MRT','BTS','Airport Rail Link'];
 const housing = [
   {
     name: "Life Asoke Hype", nameTh: "ไลฟ์ อโศก ไฮป์",
+    gmapsUrl:
     type: "คอนโดมิเนียม", lat: 13.7542266, lng: 100.5636255,
     placeId: "ChIJdeYACoSf4jARU5jqqoUHz0U",
     respondent: { gender:"หญิง", age:21, faculty:"คณะเศรษฐศาสตร์", income:"มากกว่า 20,000 บาท/เดือน" },
@@ -384,6 +381,7 @@ const housing = [
   },
   {
     name: "Lumpini Park Rama 9 - Ratchada", nameTh: "ลุมพินี พาร์ค พระราม 9 - รัชดา",
+    gmapsUrl:
     type: "คอนโดมิเนียม", lat: 13.7535367, lng: 100.5761984,
     respondent: { gender:"หญิง", age:20, faculty:"คณะเศรษฐศาสตร์", income:"15,001-20,000 บาท/เดือน" },
     roomSize:"26.75 ตร.ม.", floor:"11", occupants:"1 คน",
@@ -411,6 +409,7 @@ const housing = [
   },
   {
     name: "The Rich Place", nameTh: "เดอะ ริช เพลส",
+    gmapsUrl:
     type: "อพาร์ตเมนต์", lat: 13.771949775481755, lng: 100.56751795118954,
     respondent: { gender:"หญิง", age:22, faculty:"คณะเศรษฐศาสตร์", income:"15,001-20,000 บาท/เดือน" },
     roomSize:"22 ตร.ม.", floor:"3", occupants:"2 คน",
@@ -438,6 +437,7 @@ const housing = [
   },
   {
     name: "Sukhumvit Living Town", nameTh: "สุขุมวิท ลิฟวิ่ง ทาวน์",
+    gmapsUrl:
     type: "คอนโดมิเนียม", lat: 13.74608703698388, lng: 100.56256420048993,
     respondent: { gender:"หญิง", age:22, faculty:"คณะเศรษฐศาสตร์", income:"5,001-10,000 บาท/เดือน" },
     roomSize:"77.08 ตร.ม.", floor:"23", occupants:"4 คนขึ้นไป",
@@ -464,6 +464,7 @@ const housing = [
   },
   {
     name: "Bangkok Apartment", nameTh: "แบงค็อก อพาร์ตเมนต์",
+    gmapsUrl:
     type: "อพาร์ตเมนต์", lat: 13.782801669865771, lng: 100.57301603390567,
     respondent: { gender:"ชาย", age:21, faculty:"คณะเศรษฐศาสตร์", income:"มากกว่า 20,000 บาท/เดือน" },
     roomSize:"24 ตร.ม.", floor:"5", occupants:"1 คน",
@@ -641,7 +642,6 @@ async function fetchRoad(waypoints, profile){
     return waypoints.map(w => [w.lat, w.lng]);
   }
 }
-
 let routeLayers = [];
 let routeReq = 0;
 function clearRoute(){ routeLayers.forEach(l => map.removeLayer(l)); routeLayers = []; }
@@ -662,7 +662,6 @@ function smoothLine(points, passes){
   }
   return pts;
 }
-
 async function drawRoute(h, direction){
   const myReq = ++routeReq;
   clearRoute();
@@ -686,7 +685,14 @@ async function drawRoute(h, direction){
     span.steps.forEach((mode, k) => {
       const st = tStyle(mode);
       if(!parts[k] || parts[k].length < 2) return;
-      const line = L.polyline(parts[k], { color:st.color, weight:5.5, opacity:0.9, lineCap:'round' }).addTo(map);
+      const isWalk = mode === 'เดิน';
+      const line = L.polyline(parts[k], { 
+     color: st.color, 
+     weight: isWalk ? 5 : 5.5, 
+     opacity: 0.9, 
+     lineCap: 'round',
+      dashArray: isWalk ? '8, 8' : null // ถ้าเป็น 'เดิน' ให้เป็นเส้นประ (ความยาวเส้น 8px, เว้น 8px)
+}).addTo(map);
       routeLayers.push(line);
       parts[k].forEach(p => bounds.push(p));
     });
@@ -966,9 +972,8 @@ function openDrawer(i){
     if(r.faculty) parts.push(r.faculty);
     src = parts.join(', ') || src;
   }
-  // ลิงก์เส้นทางการเดินทางใน Google Maps (ไม่ใช่แค่หมุดตำแหน่ง)
-  const dirUrl = `https://www.google.com/maps/dir/?api=1&origin=${h.lat},${h.lng}&destination=${UNI_GATE.lat},${UNI_GATE.lng}&travelmode=transit`;
-  const extra = document.createElement('div');
+  // ใช้ลิงก์ที่พิมพ์ใส่เอง ถ้าไม่มีค่อยใช้สูตรอัตโนมัติสำรอง
+  const dirUrl = h.gmapsUrl || `https://www.google.com/maps/dir/?api=1&origin=${h.lat},${h.lng}&destination=${UNI_GATE.lat},${UNI_GATE.lng}&travelmode=transit`;
   extra.innerHTML = `
     ${h.quote?`<div class="quote-block">"${h.quote}"<div class="quote-src">— ${src}</div></div>`:''}
     <a class="gmaps-link" href="${dirUrl}" target="_blank" rel="noopener">🧭 ดูเส้นทางไปกลับที่พัก-มศว ใน Google Maps</a>`;
