@@ -353,7 +353,7 @@ const RAIL_MODES = ['MRT','BTS','Airport Rail Link'];
 const housing = [
   {
     name: "Life Asoke Hype", nameTh: "ไลฟ์ อโศก ไฮป์",
-    gmapsUrl: "https://maps.app.goo.gl/pHQcJq2mVTPSymWa7?g_st=ic",
+    gmapsUrl: "https://maps.app.goo.gl/WD9Fntf3Fqxng2ez7",
     type: "คอนโดมิเนียม", lat: 13.7542266, lng: 100.5636255,
     placeId: "ChIJdeYACoSf4jARU5jqqoUHz0U",
     respondent: { gender:"หญิง", age:21, faculty:"คณะเศรษฐศาสตร์", income:"มากกว่า 20,000 บาท/เดือน" },
@@ -497,7 +497,7 @@ housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h
 // จุดขึ้นรถขากลับ (ค่าเริ่มต้นตามวิธีเดินทาง): รถเมล์/เรียกรถผ่านแอป ใช้ป้ายฝั่งตรงข้าม มศว ได้ปกติ
 // ส่วนวินมอเตอร์ไซค์ไม่มีคิวหน้ามอ ต้องเดินไปขึ้นที่แยกเพชรบุรี-อโศกซึ่งเป็นที่ตั้งวินจริง
 const BUS_APP_PICKUP    = { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" };
-const MOTORCYCLE_PICKUP = { lat:13.7484838, lng:100.5634913, label:"แยกเพชรบุรี-อโศก (จุดขึ้นวิน)" };
+const MOTORCYCLE_PICKUP = { lat:13.749050000788824, lng:100.56373497738878, label:"แยกเพชรบุรี-อโศก (จุดขึ้นวิน)" };
 function defaultPickupFor(mode){
   if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return MOTORCYCLE_PICKUP;
   if(mode === 'รถโดยสารประจำทาง' || mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return BUS_APP_PICKUP;
