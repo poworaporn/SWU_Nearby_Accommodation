@@ -972,8 +972,11 @@ function openDrawer(i){
     if(r.faculty) parts.push(r.faculty);
     src = parts.join(', ') || src;
   }
-  // ใช้ลิงก์ที่พิมพ์ใส่เอง ถ้าไม่มีค่อยใช้สูตรอัตโนมัติสำรอง
+  
+  // ใช้ลิงก์ gmapsUrl ที่ระบุเอง หากไม่ได้ใส่ไว้จะดึงอัตโนมัติ
   const dirUrl = h.gmapsUrl || `https://www.google.com/maps/dir/?api=1&origin=${h.lat},${h.lng}&destination=${UNI_GATE.lat},${UNI_GATE.lng}&travelmode=transit`;
+  
+  const extra = document.createElement('div');
   extra.innerHTML = `
     ${h.quote?`<div class="quote-block">"${h.quote}"<div class="quote-src">— ${src}</div></div>`:''}
     <a class="gmaps-link" href="${dirUrl}" target="_blank" rel="noopener">🧭 ดูเส้นทางไปกลับที่พัก-มศว ใน Google Maps</a>`;
