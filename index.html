@@ -187,8 +187,8 @@
       <div class="row">
         <select id="distFilter">
           <option value="all">ระยะ: ทั้งหมด</option>
-          <option value="near">ในวง 3 กม.</option>
-          <option value="far">3–6 กม.</option>
+          <option value="near">3 กม.</option>
+          <option value="far">6 กม.</option>
         </select>
         <select id="typeFilter">
           <option value="all">ประเภท: ทั้งหมด</option>
@@ -352,11 +352,8 @@ const TRANSPORT_STYLE = {
 function tStyle(mode){ return TRANSPORT_STYLE[mode] || { icon:'📍', color:'#8b8371', label: mode }; }
 const RAIL_MODES = ['MRT','BTS','Airport Rail Link'];
 
-// ==================================================================
-// ข้อมูลที่พัก — ตรงตามชีท "Final response วิจัย" (5 รายการ)
+// ข้อมูลที่พัก
 // routeToSteps / routeBackSteps = ลำดับวิธีเดินทางตามที่ผู้ตอบกรอก (ขั้นตอนที่ 1..6)
-// ระบบจะหาสถานีขึ้น/ลงให้อัตโนมัติ: ฝั่งที่พัก = สถานีใกล้ที่พักที่สุด, ฝั่งมหาลัย = สถานีใกล้มหาลัยที่สุด
-// ==================================================================
 const housing = [
   {
     name: "Life Asoke Hype", nameTh: "ไลฟ์ อโศก ไฮป์",
@@ -387,7 +384,7 @@ const housing = [
   },
   {
     name: "Lumpini Park Rama 9 - Ratchada", nameTh: "ลุมพินี พาร์ค พระราม 9 - รัชดา",
-    type: "คอนโดมิเนียม", lat: 13.753266810804732, lng: 100.57633129182052,
+    type: "คอนโดมิเนียม", lat: 13.7535367, lng: 100.5761984,
     respondent: { gender:"หญิง", age:20, faculty:"คณะเศรษฐศาสตร์", income:"15,001-20,000 บาท/เดือน" },
     roomSize:"26.75 ตร.ม.", floor:"11", occupants:"1 คน",
     furnishing:"มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
@@ -399,10 +396,10 @@ const housing = [
     wifi:"ไม่มี / ติดตั้งเอง", wifiSelfCost:540,
     routeToSteps:["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
     routeBackSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง"],
-    // จุดขึ้นวินคำนวณอัตโนมัติเป็นแยกเพชรบุรี-อโศกแล้ว (ไม่มีคิววินหน้ามอ) ไม่ต้องระบุ returnPickup เพิ่ม
+    // จุดขึ้นวินคำนวณอัตโนมัติเป็นแยกเพชรบุรี-อโศก ไม่ต้องระบุ returnPickup เพิ่ม
     travelCostDay:80,
-    travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
-    travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
+    travelCostGo:"", travelCostBack:"", 
+    travelTimeGo:"", travelTimeBack:"", 
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"โทรทัศน์ (TV)",qty:1},{name:"ตู้เย็น",qty:1},{name:"ไมโครเวฟ",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1},{name:"เตาไฟฟ้า (สำหรับทำอาหาร)",qty:1}],
     laundry:"มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
     fitness:"มี", pool:"มี", poolSize:"25 เมตร",
@@ -427,8 +424,8 @@ const housing = [
     routeToSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง","MRT","เดิน"],
     routeBackSteps:["เดิน","MRT","วินมอเตอร์ไซค์รับจ้าง"],
     travelCostDay:70,
-    travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
-    travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
+    travelCostGo:"", travelCostBack:"",   
+    travelTimeGo:"", travelTimeBack:"",   
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1}],
     laundry:"ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
     laundryDistance:"50",
@@ -454,8 +451,8 @@ const housing = [
     routeToSteps:["เดิน"],
     routeBackSteps:["เดิน"],
     travelCostDay:0,
-    travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
-    travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
+    travelCostGo:"", travelCostBack:"",   
+    travelTimeGo:"", travelTimeBack:"",   
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:3},{name:"ตู้เย็น",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:2},{name:"เตาไฟฟ้า (สำหรับทำอาหาร)",qty:2}],
     laundry:"มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
     fitness:"มี", pool:"มี", poolSize:"25 เมตร",
@@ -481,8 +478,8 @@ const housing = [
     routeBackSteps:["เดิน","รถโดยสารประจำทาง","เดิน"],
     // จุดขึ้นรถเมล์คำนวณอัตโนมัติเป็นป้ายฝั่งตรงข้าม มศว แล้ว ไม่ต้องระบุ returnPickup เพิ่ม
     travelCostDay:50,
-    travelCostGo:"", travelCostBack:"",   // ค่าเดินทางแยกขาไป/ขากลับ (บาท) — กรอกเพิ่มได้
-    travelTimeGo:"", travelTimeBack:"",   // เวลาเดินทางแยกขาไป/ขากลับ (นาที) — กรอกเพิ่มได้
+    travelCostGo:"", travelCostBack:"",   
+    travelTimeGo:"", travelTimeBack:"",   
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1}],
     laundry:"ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
     fitness:"ไม่มี", pool:"ไม่มี", poolSize:"",
@@ -495,9 +492,7 @@ const housing = [
 ];
 housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h.lng); });
 
-// ==================================================================
 // สร้างเส้นทางอัตโนมัติจากลำดับวิธีเดินทางที่ผู้ตอบกรอก
-// ==================================================================
 // จุดขึ้นรถขากลับ (ค่าเริ่มต้นตามวิธีเดินทาง): รถเมล์/เรียกรถผ่านแอป ใช้ป้ายฝั่งตรงข้าม มศว ได้ปกติ
 // ส่วนวินมอเตอร์ไซค์ไม่มีคิวหน้ามอ ต้องเดินไปขึ้นที่แยกเพชรบุรี-อโศกซึ่งเป็นที่ตั้งวินจริง
 const BUS_APP_PICKUP    = { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" };
@@ -602,10 +597,7 @@ function splitByModes(points, modes){
   while(out.length < modes.length) out.push([points[points.length-1]]);
   return out;
 }
-
-// ==================================================================
 // แผนที่
-// ==================================================================
 const map = L.map('map', { zoomControl:false }).setView(CENTER, 13);
 L.control.zoom({ position:'bottomright' }).addTo(map);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -627,8 +619,7 @@ function svCoords(h){
            lng: h.svLng !== undefined ? h.svLng : h.lng,
            heading: h.svHeading !== undefined ? h.svHeading : 210 };
 }
-
-// OSRM (ฟรี ไม่ต้องมี API key) — ต้องเปิดผ่านเว็บจริง (https://) เท่านั้น เปิดไฟล์ file:// เบราว์เซอร์จะบล็อก
+// OSRM
 // เลือกโปรไฟล์ตามวิธีเดินทาง: เดิน=foot, วิน/เรียกรถ=bike (ขึ้นทางด่วนไม่ได้ จึงเกาะถนนพื้นราบตามจริง), รถเมล์/รถยนต์=car
 function profileFor(mode){
   if(mode === 'เดิน') return 'foot';
@@ -713,9 +704,7 @@ async function drawRoute(h, direction){
   if(bounds.length) map.fitBounds(L.latLngBounds(bounds).pad(0.15));
 }
 
-// ==================================================================
 // หมุดที่พัก + popup
-// ==================================================================
 const markers = {};
 housing.forEach((h, i) => {
   const near = h.distanceKm <= 3;
@@ -740,9 +729,7 @@ housing.forEach((h, i) => {
   markers[i] = m;
 });
 
-// ==================================================================
 // รายการ + ค้นหา + ตัวกรอง
-// ==================================================================
 const listEl = document.getElementById('list');
 const sortSelect = document.getElementById('sortSelect');
 const distFilter = document.getElementById('distFilter');
@@ -935,12 +922,12 @@ function openDrawer(i){
   body += `<details class="section"><summary>ค่าน้ำ-ไฟ-ส่วนกลาง-เน็ต</summary><div class="section-content">${p3}</div></details>`;
 
   let p4 = `<div class="route-tabs">
-      <div class="route-tab" id="routeTabTo" onclick="switchRouteTab('to')">🡒 ขาไป มศว</div>
-      <div class="route-tab" id="routeTabBack" onclick="switchRouteTab('back')">🡐 ขากลับที่พัก</div>
+      <div class="route-tab" id="routeTabTo" onclick="switchRouteTab('to')"> ขาไป มศว</div>
+      <div class="route-tab" id="routeTabBack" onclick="switchRouteTab('back')"> ขากลับ ที่พัก</div>
     </div>
     <div id="routeChips" style="color:var(--muted);font-size:12px;">เลือก "ขาไป" หรือ "ขากลับ" เพื่อดูขั้นตอนและเส้นทางบนแผนที่</div>`;
   p4 += `<div id="routeCost"></div>`;
-  body += `<details class="section" open><summary>การเดินทางสู่ มศว</summary><div class="section-content">${p4}</div></details>`;
+  body += `<details class="section" open><summary>การเดินทางไปกลับ ที่พัก-มศว</summary><div class="section-content">${p4}</div></details>`;
 
   const appTags = (h.appliances||[]).map(a => a.qty>1 ? `${a.name} ×${a.qty}` : a.name);
   const inRoomLaundry = h.laundry && h.laundry.includes('ภายในห้องพัก');
@@ -984,7 +971,7 @@ function openDrawer(i){
   const extra = document.createElement('div');
   extra.innerHTML = `
     ${h.quote?`<div class="quote-block">"${h.quote}"<div class="quote-src">— ${src}</div></div>`:''}
-    <a class="gmaps-link" href="${dirUrl}" target="_blank" rel="noopener">🧭 ดูเส้นทางไป มศว ใน Google Maps</a>`;
+    <a class="gmaps-link" href="${dirUrl}" target="_blank" rel="noopener">🧭 ดูเส้นทางไปกลับที่พัก-มศว ใน Google Maps</a>`;
   document.getElementById('dBody').appendChild(extra);
 
   document.getElementById('drawer').classList.add('open');
