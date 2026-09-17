@@ -550,7 +550,7 @@ function polylineLengthKm(points){
   return t;
 }
 // ช่วงเดินจำกัดไม่เกิน 600 เมตรต่อ ไม่ให้เส้นเดินยาวผิดความจริงเวลาอยู่คู่กับรถเมล์/วิน
-const MAX_WALK_KM = 0.6;
+const MAX_WALK_KM = 0.3;
 function splitByModes(points, modes){
   if(modes.length === 1) return [points];
   const total = polylineLengthKm(points);
