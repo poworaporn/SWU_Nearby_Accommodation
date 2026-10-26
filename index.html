@@ -85,7 +85,8 @@
   .pin-badge .pin-icon{ transform:rotate(45deg); font-size:16px; line-height:1; }
   .pin-near{ background:var(--emerald); }
   .pin-far{ background:var(--gold); }
-  .station-dot{ width:22px; height:22px; border-radius:50%; background:#fff; border:3px solid #1f4e9c; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#1f4e9c; box-shadow:0 2px 6px rgba(0,0,0,.3); }
+  .station-dot{ width:20px; height:20px; border-radius:50%; background:#fff; border:3px solid #1f4e9c; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:#1f4e9c; box-shadow:0 2px 6px rgba(0,0,0,.3); }
+  .waypoint-dot{ width:11px; height:11px; border-radius:50%; background:#fff; border:2.5px solid #8b5e34; box-shadow:0 2px 5px rgba(0,0,0,.35); }
 
   .drawer-overlay{ position:absolute; inset:0; background:rgba(15,77,58,.28); opacity:0; pointer-events:none; transition:opacity .25s; z-index:1600; }
   .drawer-overlay.open{ opacity:1; pointer-events:auto; }
@@ -233,7 +234,7 @@
 const CENTER = [13.744982862662434, 100.56469591898168];
 const UNI_GATE = { lat: 13.745008896871706, lng: 100.56260886539863, label: "มศว ประสานมิตร" };
 const GOOGLE_MAPS_API_KEY = "AIzaSyDbWLSw01m60YRiHBu_BOmcejMoDwy1VNE";
-// พิกัดสถานี BTS/MRT จากไฟล์ GeoJSON + ARL 
+// พิกัดสถานี BTS/MRT จากไฟล์ GeoJSON (49 สถานี) + ARL เพิ่มเติม
 const ST = {
   "On Nut": [13.705433, 100.601034],
   "Phra Khanong": [13.715143, 100.591378],
@@ -294,14 +295,29 @@ const ST = {
   "ARL Lat Krabang": [13.7230, 100.7283],
   "ARL Suvarnabhumi": [13.6922, 100.7501]
 };
-// เรียงลำดับสถานี ใช้วาดเส้นรถไฟฟ้าให้เกาะแนวราง
+
+// ลำดับสถานีของแต่ละสาย ใช้วาดเส้นรถไฟฟ้าให้เกาะแนวรางจริง (ไล่ผ่านสถานีระหว่างทาง)
 const LINES = {
   MRT: ["Hua Lamphong","Sam Yan","Silom","Lumphini","Klong Toei","Queen Sirikit","Sukhumwit","Phetchaburi","Phra Ram 9","Thailand Cultural","Huai Khwang","Sutthisan","Ratchadaphisek","Lad Phrao","Phahon Yothin","Chatuchak Park","Kampaeng Pet","Bangsue"],
   BTS: ["Mo Chit","Saphan Khwai","Ari","Sanam Pao","Victory Monument","Phaya Thai","Rachathewi","Siam Exchange Station","Chit Lom","Ploen Chit","Asoke","Phrom Phong","Thong Lo","Ekkamai","Phra Khanong","On Nut","Bang Chak","Punnawithi","Udomsuk","Bangna","Baring"],
   BTS_SILOM: ["National Stadium","Siam Exchange Station","Ratchadamri","Saladang","Chong Nonsi","Surasak","Taksin ","Krung Thonburi","Wong Wien Yai","Pho Nimit","Talat Phlu"],
   "Airport Rail Link": ["ARL Phaya Thai","ARL Ratchaprarop","ARL Makkasan","ARL Ramkhamhaeng","ARL Hua Mak","ARL Ban Thap Chang","ARL Lat Krabang","ARL Suvarnabhumi"]
 };
-// ชื่อไทย BTS MRT
+
+// ใช้หลักการเดียวกับ MRT/BTS
+const BUS_STOPS = [
+  { name:"มศว ประสานมิตร", lat:13.745433, lng:100.562627 },
+  { name:"กุนนทีรุทธาราม (ห้วยขวาง)", lat:13.782409, lng:100.573654 }
+];
+function nearestBusStop(lat, lng){
+  let best = null, bestD = Infinity;
+  BUS_STOPS.forEach(s => {
+    const d = haversineKm(lat, lng, s.lat, s.lng);
+    if(d < bestD){ bestD = d; best = s; }
+  });
+  return best;
+}
+// ชื่อไทยของสถานีที่ใช้บ่อย
 const ST_TH = {
   "Phetchaburi":"เพชรบุรี", "Phra Ram 9":"พระราม 9", "Thailand Cultural":"ศูนย์วัฒนธรรมฯ",
   "Huai Khwang":"ห้วยขวาง", "Sutthisan":"สุทธิสาร", "Sukhumwit":"สุขุมวิท", "Queen Sirikit":"ศูนย์ฯ สิริกิติ์",
@@ -310,8 +326,10 @@ const ST_TH = {
   "ARL Makkasan":"มักกะสัน", "ARL Ratchaprarop":"ราชปรารภ", "ARL Phaya Thai":"พญาไท", "ARL Hua Mak":"หัวหมาก"
 };
 function stTh(n){ return ST_TH[n] || n; }
-// MRT Uni Default สถานีหลัก ใช้เป็นค่าเริ่มต้น
+
+// สถานีที่ใกล้มหาวิทยาลัยที่สุด
 const DEFAULT_UNI_STATION = "Phetchaburi";
+
 function haversineKm(lat1, lng1, lat2, lng2){
   const R = 6371;
   const dLat = (lat2-lat1) * Math.PI/180;
@@ -319,7 +337,7 @@ function haversineKm(lat1, lng1, lat2, lng2){
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-// หาสถานีที่ใกล้จุดพิกัดที่สุด nearest.code
+// หาสถานีที่ใกล้จุดที่กำหนดที่สุด ภายในสายที่ระบุ
 function nearestStation(lat, lng, lineKey){
   const names = LINES[lineKey] || Object.keys(ST);
   let best = null, bestD = Infinity;
@@ -343,13 +361,17 @@ const TRANSPORT_STYLE = {
 };
 function tStyle(mode){ return TRANSPORT_STYLE[mode] || { icon:'📍', color:'#8b8371', label: mode }; }
 const RAIL_MODES = ['MRT','BTS','Airport Rail Link'];
-// ข้อมูลที่พัก DATA SHEET
+const BUS_MODES = ['รถโดยสารประจำทาง'];
+const TRANSIT_MODES = RAIL_MODES.concat(BUS_MODES); // โหมดที่ต้องหาจุดขึ้น/ลงจากป้าย/สถานี
+
+// ข้อมูลที่พัก
+// routeToSteps / routeBackSteps = ลำดับวิธีเดินทางตามที่ผู้ตอบกรอก (ขั้นตอนที่ 1..6)
 const housing = [
   {
     name: "Life Asoke Hype", nameTh: "ไลฟ์ อโศก ไฮป์",
-    gmapsUrl: "https://maps.app.goo.gl/WD9Fntf3Fqxng2ez7",
     type: "คอนโดมิเนียม", lat: 13.7542266, lng: 100.5636255,
     placeId: "ChIJdeYACoSf4jARU5jqqoUHz0U",
+    gmapsLink: "https://maps.app.goo.gl/WD9Fntf3Fqxng2ez7",
     respondent: { gender:"หญิง", age:21, faculty:"คณะเศรษฐศาสตร์", income:"มากกว่า 20,000 บาท/เดือน" },
     roomSize:"32 ตร.ม.", floor:"33", occupants:"1 คน",
     furnishing:"มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
@@ -375,7 +397,6 @@ const housing = [
   },
   {
     name: "Lumpini Park Rama 9 - Ratchada", nameTh: "ลุมพินี พาร์ค พระราม 9 - รัชดา",
-    gmapsUrl: "https://maps.app.goo.gl/R54HJN83bXGAndR96?g_st=il",
     type: "คอนโดมิเนียม", lat: 13.7535367, lng: 100.5761984,
     respondent: { gender:"หญิง", age:20, faculty:"คณะเศรษฐศาสตร์", income:"15,001-20,000 บาท/เดือน" },
     roomSize:"26.75 ตร.ม.", floor:"11", occupants:"1 คน",
@@ -386,12 +407,12 @@ const housing = [
     water:"ชำระตามยูนิต", waterNote:"19 บาท/ยูนิต",
     commonFee:"รวมอยู่ในค่าเช่ารายเดือน",
     wifi:"ไม่มี / ติดตั้งเอง", wifiSelfCost:540,
+    gmapsLink: "https://maps.app.goo.gl/R54HJN83bXGAndR96?g_st=il",
     routeToSteps:["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
     routeBackSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง"],
-    // จุดขึ้นวินคำนวณอัตโนมัติเป็นแยกเพชรบุรี-อโศก ไม่ต้องระบุ returnPickup เพิ่ม
     travelCostDay:80,
-    travelCostGo:"", travelCostBack:"", 
-    travelTimeGo:"", travelTimeBack:"", 
+    travelCostGo:"40", travelCostBack:"40", 
+    travelTimeGo:"10", travelTimeBack:"10", 
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"โทรทัศน์ (TV)",qty:1},{name:"ตู้เย็น",qty:1},{name:"ไมโครเวฟ",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1},{name:"เตาไฟฟ้า (สำหรับทำอาหาร)",qty:1}],
     laundry:"มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
     fitness:"มี", pool:"มี", poolSize:"25 เมตร",
@@ -403,7 +424,6 @@ const housing = [
   },
   {
     name: "The Rich Place", nameTh: "เดอะ ริช เพลส",
-    gmapsUrl: "https://maps.app.goo.gl/jzfaMSN8PXkuzbS49?g_st=ic",
     type: "อพาร์ตเมนต์", lat: 13.771949775481755, lng: 100.56751795118954,
     respondent: { gender:"หญิง", age:22, faculty:"คณะเศรษฐศาสตร์", income:"15,001-20,000 บาท/เดือน" },
     roomSize:"22 ตร.ม.", floor:"3", occupants:"2 คน",
@@ -414,11 +434,12 @@ const housing = [
     water:"ชำระตามยูนิต", waterNote:"18 บาท/ยูนิต",
     commonFee:"ไม่มี",
     wifi:"ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม", wifiExtraFee:300,
+    gmapsLink: "https://maps.app.goo.gl/jzfaMSN8PXkuzbS49?g_st=ic",
     routeToSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง","MRT","เดิน"],
     routeBackSteps:["เดิน","MRT","วินมอเตอร์ไซค์รับจ้าง"],
     travelCostDay:70,
-    travelCostGo:"34", travelCostBack:"39",   
-    travelTimeGo:"30", travelTimeBack:"20",   
+    travelCostGo:34, travelCostBack:39,
+    travelTimeGo:30, travelTimeBack:20,
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1}],
     laundry:"ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
     laundryDistance:"50",
@@ -431,7 +452,6 @@ const housing = [
   },
   {
     name: "Sukhumvit Living Town", nameTh: "สุขุมวิท ลิฟวิ่ง ทาวน์",
-    gmapsUrl: "https://maps.app.goo.gl/KcnsMEdXonTrNiWZ7",
     type: "คอนโดมิเนียม", lat: 13.74608703698388, lng: 100.56256420048993,
     respondent: { gender:"หญิง", age:22, faculty:"คณะเศรษฐศาสตร์", income:"5,001-10,000 บาท/เดือน" },
     roomSize:"77.08 ตร.ม.", floor:"23", occupants:"4 คนขึ้นไป",
@@ -442,11 +462,12 @@ const housing = [
     water:"ชำระตามยูนิต", waterNote:"20 บาท/ยูนิต",
     commonFee:"รวมอยู่ในค่าเช่ารายเดือน",
     wifi:"ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม", wifiSource:"ใช้เน็ตมือถือ", wifiSelfCost:149,
+    gmapsLink: "https://maps.app.goo.gl/KcnsMEdXonTrNiWZ7",
     routeToSteps:["เดิน"],
     routeBackSteps:["เดิน"],
     travelCostDay:0,
-    travelCostGo:"0", travelCostBack:"0",   
-    travelTimeGo:"4", travelTimeBack:"4",   
+    travelCostGo:0, travelCostBack:0,
+    travelTimeGo:4, travelTimeBack:4,
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:3},{name:"ตู้เย็น",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:2},{name:"เตาไฟฟ้า (สำหรับทำอาหาร)",qty:2}],
     laundry:"มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
     fitness:"มี", pool:"มี", poolSize:"25 เมตร",
@@ -458,7 +479,6 @@ const housing = [
   },
   {
     name: "Bangkok Apartment", nameTh: "แบงค็อก อพาร์ตเมนต์",
-    gmapsUrl: "https://maps.app.goo.gl/ALCPi1sQai9rMorg9?g_st=il",
     type: "อพาร์ตเมนต์", lat: 13.782801669865771, lng: 100.57301603390567,
     respondent: { gender:"ชาย", age:21, faculty:"คณะเศรษฐศาสตร์", income:"มากกว่า 20,000 บาท/เดือน" },
     roomSize:"24 ตร.ม.", floor:"5", occupants:"1 คน",
@@ -469,12 +489,12 @@ const housing = [
     water:"เหมาจ่ายรายเดือน", waterNote:"100 บาท/เดือน",
     commonFee:"ไม่มี",
     wifi:"ฟรี / รวมในค่าเช่า",
+    gmapsLink: "https://maps.app.goo.gl/ALCPi1sQai9rMorg9?g_st=il",
     routeToSteps:["เดิน","MRT","เดิน"],
     routeBackSteps:["เดิน","รถโดยสารประจำทาง","เดิน"],
-    // จุดขึ้นรถเมล์คำนวณอัตโนมัติเป็นป้ายฝั่งตรงข้าม มศว แล้ว ไม่ต้องระบุ returnPickup เพิ่ม
     travelCostDay:50,
-    travelCostGo:"21", travelCostBack:"8",   
-    travelTimeGo:"35", travelTimeBack:"50",   
+    travelCostGo:21, travelCostBack:8,
+    travelTimeGo:35, travelTimeBack:50,
     appliances:[{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1}],
     laundry:"ใช้เครื่องซักผ้าส่วนรวม (แบบหยอดเหรียญ หรือ สแกนจ่ายใต้ตึก/ในพื้นที่ส่วนกลาง)",
     fitness:"ไม่มี", pool:"ไม่มี", poolSize:"",
@@ -486,13 +506,17 @@ const housing = [
   }
 ];
 housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h.lng); });
+
+// จุดขึ้นรถขากลับ (ค่าเริ่มต้นตามวิธีเดินทาง): เรียกรถผ่านแอป ใช้ป้ายฝั่งตรงข้าม มศว ได้ปกติ
+
 const BUS_APP_PICKUP    = { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" };
-const MOTORCYCLE_PICKUP = { lat:13.749050000788824, lng:100.56373497738878, label:"แยกเพชรบุรี-อโศก (จุดขึ้นวิน)" };
+const MOTORCYCLE_PICKUP = { lat:13.7484838, lng:100.5634913, label:"แยกเพชรบุรี-อโศก (จุดขึ้นวิน)" };
 function defaultPickupFor(mode){
   if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return MOTORCYCLE_PICKUP;
-  if(mode === 'รถโดยสารประจำทาง' || mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return BUS_APP_PICKUP;
-  return null; // โหมดอื่นไม่ทราบจุดขึ้นรถ ERROR!!
+  if(mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return BUS_APP_PICKUP;
+  return null;
 }
+
 function buildSpans(h, direction){
   const raw = (direction==='to' ? h.routeToSteps : h.routeBackSteps) || [];
   const steps = raw.filter(s => s && s !== 'จบการเดินทาง').slice();
@@ -503,8 +527,8 @@ function buildSpans(h, direction){
 
   const spans = [];
   let cursor = start, pending = [];
-  // ใช้ h.returnPickup เฉพาะเคส override ถ้าไม่ระบุจะเลือกจุดให้ตามโหมดที่ใส่
-  if(direction === 'back' && steps[0] === 'เดิน' && steps.length > 1 && !RAIL_MODES.includes(steps[1])){
+
+  if(direction === 'back' && steps[0] === 'เดิน' && steps.length > 1 && !TRANSIT_MODES.includes(steps[1])){
     const pickup = h.returnPickup || defaultPickupFor(steps[1]);
     if(pickup){
       const pick = { lat:pickup.lat, lng:pickup.lng, label:pickup.label || 'จุดขึ้นรถ' };
@@ -513,18 +537,33 @@ function buildSpans(h, direction){
       steps.shift();
     }
   }
+
   steps.forEach(mode => {
-    if(RAIL_MODES.includes(mode)){
-      const homeSide = nearestStation(h.lat, h.lng, mode);
-      const uniSide = (mode==='MRT') ? DEFAULT_UNI_STATION : nearestStation(UNI_GATE.lat, UNI_GATE.lng, mode);
-      const bName = direction==='to' ? homeSide : uniSide;
-      const aName = direction==='to' ? uniSide  : homeSide;
-      if(!ST[bName] || !ST[aName]) return;
-      const board  = { lat:ST[bName][0], lng:ST[bName][1], label:`${mode} ${stTh(bName)}` };
-      const alight = { lat:ST[aName][0], lng:ST[aName][1], label:`${mode} ${stTh(aName)}` };
-      if(pending.length) spans.push({ from:cursor, to:board, steps:pending.slice() });
-      pending = [];
-      spans.push({ from:board, to:alight, steps:[mode], rail:{ line:mode, a:bName, b:aName } });
+    if(TRANSIT_MODES.includes(mode)){
+      let board, alight;
+      if(BUS_MODES.includes(mode)){
+        const homeSide = nearestBusStop(h.lat, h.lng);
+        const uniSide = nearestBusStop(UNI_GATE.lat, UNI_GATE.lng);
+        const b = direction==='to' ? homeSide : uniSide;
+        const a = direction==='to' ? uniSide  : homeSide;
+        if(!b || !a) return;
+        board  = { lat:b.lat, lng:b.lng, label:`${mode} ${b.name}` };
+        alight = { lat:a.lat, lng:a.lng, label:`${mode} ${a.name}` };
+        if(pending.length) spans.push({ from:cursor, to:board, steps:pending.slice() });
+        pending = [];
+        spans.push({ from:board, to:alight, steps:[mode], bus:{ from:b.name, to:a.name } });
+      } else {
+        const homeSide = nearestStation(h.lat, h.lng, mode);
+        const uniSide = (mode==='MRT') ? DEFAULT_UNI_STATION : nearestStation(UNI_GATE.lat, UNI_GATE.lng, mode);
+        const bName = direction==='to' ? homeSide : uniSide;
+        const aName = direction==='to' ? uniSide  : homeSide;
+        if(!ST[bName] || !ST[aName]) return;
+        board  = { lat:ST[bName][0], lng:ST[bName][1], label:`${mode} ${stTh(bName)}` };
+        alight = { lat:ST[aName][0], lng:ST[aName][1], label:`${mode} ${stTh(aName)}` };
+        if(pending.length) spans.push({ from:cursor, to:board, steps:pending.slice() });
+        pending = [];
+        spans.push({ from:board, to:alight, steps:[mode], rail:{ line:mode, a:bName, b:aName } });
+      }
       cursor = alight;
     } else {
       pending.push(mode);
@@ -533,7 +572,7 @@ function buildSpans(h, direction){
   if(pending.length) spans.push({ from:cursor, to:end, steps:pending.slice() });
   return spans;
 }
-// เส้นรถไฟฟ้าไล่ผ่านสถานีระหว่างทางจริง ปรับให้เส้นเกาะแนวราง
+
 function stationSequence(lineKey, a, b){
   const order = LINES[lineKey];
   const mk = n => ({ lat:ST[n][0], lng:ST[n][1], name:n });
@@ -543,13 +582,12 @@ function stationSequence(lineKey, a, b){
   const slice = i <= j ? order.slice(i, j+1) : order.slice(j, i+1).reverse();
   return slice.filter(n => ST[n]).map(mk);
 }
-// แบ่งเส้น polyline ออกเป็นหลายท่อนตามสัดส่วนน้ำหนัก เฉพาะ 1 ช่วงมีหลายวิธีเดินทาง เช่น เดิน→รถเมล์→เดิน
+
 function polylineLengthKm(points){
   let t = 0;
   for(let i=1;i<points.length;i++) t += haversineKm(points[i-1][0],points[i-1][1],points[i][0],points[i][1]);
   return t;
 }
-// ช่วงเดินจำกัดไม่เกิน 600 เมตรต่อ ไม่ให้เส้นเดินยาวผิดความจริงเวลาอยู่คู่กับรถเมล์/วิน
 const MAX_WALK_KM = 0.6;
 function splitByModes(points, modes){
   if(modes.length === 1) return [points];
@@ -559,7 +597,7 @@ function splitByModes(points, modes){
   const walkCount = modes.filter(m => m === 'เดิน').length;
   const rideCount = modes.length - walkCount;
   let walkShare = Math.min(MAX_WALK_KM, total / (modes.length * 2));
-  if(rideCount === 0) walkShare = total / modes.length;   // ทุกช่วงเป็นการเดิน แบ่งเท่า ๆ กัน
+  if(rideCount === 0) walkShare = total / modes.length;
   const rideShare = rideCount ? (total - walkShare*walkCount) / rideCount : 0;
   const lens = modes.map(m => m === 'เดิน' ? walkShare : rideShare);
 
@@ -581,7 +619,6 @@ function splitByModes(points, modes){
   while(out.length < modes.length) out.push([points[points.length-1]]);
   return out;
 }
-// แผนที่ MAP
 const map = L.map('map', { zoomControl:false }).setView(CENTER, 13);
 L.control.zoom({ position:'bottomright' }).addTo(map);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -603,7 +640,6 @@ function svCoords(h){
            lng: h.svLng !== undefined ? h.svLng : h.lng,
            heading: h.svHeading !== undefined ? h.svHeading : 210 };
 }
-// OSRM เลือกโปรไฟล์ตามวิธีเดินทาง: เดิน=foot, วิน=bike(ขึ้นทางด่วนไม่ได้), เรียกรถ/รถเมล์/รถยนต์=car
 function profileFor(mode){
   if(mode === 'เดิน') return 'foot';
   if(mode === 'วินมอเตอร์ไซค์รับจ้าง') return 'bike';
@@ -627,7 +663,7 @@ async function fetchRoad(waypoints, profile){
 let routeLayers = [];
 let routeReq = 0;
 function clearRoute(){ routeLayers.forEach(l => map.removeLayer(l)); routeLayers = []; }
-// เพิ่มทำให้เส้นหักมุมน้อยลง(Chaikin) — ใช้ได้เคสมีสถานีระหว่างทาง 3 จุดขึ้นไป
+
 function smoothLine(points, passes){
   let pts = points;
   for(let p=0; p<(passes||2); p++){
@@ -643,6 +679,13 @@ function smoothLine(points, passes){
   }
   return pts;
 }
+function addWaypointMarker(pt, color){
+  const mk = L.marker([pt.lat, pt.lng], {
+    icon: L.divIcon({ className:'', html:`<div class="waypoint-dot" style="border-color:${color}"></div>`, iconSize:[11,11] })
+  }).addTo(map).bindTooltip(pt.label, { permanent:false });
+  return mk;
+}
+
 async function drawRoute(h, direction){
   const myReq = ++routeReq;
   clearRoute();
@@ -650,37 +693,41 @@ async function drawRoute(h, direction){
   if(!spans.length) return;
   const bounds = [];
 
-  for(const span of spans){
+  for(let si=0; si<spans.length; si++){
+    const span = spans[si];
     let pts;
     if(span.rail){
-      // รถไฟฟ้าวิ่งทางเดียว
       const seq = stationSequence(span.rail.line, span.rail.a, span.rail.b);
       pts = smoothLine(seq.map(w => [w.lat, w.lng]), 2);
+    } else if(span.bus){
+      pts = await fetchRoad([span.from, span.to], 'car');
     } else {
       const rideMode = span.steps.find(s => s !== 'เดิน');
       pts = await fetchRoad([span.from, span.to], profileFor(rideMode || 'เดิน'));
     }
     if(myReq !== routeReq) return;
+
     const parts = splitByModes(pts, span.steps);
     span.steps.forEach((mode, k) => {
       const st = tStyle(mode);
       if(!parts[k] || parts[k].length < 2) return;
-      const isWalk = mode === 'เดิน';
-      const line = L.polyline(parts[k], { 
-     color: st.color, 
-     weight: isWalk ? 5 : 5.5, 
-     opacity: 0.9, 
-     lineCap: 'round',
-      dashArray: isWalk ? '8, 8' : null //ให้'เดิน'เป็นเส้นประ
-}).addTo(map);
+      const line = L.polyline(parts[k], {
+        color:st.color, weight:5.5, opacity:0.9, lineCap:'round',
+        dashArray: mode === 'เดิน' ? '1 9' : null
+      }).addTo(map);
       routeLayers.push(line);
       parts[k].forEach(p => bounds.push(p));
     });
-    if(span.rail){
+
+    if(si > 0){ const mk = addWaypointMarker(span.from, tStyle(span.steps[0]).color); routeLayers.push(mk); }
+    if(si < spans.length - 1){ const mk = addWaypointMarker(span.to, tStyle(span.steps[0]).color); routeLayers.push(mk); }
+
+    if(span.rail || span.bus){
+      const lineKey = span.rail ? span.rail.line : 'รถโดยสารประจำทาง';
+      const st = tStyle(lineKey);
       [span.from, span.to].forEach(pt => {
-        const st = tStyle(span.rail.line);
         const mk = L.marker([pt.lat, pt.lng], {
-          icon: L.divIcon({ className:'', html:`<div class="station-dot" style="border-color:${st.color};color:${st.color}">${st.icon}</div>`, iconSize:[22,22] })
+          icon: L.divIcon({ className:'', html:`<div class="station-dot" style="border-color:${st.color};color:${st.color}">${st.icon}</div>`, iconSize:[20,20] })
         }).addTo(map).bindTooltip(pt.label, { permanent:false });
         routeLayers.push(mk);
       });
@@ -688,7 +735,7 @@ async function drawRoute(h, direction){
   }
   if(bounds.length) map.fitBounds(L.latLngBounds(bounds).pad(0.15));
 }
-// หมุดที่พัก + popup
+
 const markers = {};
 housing.forEach((h, i) => {
   const near = h.distanceKm <= 3;
@@ -712,7 +759,7 @@ housing.forEach((h, i) => {
     </div>`, { maxWidth:260 });
   markers[i] = m;
 });
-// รายการ + ค้นหา + ตัวกรอง
+
 const listEl = document.getElementById('list');
 const sortSelect = document.getElementById('sortSelect');
 const distFilter = document.getElementById('distFilter');
@@ -831,8 +878,6 @@ searchInput.addEventListener('focus',()=>{ if(searchInput.value.trim()) searchSu
 document.addEventListener('click',e=>{ if(!e.target.closest('.search-wrap')) searchSuggest.classList.remove('show'); });
 searchClear.addEventListener('click',()=>{ searchInput.value=''; searchClear.style.display='none'; searchSuggest.classList.remove('show'); render(); searchInput.focus(); });
 
-  // ส่วนแผงรายละเอียดด้านใน DETAIL
-
 function kv(l,v){ return (v===undefined||v===null||v==='') ? '' : `<div class="kv"><span class="k">${l}</span><span class="v">${v}</span></div>`; }
 function tagList(a){ return (!a||!a.length) ? '' : `<div class="tag-wrap">${a.map(x=>`<span>${x}</span>`).join('')}</div>`; }
 function starsRow(l,n){ return (n==null) ? '' : `<div class="stars-row"><span>${l}</span><span class="stars">${'⭐'.repeat(n)} (${n})</span></div>`; }
@@ -843,7 +888,9 @@ function routeChipsHTML(h, direction){
   const chips = [];
   spans.forEach(sp => sp.steps.forEach(mode => {
     const st = tStyle(mode);
-    const named = sp.rail ? `: ${stTh(sp.rail.a)} → ${stTh(sp.rail.b)}` : '';
+    let named = '';
+    if(sp.rail) named = `: ${stTh(sp.rail.a)} → ${stTh(sp.rail.b)}`;
+    if(sp.bus) named = `: ${sp.bus.from} → ${sp.bus.to}`;
     chips.push(`<span class="route-chip" style="background:${st.color}">${st.icon} ${st.label}${named}</span>`);
   }));
   return `<div class="route-flow">${chips.join('<span class="route-arrow">→</span>')}</div>`;
@@ -948,10 +995,7 @@ function openDrawer(i){
     if(r.faculty) parts.push(r.faculty);
     src = parts.join(', ') || src;
   }
-  
-  // ใช้ลิงก์ gmapsUrl ที่ระบุเอง ถ้าไม่ได้ใส่จะดึงอัตโนมัติ
-  const dirUrl = h.gmapsUrl || `https://www.google.com/maps/dir/?api=1&origin=${h.lat},${h.lng}&destination=${UNI_GATE.lat},${UNI_GATE.lng}&travelmode=transit`;
-  
+  const dirUrl = h.gmapsLink || `https://www.google.com/maps/dir/?api=1&origin=${h.lat},${h.lng}&destination=${UNI_GATE.lat},${UNI_GATE.lng}&travelmode=transit`;
   const extra = document.createElement('div');
   extra.innerHTML = `
     ${h.quote?`<div class="quote-block">"${h.quote}"<div class="quote-src">— ${src}</div></div>`:''}
