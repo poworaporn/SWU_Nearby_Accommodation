@@ -301,7 +301,7 @@ const LINES = {
   MRT: ["Hua Lamphong","Sam Yan","Silom","Lumphini","Klong Toei","Queen Sirikit","Sukhumwit","Phetchaburi","Phra Ram 9","Thailand Cultural","Huai Khwang","Sutthisan","Ratchadaphisek","Lad Phrao","Phahon Yothin","Chatuchak Park","Kampaeng Pet","Bangsue"],
   BTS: ["Mo Chit","Saphan Khwai","Ari","Sanam Pao","Victory Monument","Phaya Thai","Rachathewi","Siam Exchange Station","Chit Lom","Ploen Chit","Asoke","Phrom Phong","Thong Lo","Ekkamai","Phra Khanong","On Nut","Bang Chak","Punnawithi","Udomsuk","Bangna","Baring"],
   BTS_SILOM: ["National Stadium","Siam Exchange Station","Ratchadamri","Saladang","Chong Nonsi","Surasak","Taksin ","Krung Thonburi","Wong Wien Yai","Pho Nimit","Talat Phlu"],
-  ARL: ["ARL Phaya Thai","ARL Ratchaprarop","ARL Makkasan","ARL Ramkhamhaeng","ARL Hua Mak","ARL Ban Thap Chang","ARL Lat Krabang","ARL Suvarnabhumi"]
+  "Airport Rail Link": ["ARL Phaya Thai","ARL Ratchaprarop","ARL Makkasan","ARL Ramkhamhaeng","ARL Hua Mak","ARL Ban Thap Chang","ARL Lat Krabang","ARL Suvarnabhumi"]
 };
 
 // ใช้หลักการเดียวกับ MRT/BTS
@@ -326,8 +326,6 @@ const ST_TH = {
   "ARL Makkasan":"มักกะสัน", "ARL Ratchaprarop":"ราชปรารภ", "ARL Phaya Thai":"พญาไท", "ARL Hua Mak":"หัวหมาก",
   "ARL Ramkhamhaeng":"รามคำแหง", "ARL Ban Thap Chang":"บ้านทับช้าง", 
   "ARL Lat Krabang":"ลาดกระบัง", "ARL Suvarnabhumi":"สุวรรณภูมิ"
-};
-
 };
 function stTh(n){ return ST_TH[n] || n; }
 
@@ -356,7 +354,7 @@ const TRANSPORT_STYLE = {
   'เดิน':                                 { icon:'🚶', color:'#8b5e34', label:'เดิน' },
   'MRT':                                  { icon:'🚇', color:'#1f4e9c', label:'MRT' },
   'BTS':                                  { icon:'🚈', color:'#0a7a3d', label:'BTS' },
-  'ARL':                    { icon:'🚆', color:'#c0392b', label:'Airport Link' },
+  'Airport Rail Link':                    { icon:'🚆', color:'#c0392b', label:'Airport Link' },
   'เรือ':                                 { icon:'🛶', color:'#00aaff', label:'เรือ' },
   'รถโดยสารประจำทาง':                      { icon:'🚌', color:'#7c3aed', label:'รถเมล์' },
   'รถส่วนตัว':                             { icon:'🚗', color:'#555555', label:'รถส่วนตัว' },
@@ -364,7 +362,7 @@ const TRANSPORT_STYLE = {
   'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)':     { icon:'📱', color:'#0e7c86', label:'เรียกรถผ่านแอป' }
 };
 function tStyle(mode){ return TRANSPORT_STYLE[mode] || { icon:'📍', color:'#8b8371', label: mode }; }
-const RAIL_MODES = ['MRT','BTS','ARL'];
+const RAIL_MODES = ['MRT','BTS','Airport Rail Link'];
 const BUS_MODES = ['รถโดยสารประจำทาง'];
 const TRANSIT_MODES = RAIL_MODES.concat(BUS_MODES); // โหมดที่ต้องหาจุดขึ้น/ลงจากป้าย/สถานี
 
@@ -844,8 +842,8 @@ const housing = [
     commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
     wifi: "ไม่มี", wifiSource: "ติดตั้งเอง", wifiSelfCost: 0,
     gmapsLink: "https://maps.app.goo.gl/DeLrpeAfjkotw1LL8?g_st=ic",
-    routeToSteps: ["เดิน","ARL","เดิน"],
-    routeBackSteps: ["เดิน","ARL","เดิน"],
+    routeToSteps: ["เดิน","Airport Rail Link","เดิน"],
+    routeBackSteps: ["เดิน","Airport Rail Link","เดิน"],
     travelCostDay: 30,
     travelCostGo: 15, travelCostBack: 15,
     travelTimeGo: 20, travelTimeBack: 20,
