@@ -19,21 +19,19 @@
     background:var(--paper); color:var(--ink); }
   .app{ display:grid; grid-template-columns: 350px 1fr; height:100vh; position:relative; overflow:hidden; }
 
-  .sidebar{ border-right:1px solid var(--line); background:var(--panel); display:flex; flex-direction:column; overflow:hidden; }
-  .sb-head{ padding:22px 20px 14px; border-bottom:1px solid var(--line); background:linear-gradient(180deg,#fffdf9,#f9f4e9); }
-  .eyebrow{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); font-weight:700; margin:0 0 6px; }
-  .sb-head h1{ font-size:19px; line-height:1.35; margin:0 0 8px; color:var(--emerald-deep); font-weight:700; }
-  .sb-head p{ font-size:12.5px; color:var(--muted); margin:0; line-height:1.6; }
-  .legend{ display:flex; gap:14px; padding:12px 20px; border-bottom:1px solid var(--line); font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
-  .legend span{display:flex; align-items:center; gap:6px;}
-  .swatch-ring{width:14px; height:14px; border-radius:50%; display:inline-block; border:2px solid;}
-
-  .search-wrap{ position:relative; padding:12px 20px 0; background:#fbf8f1; border-bottom:1px solid var(--line); }
-  .search-box{ display:flex; align-items:center; gap:8px; background:var(--panel); border:1.25px solid var(--line); border-radius:10px; padding:9px 12px; margin-bottom:12px; }
+   .sidebar{ border-right:1px solid var(--line); background:var(--panel); display:flex; flex-direction:column; overflow:hidden; }
+  .sb-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 14px 8px; background:#fbf8f1; }
+  .sb-top h1{ font-size:15px; line-height:1.3; margin:0; color:var(--emerald-deep); font-weight:700; }
+  .count-pill{ font-size:11px; font-weight:700; color:var(--emerald-deep); background:#e4f0e9; padding:2px 9px; border-radius:10px; white-space:nowrap; }
+  .map-legend{ position:absolute; left:362px; bottom:14px; z-index:500; display:flex; gap:12px; padding:7px 12px; background:rgba(255,253,249,.94); border:1px solid var(--line); border-radius:20px; font-size:11px; color:var(--muted); box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .map-legend span{ display:flex; align-items:center; gap:5px; }
+  .lg-ring{ width:12px; height:12px; border-radius:50%; display:inline-block; border:2px solid; }
+  .search-wrap{ position:relative; padding:0 14px 8px; background:#fbf8f1; }
+  .search-box{ display:flex; align-items:center; gap:8px; background:var(--panel); border:1.5px solid var(--line); border-radius:10px; padding:8px 12px; margin-bottom:0; }
   .search-box:focus-within{ border-color:var(--gold); }
   .search-box input{ flex:1; border:none; outline:none; font-size:13px; font-family:inherit; background:transparent; color:var(--ink); }
   .search-clear{ cursor:pointer; color:var(--muted); font-size:12px; padding:2px 4px; }
-  .search-suggest{ position:absolute; left:20px; right:20px; top:100%; z-index:50; background:var(--panel); border:1px solid var(--line); border-top:none; border-radius:0 0 10px 10px; box-shadow:0 10px 24px rgba(15,77,58,.15); max-height:260px; overflow-y:auto; display:none; }
+  .search-suggest{ position:absolute; left:14px; right:14px; top:calc(100% - 8px); z-index:50; background:var(--panel); border:1px solid var(--line); border-top:none; border-radius:0 0 10px 10px; box-shadow:0 10px 24px rgba(15,77,58,.15); max-height:260px; overflow-y:auto; display:none; }
   .search-suggest.show{ display:block; }
   .search-suggest .sg-item{ display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--line); }
   .search-suggest .sg-item:last-child{ border-bottom:none; }
@@ -43,18 +41,42 @@
   .search-suggest .sg-meta{ font-size:11px; color:var(--muted); }
   .search-suggest .sg-empty{ padding:14px; text-align:center; font-size:12px; color:var(--muted); }
 
-  .controls{ padding:12px 20px; border-bottom:1px solid var(--line); display:flex; flex-direction:column; gap:8px; background:#fbf8f1; }
-  .controls .row{ display:flex; gap:8px; flex-wrap:wrap; }
-  .controls select{ flex:1; min-width:0; padding:8px 10px; font-size:12px; border-radius:8px; border:1px solid var(--line); background:var(--panel); color:var(--ink); font-family:inherit; cursor:pointer; }
-  .controls select:focus{ outline:2px solid var(--gold); }
-  .amenity-filters summary{ list-style:none; cursor:pointer; font-size:11.5px; color:var(--emerald-deep); font-weight:700; padding:4px 0; }
-  .amenity-filters summary::-webkit-details-marker{ display:none; }
-  .amenity-grid{ display:flex; flex-wrap:wrap; gap:6px 10px; padding:6px 2px 2px; }
-  .amenity-grid label{ display:flex; align-items:center; gap:5px; font-size:11.5px; cursor:pointer; }
-  .amenity-grid input{ accent-color:var(--emerald); cursor:pointer; }
+  .toolbar{ display:flex; gap:8px; padding:0 14px 10px; background:#fbf8f1; border-bottom:1px solid var(--line); position:relative; }
+  .sort-wrap{ position:relative; flex:1; min-width:0; }
+  .tb-btn{ width:100%; display:flex; align-items:center; justify-content:center; gap:7px; padding:9px 10px; border-radius:22px; border:1.5px solid var(--line); background:var(--panel); color:var(--ink); font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #filterBtn{ flex:1; min-width:0; }
+  .tb-btn.active{ border-color:var(--emerald); color:var(--emerald-deep); background:#e8f2ec; }
+  .tb-badge{ min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--red); color:#fff; font-size:10.5px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; }
+  .sort-menu{ position:absolute; left:0; top:calc(100% + 6px); min-width:210px; background:var(--panel); border:1px solid var(--line); border-radius:12px; box-shadow:0 10px 24px rgba(15,77,58,.2); padding:6px; display:none; z-index:60; }
+  .sort-menu.show{ display:block; }
+  .sort-menu button{ display:flex; width:100%; justify-content:space-between; padding:9px 12px; border:none; background:none; border-radius:8px; font-family:inherit; font-size:12.5px; cursor:pointer; text-align:left; color:var(--ink); }
+  .sort-menu button:hover{ background:#f2ecd9; }
+  .sort-menu button.on{ font-weight:800; color:var(--emerald-deep); }
+  .sort-menu button.on::after{ content:'✓'; }
 
+  .filter-backdrop{ position:absolute; inset:0; background:rgba(15,77,58,.28); opacity:0; pointer-events:none; transition:opacity .25s; z-index:1500; }
+  .filter-backdrop.open{ opacity:1; pointer-events:auto; }
+  .filter-panel{ position:absolute; top:0; left:0; bottom:0; width:380px; max-width:94vw; background:var(--panel); z-index:1501; transform:translateX(-100%); transition:transform .28s ease; display:flex; flex-direction:column; box-shadow:12px 0 30px rgba(15,77,58,.25); }
+  .filter-panel.open{ transform:translateX(0); }
+  .fp-head{ display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:var(--emerald-deep); color:#fff; }
+  .fp-head span{ font-size:17px; font-weight:700; }
+  .fp-close{ background:none; border:none; color:#fff; font-size:18px; cursor:pointer; padding:4px 8px; }
+  .fp-body{ flex:1; overflow-y:auto; }
+  details.fp-sec{ border-bottom:1px solid var(--line); }
+  details.fp-sec summary{ list-style:none; cursor:pointer; padding:15px 20px; font-size:14px; font-weight:700; color:var(--ink); display:flex; align-items:center; gap:8px; }
+  details.fp-sec summary::-webkit-details-marker{ display:none; }
+  details.fp-sec summary .fp-sel{ margin-left:auto; font-size:11.5px; font-weight:600; color:var(--gold); }
+  details.fp-sec summary::after{ content:''; width:8px; height:8px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(45deg); margin:-3px 4px 0 8px; transition:transform .2s; }
+  details.fp-sec[open] summary::after{ transform:rotate(-135deg); margin-top:3px; }
+  .fp-opts{ padding:0 20px 14px; display:grid; grid-template-columns:1fr 1fr; gap:2px 12px; }
+  .fp-opts.cols1{ grid-template-columns:1fr; }
+  .fp-opts label{ display:flex; align-items:center; gap:9px; padding:8px 0; font-size:13px; cursor:pointer; }
+  .fp-opts input{ accent-color:var(--emerald); width:16px; height:16px; cursor:pointer; }
+  .fp-foot{ display:flex; gap:10px; padding:12px 16px; border-top:1px solid var(--line); background:var(--panel); }
+  .fp-clear{ padding:11px 16px; border:1.5px solid var(--line); background:#fff; border-radius:10px; font-weight:700; cursor:pointer; font-family:inherit; color:var(--muted); font-size:13px; }
+  .fp-apply{ flex:1; padding:11px; border:none; background:var(--emerald); color:#fff; border-radius:10px; font-weight:700; cursor:pointer; font-family:inherit; font-size:13px; }
   .list{ flex:1; overflow-y:auto; padding:6px 0; }
-  .card{ padding:14px 20px; border-bottom:1px solid var(--line); cursor:pointer; transition:background .15s; }
+  .card{ padding:12px 16px; border-bottom:1px solid var(--line); cursor:pointer; transition:background .15s; }
   .card:hover, .card.selected{ background:#f2ecd9; }
   .card-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
   .card-top .name{ font-weight:700; font-size:14px; color:var(--emerald-deep);}
@@ -63,8 +85,7 @@
   .card-top .radius-tag.far{ background:var(--gold-light); color:#7a5a1e;}
   .card-meta{ font-size:12px; color:var(--muted); margin-top:4px; }
   .card-price{ font-size:13px; margin-top:6px; color:var(--gold); font-weight:700;}
-  .sb-foot{ padding:12px 20px; border-top:1px solid var(--line); font-size:11px; color:var(--muted); }
-
+  
   #map{ width:100%; height:100%; background:#eae7dc; }
   .leaflet-popup-content-wrapper{ background:var(--panel); border-radius:12px; box-shadow:0 10px 28px rgba(15,77,58,.22); }
   .leaflet-popup-tip{ background:var(--panel); }
@@ -157,15 +178,9 @@
 <div class="app">
   <aside class="sidebar" id="mobileSheet">
     <div class="drag-handle"></div>
-    <div class="sb-head">
-      <p class="eyebrow">ผลสำรวจและงานวิจัย</p>
-      <h1>ที่พักรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร</h1>
-      <p>แสดงพิกัดที่พักในระยะ 3 กม. และ 6 กม. จากสนามกีฬากลาง มศว พร้อมข้อมูลจากผู้พักอาศัยจริง</p>
-    </div>
-    <div class="legend">
-      <span><span class="swatch-ring" style="border-color:var(--gray);background:var(--red)"></span>มศว ประสานมิตร</span>
-      <span><span class="swatch-ring" style="border-color:var(--emerald);background:#bfe0cd"></span> 3 กม.</span>
-      <span><span class="swatch-ring" style="border-color:var(--gold);background:var(--gold-light)"></span> 6 กม.</span>
+      <div class="sb-top">
+      <h1>ที่พักรอบ มศว ประสานมิตร</h1>
+      <span class="count-pill" id="countPill"></span>
     </div>
     <div class="search-wrap">
       <div class="search-box">
@@ -175,47 +190,73 @@
       </div>
       <div class="search-suggest" id="searchSuggest"></div>
     </div>
-    <div class="controls">
-      <div class="row">
-        <select id="sortSelect">
-          <option value="default">เรียงตาม: ค่าเริ่มต้น</option>
-          <option value="price-asc">ราคา: ต่ำ → สูง</option>
-          <option value="price-desc">ราคา: สูง → ต่ำ</option>
-          <option value="dist-asc">ระยะทาง: ใกล้ → ไกล</option>
-          <option value="rating-desc">คะแนนรีวิว: สูง → ต่ำ</option>
-        </select>
+    <div class="toolbar">
+      <div class="sort-wrap">
+        <button class="tb-btn" id="sortBtn" type="button">⇅ <span id="sortLabel">เรียงตาม</span></button>
+        <div class="sort-menu" id="sortMenu">
+          <button type="button" data-sort="default">ค่าเริ่มต้น</button>
+          <button type="button" data-sort="price-asc">ราคา: ต่ำ → สูง</button>
+          <button type="button" data-sort="price-desc">ราคา: สูง → ต่ำ</button>
+          <button type="button" data-sort="dist-asc">ระยะทาง: ใกล้ → ไกล</button>
+          <button type="button" data-sort="rating-desc">คะแนนรีวิว: สูง → ต่ำ</button>
+        </div>
       </div>
-      <div class="row">
-        <select id="distFilter">
-          <option value="all">ระยะ: ทั้งหมด</option>
-          <option value="near">3 กม.</option>
-          <option value="far">6 กม.</option>
-        </select>
-        <select id="typeFilter">
-          <option value="all">ประเภท: ทั้งหมด</option>
-          <option value="คอนโดมิเนียม">คอนโดมิเนียม</option>
-          <option value="อพาร์ตเมนต์">อพาร์ตเมนต์</option>
-        </select>
-      </div>
-      <details class="amenity-filters">
-        <summary>+ ตัวกรองเพิ่มเติม (สิ่งอำนวยความสะดวก)</summary>
-        <div class="amenity-grid">
-          <label><input type="checkbox" data-amenity="แอร์" class="amenityCheck">แอร์</label>
-          <label><input type="checkbox" data-amenity="เตา" class="amenityCheck">เตาทำอาหาร</label>
-          <label><input type="checkbox" data-amenity="ตู้เย็น" class="amenityCheck">ตู้เย็น</label>
-          <label><input type="checkbox" data-amenity="ทีวี" class="amenityCheck">ทีวี</label>
-          <label><input type="checkbox" data-amenity="เครื่องซักผ้าในห้อง" class="amenityCheck">เครื่องซักผ้าในห้อง</label>
-          <label><input type="checkbox" data-amenity="สระว่ายน้ำ" class="amenityCheck"> สระว่ายน้ำ</label>
-          <label><input type="checkbox" data-amenity="ฟิตเนส" class="amenityCheck">ฟิตเนส</label>
-          <label><input type="checkbox" data-amenity="ลิฟต์" class="amenityCheck">ลิฟต์</label>
-          <label><input type="checkbox" data-amenity="ที่จอดรถ" class="amenityCheck">ที่จอดรถ</label>
+      <button class="tb-btn" id="filterBtn" type="button">⚙ ตัวกรอง <span class="tb-badge" id="filterBadge" style="display:none">0</span></button>
+    </div>
+    <div class="list" id="list"></div>
+  </aside>
+
+  <div class="filter-backdrop" id="filterBackdrop"></div>
+  <div class="filter-panel" id="filterPanel">
+    <div class="fp-head"><span>ตัวกรอง</span><button class="fp-close" id="filterClose" type="button">✕</button></div>
+    <div class="fp-body">
+      <details class="fp-sec" open>
+        <summary>ระยะทางจาก มศว ประสานมิตร <span class="fp-sel" id="fpDistSel"></span></summary>
+        <div class="fp-opts cols1">
+          <label><input type="radio" name="dist" value="all" checked> ทั้งหมด</label>
+          <label><input type="radio" name="dist" value="near"> 3 กม.</label>
+          <label><input type="radio" name="dist" value="far"> 6 กม.</label>
+        </div>
+      </details>
+      <details class="fp-sec" open>
+        <summary>ประเภทที่พัก <span class="fp-sel" id="fpTypeSel"></span></summary>
+        <div class="fp-opts cols1">
+          <label><input type="radio" name="type" value="all" checked> ทั้งหมด</label>
+          <label><input type="radio" name="type" value="คอนโดมิเนียม"> คอนโดมิเนียม</label>
+          <label><input type="radio" name="type" value="อพาร์ตเมนต์"> อพาร์ตเมนต์</label>
+        </div>
+      </details>
+      <details class="fp-sec">
+        <summary>เครื่องใช้ไฟฟ้าภายในห้อง <span class="fp-sel" id="fpRoomSel"></span></summary>
+        <div class="fp-opts">
+          <label><input type="checkbox" data-amenity="แอร์" data-group="room" class="amenityCheck"> แอร์</label>
+          <label><input type="checkbox" data-amenity="เตา" data-group="room" class="amenityCheck"> เตาทำอาหาร</label>
+          <label><input type="checkbox" data-amenity="ตู้เย็น" data-group="room" class="amenityCheck"> ตู้เย็น</label>
+          <label><input type="checkbox" data-amenity="ทีวี" data-group="room" class="amenityCheck"> ทีวี</label>
+          <label><input type="checkbox" data-amenity="เครื่องซักผ้าในห้อง" data-group="room" class="amenityCheck"> เครื่องซักผ้าในห้อง</label>
+        </div>
+      </details>
+      <details class="fp-sec">
+        <summary>ส่วนกลางของอาคาร <span class="fp-sel" id="fpCommonSel"></span></summary>
+        <div class="fp-opts">
+          <label><input type="checkbox" data-amenity="สระว่ายน้ำ" data-group="common" class="amenityCheck"> สระว่ายน้ำ</label>
+          <label><input type="checkbox" data-amenity="ฟิตเนส" data-group="common" class="amenityCheck"> ฟิตเนส</label>
+          <label><input type="checkbox" data-amenity="ลิฟต์" data-group="common" class="amenityCheck"> ลิฟต์</label>
+          <label><input type="checkbox" data-amenity="ที่จอดรถ" data-group="common" class="amenityCheck"> ที่จอดรถ</label>
         </div>
       </details>
     </div>
-    <div class="list" id="list"></div>
-    <div class="sb-foot">คลิกหมุดหรือรายการ เพื่อดูรายละเอียดจากแบบสอบถามวิจัย</div>
-  </aside>
+    <div class="fp-foot">
+      <button class="fp-clear" id="filterClear" type="button">ล้างทั้งหมด</button>
+      <button class="fp-apply" id="filterApply" type="button">แสดง <span id="fpCount">0</span> ที่พัก</button>
+    </div>
+  </div>
   <div id="map"></div>
+  <div class="map-legend">
+    <span><i class="lg-ring" style="border-color:var(--gray);background:var(--red)"></i>มศว ประสานมิตร</span>
+    <span><i class="lg-ring" style="border-color:var(--emerald);background:#bfe0cd"></i>3 กม.</span>
+    <span><i class="lg-ring" style="border-color:var(--gold);background:var(--gold-light)"></i>6 กม.</span>
+  </div>
   <div class="drawer-overlay" id="overlay"></div>
   <div class="drawer" id="drawer">
     <div class="drawer-head">
