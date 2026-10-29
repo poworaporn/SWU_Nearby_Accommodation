@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>แผนที่ที่พักรอบ มศว ประสานมิตร</title>
+<title>แผนที่ผลสำรวจ ที่พักรอบ มศว ประสานมิตร</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -19,19 +19,20 @@
     background:var(--paper); color:var(--ink); }
   .app{ display:grid; grid-template-columns: 350px 1fr; height:100vh; position:relative; overflow:hidden; }
 
-   .sidebar{ border-right:1px solid var(--line); background:var(--panel); display:flex; flex-direction:column; overflow:hidden; }
+  .sidebar{ border-right:1px solid var(--line); background:var(--panel); display:flex; flex-direction:column; overflow:hidden; }
   .sb-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 14px 8px; background:#fbf8f1; }
   .sb-top h1{ font-size:15px; line-height:1.3; margin:0; color:var(--emerald-deep); font-weight:700; }
   .count-pill{ font-size:11px; font-weight:700; color:var(--emerald-deep); background:#e4f0e9; padding:2px 9px; border-radius:10px; white-space:nowrap; }
-  .map-legend{ position:absolute; left:362px; bottom:14px; z-index:500; display:flex; gap:12px; padding:7px 12px; background:rgba(255,253,249,.94); border:1px solid var(--line); border-radius:20px; font-size:11px; color:var(--muted); box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .map-legend{ position:absolute; left:12px; top:12px; z-index:500; display:flex; gap:12px; padding:7px 12px; background:rgba(255,253,249,.94); border:1px solid var(--line); border-radius:20px; font-size:11px; color:var(--muted); box-shadow:0 2px 8px rgba(0,0,0,.12); }
   .map-legend span{ display:flex; align-items:center; gap:5px; }
+  @media (min-width: 821px){ .map-legend{ left:362px; top:auto; bottom:14px; } }
   .lg-ring{ width:12px; height:12px; border-radius:50%; display:inline-block; border:2px solid; }
-  .search-wrap{ position:relative; padding:0 14px 8px; background:#fbf8f1; }
+  .search-wrap{ position:relative; padding:0 14px 12px; background:#fbf8f1; }
   .search-box{ display:flex; align-items:center; gap:8px; background:var(--panel); border:1.5px solid var(--line); border-radius:10px; padding:8px 12px; margin-bottom:0; }
   .search-box:focus-within{ border-color:var(--gold); }
   .search-box input{ flex:1; border:none; outline:none; font-size:13px; font-family:inherit; background:transparent; color:var(--ink); }
   .search-clear{ cursor:pointer; color:var(--muted); font-size:12px; padding:2px 4px; }
-  .search-suggest{ position:absolute; left:14px; right:14px; top:calc(100% - 8px); z-index:50; background:var(--panel); border:1px solid var(--line); border-top:none; border-radius:0 0 10px 10px; box-shadow:0 10px 24px rgba(15,77,58,.15); max-height:260px; overflow-y:auto; display:none; }
+  .search-suggest{ position:absolute; left:14px; right:14px; top:calc(100% - 12px); z-index:50; background:var(--panel); border:1px solid var(--line); border-top:none; border-radius:0 0 10px 10px; box-shadow:0 10px 24px rgba(15,77,58,.15); max-height:260px; overflow-y:auto; display:none; }
   .search-suggest.show{ display:block; }
   .search-suggest .sg-item{ display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--line); }
   .search-suggest .sg-item:last-child{ border-bottom:none; }
@@ -43,7 +44,7 @@
 
   .toolbar{ display:flex; gap:8px; padding:0 14px 10px; background:#fbf8f1; border-bottom:1px solid var(--line); position:relative; }
   .sort-wrap{ position:relative; flex:1; min-width:0; }
-  .tb-btn{ width:100%; display:flex; align-items:center; justify-content:center; gap:7px; padding:9px 10px; border-radius:22px; border:1.5px solid var(--line); background:var(--panel); color:var(--ink); font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tb-btn{ width:100%; height:40px; line-height:1; display:flex; align-items:center; justify-content:center; gap:7px; padding:0 10px; border-radius:22px; border:1.5px solid var(--line); background:var(--panel); color:var(--ink); font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #filterBtn{ flex:1; min-width:0; }
   .tb-btn.active{ border-color:var(--emerald); color:var(--emerald-deep); background:#e8f2ec; }
   .tb-badge{ min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--red); color:#fff; font-size:10.5px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; }
@@ -85,7 +86,7 @@
   .card-top .radius-tag.far{ background:var(--gold-light); color:#7a5a1e;}
   .card-meta{ font-size:12px; color:var(--muted); margin-top:4px; }
   .card-price{ font-size:13px; margin-top:6px; color:var(--gold); font-weight:700;}
-  
+
   #map{ width:100%; height:100%; background:#eae7dc; }
   .leaflet-popup-content-wrapper{ background:var(--panel); border-radius:12px; box-shadow:0 10px 28px rgba(15,77,58,.22); }
   .leaflet-popup-tip{ background:var(--panel); }
@@ -157,19 +158,21 @@
     html, body{ overflow:hidden !important; height:100% !important; position:fixed !important; width:100% !important; }
     .app{ display:block !important; position:relative !important; height:100dvh !important; width:100vw !important; overflow:hidden !important; }
     #map{ position:absolute !important; top:0; left:0; width:100% !important; height:100% !important; z-index:1; }
-    .sidebar{ position:absolute !important; left:0; right:0; bottom:0; z-index:10; height:82dvh !important;
-      transform:translateY(calc(100% - 130px)); transition:transform 0.3s cubic-bezier(0.25,1,0.5,1);
-      border-radius:20px 20px 0 0 !important; box-shadow:0 -4px 20px rgba(0,0,0,0.2) !important;
+    .sidebar{ position:absolute !important; left:0; right:0; bottom:0; z-index:10; height:58dvh !important;
+      transform:translateY(calc(100% - 152px)); transition:transform 0.3s cubic-bezier(0.25,1,0.5,1);
+      border-radius:20px 20px 0 0 !important; box-shadow:0 -4px 20px rgba(0,0,0,0.2) !important; border-right:none;
       display:flex !important; flex-direction:column !important; overflow:hidden !important; }
-    .drag-handle{ width:40px; height:5px; background:#ccc; border-radius:3px; margin:8px auto 4px; flex-shrink:0; cursor:grab; }
+    .drag-handle{ width:40px; height:5px; background:#ccc; border-radius:3px; margin:8px auto 2px; flex-shrink:0; cursor:grab; }
     .sidebar.expanded{ transform:translateY(0) !important; }
-    .sb-head{ padding:4px 16px 6px !important; }
-    .sb-head h1{ font-size:15px !important; margin:0 !important; }
-    .sb-head p, .eyebrow{ display:none !important; }
-    .legend{ padding:4px 16px !important; font-size:10.5px !important; }
-    .controls{ padding:6px 16px !important; }
-    .search-wrap{ padding:8px 16px 0 !important; }
-    .list{ flex:1 !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch !important; padding:10px 16px 30px !important; }
+    .sb-top{ padding:6px 14px 6px; }
+    .sb-top h1{ font-size:14px; }
+    .list{ flex:1 !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch !important; padding:6px 0 30px !important; }
+    .map-legend{ left:12px !important; top:12px !important; bottom:auto !important; right:auto !important; }
+    .card{ padding:10px 14px; }
+    .card-meta{ margin-top:2px; }
+    .card-price{ margin-top:3px; }
+    .filter-panel{ left:0; right:0; top:auto; bottom:0; width:auto; max-width:none; height:88dvh; border-radius:20px 20px 0 0; transform:translateY(100%); box-shadow:0 -8px 30px rgba(15,77,58,.3); overflow:hidden; }
+    .filter-panel.open{ transform:translateY(0); }
   }
   @media (min-width: 821px){ .drag-handle{ display:none; } }
 </style>
@@ -178,8 +181,8 @@
 <div class="app">
   <aside class="sidebar" id="mobileSheet">
     <div class="drag-handle"></div>
-      <div class="sb-top">
-      <h1>ที่พักรอบ มศว ประสานมิตร</h1>
+    <div class="sb-top">
+      <h1>ผลสำรวจที่พักรอบ มศว ประสานมิตร</h1>
       <span class="count-pill" id="countPill"></span>
     </div>
     <div class="search-wrap">
@@ -211,7 +214,7 @@
     <div class="fp-head"><span>ตัวกรอง</span><button class="fp-close" id="filterClose" type="button">✕</button></div>
     <div class="fp-body">
       <details class="fp-sec" open>
-        <summary>ระยะทางจาก มศว ประสานมิตร <span class="fp-sel" id="fpDistSel"></span></summary>
+        <summary>ระยะทางจาก มศว <span class="fp-sel" id="fpDistSel"></span></summary>
         <div class="fp-opts cols1">
           <label><input type="radio" name="dist" value="all" checked> ทั้งหมด</label>
           <label><input type="radio" name="dist" value="near"> 3 กม.</label>
@@ -227,7 +230,7 @@
         </div>
       </details>
       <details class="fp-sec">
-        <summary>เครื่องใช้ไฟฟ้าภายในห้อง <span class="fp-sel" id="fpRoomSel"></span></summary>
+        <summary>เครื่องใช้ไฟฟ้าในห้อง <span class="fp-sel" id="fpRoomSel"></span></summary>
         <div class="fp-opts">
           <label><input type="checkbox" data-amenity="แอร์" data-group="room" class="amenityCheck"> แอร์</label>
           <label><input type="checkbox" data-amenity="เตา" data-group="room" class="amenityCheck"> เตาทำอาหาร</label>
@@ -1361,7 +1364,7 @@ function render(){
   updateToolbar(items.length);
   listEl.innerHTML = '';
   if(!items.length){
-    listEl.innerHTML = `<div style="padding:30px 20px;text-align:center;color:var(--muted);font-size:12.5px;">ไม่พบที่พักตามเงื่อนไขที่เลือก<br>ลองปรับตัวกรองหรือคำค้นหาดูครับ</div>`;
+    listEl.innerHTML = `<div style="padding:30px 20px;text-align:center;color:var(--muted);font-size:12.5px;">ไม่พบที่พักตามเงื่อนไขที่เลือก<br>ลองปรับตัวกรองหรือคำค้นหา</div>`;
     return;
   }
   items.forEach(({h,i}) => {
