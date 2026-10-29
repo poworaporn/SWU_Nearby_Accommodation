@@ -1293,14 +1293,35 @@ housing.forEach((h, i) => {
 });
 
 const listEl = document.getElementById('list');
-const sortSelect = document.getElementById('sortSelect');
-const distFilter = document.getElementById('distFilter');
-const typeFilter = document.getElementById('typeFilter');
+const state = { sort:'default', dist:'all', type:'all' };
 const searchInput = document.getElementById('searchInput');
 const searchClear = document.getElementById('searchClear');
 const searchSuggest = document.getElementById('searchSuggest');
 const sidebarEl = document.getElementById('mobileSheet');
-
+// ---------- แถบเครื่องมือ: เรียงตาม + ตัวกรอง ----------
+const SORT_LABELS = { 'default':'เรียงตาม', 'price-asc':'ราคา: ต่ำ → สูง', 'price-desc':'ราคา: สูง → ต่ำ', 'dist-asc':'ระยะ: ใกล้ → ไกล', 'rating-desc':'คะแนนสูงสุด' };
+const DIST_LABELS = { all:'', near:'3 กม.', far:'6 กม.' };
+const sortBtn = document.getElementById('sortBtn'), sortMenu = document.getElementById('sortMenu'), sortLabel = document.getElementById('sortLabel');
+const filterBtn = document.getElementById('filterBtn'), filterBadge = document.getElementById('filterBadge');
+const filterPanel = document.getElementById('filterPanel'), filterBackdrop = document.getElementById('filterBackdrop');
+const countPill = document.getElementById('countPill'), fpCount = document.getElementById('fpCount');
+function checkedCount(group){ return document.querySelectorAll('.amenityCheck[data-group="'+group+'"]:checked').length; }
+function updateToolbar(n){
+  countPill.textContent = n + ' แห่ง';
+  fpCount.textContent = n;
+  const room = checkedCount('room'), common = checkedCount('common');
+  const total = (state.dist!=='all'?1:0) + (state.type!=='all'?1:0) + room + common;
+  filterBadge.textContent = total;
+  filterBadge.style.display = total ? 'inline-flex' : 'none';
+  filterBtn.classList.toggle('active', total>0);
+  sortLabel.textContent = SORT_LABELS[state.sort];
+  sortBtn.classList.toggle('active', state.sort!=='default');
+  sortMenu.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.sort===state.sort));
+  document.getElementById('fpDistSel').textContent = DIST_LABELS[state.dist];
+  document.getElementById('fpTypeSel').textContent = state.type==='all' ? '' : state.type;
+  document.getElementById('fpRoomSel').textContent = room ? room+' รายการ' : '';
+  document.getElementById('fpCommonSel').textContent = common ? common+' รายการ' : '';
+}
 function searchableText(h){
   const app = (h.appliances||[]).map(a=>a.name).join(' ');
   const sec = h.security ? Object.values(h.security).join(' ') : '';
@@ -1321,23 +1342,23 @@ function hasAmenity(h, key){
     default: return true;
   }
 }
-
 function render(){
   let items = housing.map((h,i)=>({h,i}));
   const q = searchInput.value.trim().toLowerCase();
   if(q) items = items.filter(o => searchableText(o.h).includes(q));
-  if(distFilter.value === 'near') items = items.filter(o => o.h.distanceKm <= 3);
-  if(distFilter.value === 'far')  items = items.filter(o => o.h.distanceKm > 3);
-  if(typeFilter.value !== 'all')  items = items.filter(o => o.h.type === typeFilter.value);
+  if(state.dist === 'near') items = items.filter(o => o.h.distanceKm <= 3);
+  if(state.dist === 'far')  items = items.filter(o => o.h.distanceKm > 3);
+  if(state.type !== 'all')  items = items.filter(o => o.h.type === state.type);
   const checked = Array.from(document.querySelectorAll('.amenityCheck:checked')).map(c=>c.dataset.amenity);
   if(checked.length) items = items.filter(o => checked.every(a => hasAmenity(o.h, a)));
 
-  const s = sortSelect.value;
+  const s = state.sort;
   if(s==='price-asc')  items.sort((a,b)=>a.h.rent-b.h.rent);
   if(s==='price-desc') items.sort((a,b)=>b.h.rent-a.h.rent);
   if(s==='dist-asc')   items.sort((a,b)=>a.h.distanceKm-b.h.distanceKm);
   if(s==='rating-desc')items.sort((a,b)=>avgRating(b.h)-avgRating(a.h));
 
+  updateToolbar(items.length);
   listEl.innerHTML = '';
   if(!items.length){
     listEl.innerHTML = `<div style="padding:30px 20px;text-align:center;color:var(--muted);font-size:12.5px;">ไม่พบที่พักตามเงื่อนไขที่เลือก<br>ลองปรับตัวกรองหรือคำค้นหาดูครับ</div>`;
@@ -1366,8 +1387,33 @@ function render(){
   });
 }
 render();
-[sortSelect,distFilter,typeFilter].forEach(el=>el.addEventListener('change',render));
-document.querySelectorAll('.amenityCheck').forEach(cb=>cb.addEventListener('change',render));
+
+sortBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  const opening = !sortMenu.classList.contains('show');
+  sortMenu.classList.toggle('show');
+  if(opening && window.innerWidth <= 820) sidebarEl.classList.add('expanded');
+});
+sortMenu.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { state.sort = b.dataset.sort; sortMenu.classList.remove('show'); render(); }));
+document.addEventListener('click', e => { if(!e.target.closest('.sort-wrap')) sortMenu.classList.remove('show'); });
+
+function openFilter(){ filterPanel.classList.add('open'); filterBackdrop.classList.add('open'); sortMenu.classList.remove('show'); }
+function closeFilter(){ filterPanel.classList.remove('open'); filterBackdrop.classList.remove('open'); }
+filterBtn.addEventListener('click', openFilter);
+document.getElementById('filterClose').addEventListener('click', closeFilter);
+document.getElementById('filterApply').addEventListener('click', closeFilter);
+filterBackdrop.addEventListener('click', closeFilter);
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeFilter(); });
+document.querySelectorAll('input[name="dist"]').forEach(r => r.addEventListener('change', () => { state.dist = r.value; render(); }));
+document.querySelectorAll('input[name="type"]').forEach(r => r.addEventListener('change', () => { state.type = r.value; render(); }));
+document.querySelectorAll('.amenityCheck').forEach(cb => cb.addEventListener('change', render));
+document.getElementById('filterClear').addEventListener('click', () => {
+  state.dist = 'all'; state.type = 'all';
+  document.querySelector('input[name="dist"][value="all"]').checked = true;
+  document.querySelector('input[name="type"][value="all"]').checked = true;
+  document.querySelectorAll('.amenityCheck').forEach(c => c.checked = false);
+  render();
+});
 
 function highlightMatch(name,q){
   if(!q) return name;
