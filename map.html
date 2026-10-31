@@ -1617,6 +1617,55 @@ document.getElementById('overlay').addEventListener('click', closeDrawer);
   });
   window.addEventListener('resize', function() { if (typeof map !== 'undefined' && map) map.invalidateSize(); });
   window.addEventListener('orientationchange', function() { if (typeof map !== 'undefined' && map) map.invalidateSize(); });
+/* ===== แก้ปัญหา iPad Safari Height Bug ===== */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+/* เปลี่ยนจาก Grid เป็น Flexbox เพื่อบังคับยืดความสูงบน Safari */
+.app {
+  display: flex !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  overflow: hidden !important;
+}
+
+.sidebar {
+  width: 350px !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  flex-shrink: 0 !important;
+}
+
+#map {
+  flex: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+/* รองรับ iPad แนวตั้ง และ มือถือ */
+@media (max-width: 820px) {
+  .app {
+    display: block !important;
+  }
+  .sidebar {
+    width: 100% !important;
+  }
+}
 </script>
 </body>
 </html>
