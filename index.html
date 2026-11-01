@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ปัจจัยที่มีอิทธิพลต่อการตัดสินใจเลือกที่พักอาศัยของนิสิตในบริเวณโดยรอบ มศว ประสานมิตร</title>
 <meta name="description" content="แผนที่ผลสำรวจและรายงานวิจัยเรื่องปัจจัยที่มีอิทธิพลต่อการตัดสินใจเลือกที่พักอาศัยของนิสิตในบริเวณโดยรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร">
 <style>
@@ -27,8 +27,9 @@
   .nav a.active{ color:var(--gold-light); border-bottom-color:var(--gold); }
   .burger{ display:none; margin-left:auto; background:none; border:1px solid rgba(255,255,255,.35); color:#fff; border-radius:8px; font-size:18px; width:38px; height:34px; cursor:pointer; }
 
-  /* ---------- แผนที่ (ไฟล์ map.html) ---------- */
-  .map-frame{ position:fixed; top:var(--bar); left:0; right:0; width:100%; height:calc(100vh - var(--bar)); height:calc(100dvh - var(--bar)); border:0; background:var(--paper); }
+  /* ---------- แผนที่ (ไฟล์ map.html) ----------
+     ความสูงจริงถูกตั้งซ้ำด้วย JS (fitMap) เพื่อแก้ปัญหา iPad / Safari ที่คำนวณ vh ใน iframe ผิด */
+  .map-frame{ position:fixed; top:var(--bar); left:0; right:0; width:100%; height:calc(100vh - var(--bar)); height:calc(100dvh - var(--bar)); border:0; background:var(--paper); display:block; }
 
   /* ---------- หน้าเนื้อหา (วางทับแผนที่) ---------- */
   .page{ position:fixed; top:var(--bar); left:0; right:0; bottom:0; overflow-y:auto; -webkit-overflow-scrolling:touch; background:var(--paper); display:none; z-index:20; }
@@ -71,6 +72,7 @@
   .steps span{ font-size:13px; line-height:1.7; color:#3d3a32; }
 
   .eq{ background:#fbf8f1; border-left:4px solid var(--gold); padding:14px 16px; border-radius:8px; font-family:"Cambria Math","STIX Two Math",Georgia,serif; font-size:15px; overflow-x:auto; white-space:nowrap; margin:0 0 12px; }
+  .eq-title{ font-size:13.5px; font-weight:700; color:var(--emerald-deep); margin:16px 0 6px; }
 
   .tbl-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
   .tbl{ width:100%; border-collapse:collapse; font-size:12.5px; }
@@ -155,7 +157,7 @@
       <ol>
         <li>เพื่อสำรวจลักษณะและค่าเช่าของที่พักนิสิตในรัศมี 6 กิโลเมตรจากมหาวิทยาลัย</li>
         <li>เพื่อวิเคราะห์ปัจจัยที่มีอิทธิพลต่อค่าเช่าและการตัดสินใจเลือกที่พัก เช่น ขนาดห้อง ระยะทาง การเดินทาง และสิ่งอำนวยความสะดวก</li>
-        <li>เพื่อสร้างแบบจำลองสำหรับอธิบายและพยากรณ์อัตราค่าเช่า</li>
+        <li>เพื่อเปรียบเทียบอิทธิพลของปัจจัยต่าง ๆ ระหว่างที่พักในระยะ 3 กม. ระยะ 6 กม. และภาพรวมทั้งหมด</li>
         <li>เพื่อนำเสนอข้อมูลผ่านแผนที่เชิงโต้ตอบที่ใช้เปรียบเทียบที่พักได้</li>
       </ol>
     </div>
@@ -165,8 +167,8 @@
       <div class="grid2">
         <div class="card"><h3>📍 พื้นที่ศึกษา</h3><p>รัศมี 6 กิโลเมตรจากสนามกีฬา มศว ประสานมิตร แบ่งเป็นวงใน (ไม่เกิน 3 กม.) และวงนอก (3 - 6 กม.)</p></div>
         <div class="card"><h3>🏙️ เขตที่ครอบคลุม</h3><p>วัฒนา (ที่ตั้ง มศว) · คลองเตย · ห้วยขวาง · ดินแดง · ราชเทวี · ปทุมวัน · บางรัก · สาทร</p></div>
-        <div class="card"><h3>🎓 กลุ่มตัวอย่าง</h3><p>นิสิต มศว ประสานมิตร ที่เช่าที่พักในพื้นที่ศึกษา ปัจจุบันมีข้อมูล <b data-live="n">—</b> ที่พัก <span class="ph"></p></div>
-        <div class="card"><h3>🗓️ ช่วงเวลาเก็บข้อมูล</h3><p><span class="ph"> เดือนกันยายน – พฤศจิกายน 2569]</span></p></div>
+        <div class="card"><h3>🎓 กลุ่มตัวอย่าง</h3><p>นิสิต มศว ประสานมิตร ที่เช่าที่พักในพื้นที่ศึกษา ปัจจุบันมีข้อมูล <b data-live="n">—</b> ที่พัก</p></div>
+        <div class="card"><h3>🗓️ ช่วงเวลาเก็บข้อมูล</h3><p>เดือนกันยายน – พฤศจิกายน 2569</p></div>
       </div>
     </div>
 
@@ -210,7 +212,7 @@
 <section class="page" id="page-model">
   <div class="hero sm"><div class="inner">
     <div class="kicker">รูปแบบการทำแบบจำลอง</div>
-    <h1>แบบจำลองอธิบายและพยากรณ์ค่าเช่าที่พัก</h1>
+    <h1>แบบจำลองวิเคราะห์ปัจจัยที่มีผลต่อค่าเช่าที่พัก</h1>
   </div></div>
   <div class="wrap">
     <div class="note">เหลือแก้สมการไฟนอล</div>
@@ -220,15 +222,25 @@
       <ol class="steps">
         <li><div><b>เตรียมข้อมูล</b><span>ตรวจและทำความสะอาดคำตอบ แปลงค่าเป็นตัวเลข จัดการค่าที่หายไปและค่าผิดปกติ</span></div></li>
         <li><div><b>สร้างตัวแปรอธิบาย</b><span>คำนวณระยะทางถึง มศว และสถานีรถไฟฟ้า สร้างตัวแปรหุ่นของประเภทที่พักและสิ่งอำนวยความสะดวก และค่าเช่าต่อตารางเมตร</span></div></li>
-        <li><div><b>ประมาณแบบจำลอง</b><span>ถดถอยเชิงเส้นพหุคูณ (OLS) โดยใช้ ln(ค่าเช่า) เป็นตัวแปรตาม เพื่อให้ตีความเป็นร้อยละได้</span></div></li>
+        <li><div><b>แบ่งกลุ่มข้อมูลและประมาณแบบจำลอง</b><span>ถดถอยเชิงเส้นพหุคูณ (OLS) โดยใช้ ln(ค่าเช่า) เป็นตัวแปรตาม เพื่อให้ตีความเป็นร้อยละได้ รันแยก 3 แบบ ได้แก่ เฉพาะระยะ 3 กม. เฉพาะระยะ 6 กม. และวงใหญ่ที่รวมทุกที่พัก</span></div></li>
         <li><div><b>ตรวจสอบความเหมาะสม</b><span>ตรวจ Multicollinearity (VIF), ส่วนเหลือ (Residual), ความแปรปรวนไม่คงที่ และค่าผิดปกติ</span></div></li>
-        <li><div><b>ตีความและพยากรณ์</b><span>ตีความสัมประสิทธิ์ ประเมินความแม่นยำ (R², RMSE) และทดลองพยากรณ์ค่าเช่าของที่พักใหม่</span></div></li>
+        <li><div><b>ตีความและเปรียบเทียบ</b><span>ตีความสัมประสิทธิ์ ประเมินความเหมาะสมของแบบจำลอง (R², Adjusted R²) และเปรียบเทียบว่าปัจจัยแต่ละตัวมีอิทธิพลต่างกันอย่างไรในแต่ละระยะ</span></div></li>
       </ol>
     </div>
 
     <div class="sec">
-      <h2>สมการแบบจำลอง <span class="draft">ร่าง</span></h2>
-      <div class="eq">ln(Rentᵢ) = β₀ + β₁·Sizeᵢ + β₂·Floorᵢ + β₃·DistUniᵢ + β₄·TravelCostᵢ + δ·Typeᵢ + Σ γₖ·Amenityᵢₖ + εᵢ</div>
+      <h2>สมการแบบจำลอง 3 แบบ <span class="draft">ร่าง</span></h2>
+      <p>ทั้ง 3 สมการใช้ตัวแปรชุดเดียวกัน ต่างกันที่กลุ่มข้อมูลที่นำมาประมาณค่า</p>
+
+      <div class="eq-title">แบบที่ 1 · เฉพาะที่พักในระยะ 3 กม. (วงใน)</div>
+      <div class="eq">ln(Rentᵢ) = β₀ + β₁·Sizeᵢ + β₂·Floorᵢ + β₃·DistUniᵢ + β₄·TravelCostᵢ + δ·Typeᵢ + Σ γₖ·Amenityᵢₖ + εᵢ,&nbsp; เมื่อ DistUniᵢ ≤ 3</div>
+
+      <div class="eq-title">แบบที่ 2 · เฉพาะที่พักในระยะ 6 กม. (วงนอก 3–6 กม.)</div>
+      <div class="eq">ln(Rentᵢ) = β₀ + β₁·Sizeᵢ + β₂·Floorᵢ + β₃·DistUniᵢ + β₄·TravelCostᵢ + δ·Typeᵢ + Σ γₖ·Amenityᵢₖ + εᵢ,&nbsp; เมื่อ 3 &lt; DistUniᵢ ≤ 6</div>
+
+      <div class="eq-title">แบบที่ 3 · วงใหญ่ รวมที่พักทั้งหมด</div>
+      <div class="eq">ln(Rentᵢ) = β₀ + β₁·Sizeᵢ + β₂·Floorᵢ + β₃·DistUniᵢ + β₄·TravelCostᵢ + δ·Typeᵢ + Σ γₖ·Amenityᵢₖ + εᵢ,&nbsp; เมื่อ DistUniᵢ ≤ 6</div>
+
       <p>โดย Rentᵢ คือค่าเช่าต่อเดือนของที่พักที่ i และ εᵢ คือความคลาดเคลื่อนของแบบจำลอง</p>
       <div class="tbl-wrap"><table class="tbl">
         <tr><th>สัญลักษณ์</th><th>ตัวแปร</th><th>หน่วย / ชนิด</th><th>ทิศทางที่คาด</th></tr>
@@ -253,6 +265,7 @@
         <li>เปรียบเทียบแบบจำลองด้วย Adjusted R², AIC/BIC</li>
       </ul></div>
     </div>
+  </div>
 </section>
 
 <!-- ===================== ผลการวิจัย ===================== -->
@@ -269,20 +282,21 @@
 
     <div class="sec">
       <h2>ผลการประมาณแบบจำลอง <span class="draft">รอใส่ผลจริง</span></h2>
-      <div class="grid4" style="margin-bottom:14px">
-        <div class="stat"><div class="n" data-live="n">—</div><div class="l">จำนวนข้อมูล (N)</div></div>
-        <div class="stat"><div class="n"><span class="ph">—</span></div><div class="l">R²</div></div>
-        <div class="stat"><div class="n"><span class="ph">—</span></div><div class="l">Adjusted R²</div></div>
-        <div class="stat"><div class="n"><span class="ph">—</span></div><div class="l">RMSE / MAE</div></div>
-      </div>
+      <div class="tbl-wrap" style="margin-bottom:14px"><table class="tbl">
+        <tr><th>สถิติ</th><th class="r">แบบที่ 1 · ระยะ 3 กม.</th><th class="r">แบบที่ 2 · ระยะ 6 กม.</th><th class="r">แบบที่ 3 · วงใหญ่</th></tr>
+        <tr><td>จำนวนข้อมูล (N)</td><td class="r"><span class="ph">—</span></td><td class="r"><span class="ph">—</span></td><td class="r" data-live="n">—</td></tr>
+        <tr><td>R²</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+        <tr><td>Adjusted R²</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+      </table></div>
       <div class="tbl-wrap"><table class="tbl">
-        <tr><th>ตัวแปร</th><th class="r">สัมประสิทธิ์ (β)</th><th class="r">Std. Error</th><th class="r">t</th><th class="r">p-value</th><th class="r">VIF</th></tr>
-        <tr><td>ค่าคงที่</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>ขนาดห้อง (ตร.ม.)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>ระยะทางถึง มศว (กม.)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>ค่าเดินทางต่อเที่ยว (บาท)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>คอนโดมิเนียม (เทียบอพาร์ตเมนต์)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>สระว่ายน้ำ / ฟิตเนส / ลิฟต์ / ที่จอดรถ</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+        <tr><th>ตัวแปร (สัมประสิทธิ์ β และ p-value)</th><th class="r">แบบที่ 1 · 3 กม.</th><th class="r">แบบที่ 2 · 6 กม.</th><th class="r">แบบที่ 3 · วงใหญ่</th></tr>
+        <tr><td>ค่าคงที่</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+        <tr><td>ขนาดห้อง (ตร.ม.)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+        <tr><td>ชั้นที่พัก</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+        <tr><td>ระยะทางถึง มศว (กม.)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+        <tr><td>ค่าเดินทางต่อเที่ยว (บาท)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+        <tr><td>คอนโดมิเนียม (เทียบอพาร์ตเมนต์)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
+        <tr><td>สระว่ายน้ำ / ฟิตเนส / ลิฟต์ / ที่จอดรถ</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
       </table></div>
       <p style="margin-top:8px;color:var(--muted);font-size:12px">ตารางนี้เป็นเพียงรูปแบบ ยังไม่มีค่าจริง ใส่ผลจากโปรแกรมที่ใช้วิเคราะห์ (เช่น R, Python, SPSS, Stata)</p>
     </div>
@@ -291,7 +305,7 @@
       <h2>ข้อค้นพบสำคัญ <span class="draft">ร่าง</span></h2>
       <ol>
         <li><span class="ph">[ข้อค้นพบที่ 1 เช่น ปัจจัยที่มีผลต่อค่าเช่ามากที่สุด]</span></li>
-        <li><span class="ph">[ข้อค้นพบที่ 2 เช่น ความแตกต่างของค่าเช่าระหว่างวงใน 3 กม. กับวงนอก]</span></li>
+        <li><span class="ph">[ข้อค้นพบที่ 2 เช่น ความแตกต่างของปัจจัยที่มีผลระหว่างระยะ 3 กม. กับระยะ 6 กม.]</span></li>
         <li><span class="ph">[ข้อค้นพบที่ 3 เช่น บทบาทของรถไฟฟ้าและค่าเดินทางต่อการเลือกที่พัก]</span></li>
       </ol>
     </div>
@@ -331,10 +345,10 @@
 const SITE = {
   title:   'ปัจจัยที่มีอิทธิพลต่อการตัดสินใจเลือกที่พักอาศัยของนิสิตในบริเวณโดยรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร',
   short:   'ผลสำรวจที่พักรอบ มศว ประสานมิตร',
-  course:  'EC116/117 / ภาคการศึกษาที่ 1',
+  course:  'รายวิชา EC116/117',
   advisor: { name:'ผู้ช่วยศาสตราจารย์ ดร.รัชพันธุ์ เชยจิตร' },
   team: [
-    { name:'นางสาวณฐภัค โฆสิตนุกุล', id:'66149010045', major:'คณะเศรษฐศาสตร์', role:'หน้าที่' },
+    { name:'นางสาวณฐภัค โฆสิตนุกูล', id:'66149010045', major:'คณะเศรษฐศาสตร์', role:'หน้าที่' },
     { name:'นางสาวปวรพร นิยมถิ่น', id:'66149010077', major:'คณะเศรษฐศาสตร์', role:'หน้าที่' },
     { name:'นางสาวพัชราภรณ์ แซ่หลิว', id:'66149010088', major:'คณะเศรษฐศาสตร์', role:'หน้าที่' },
     { name:'นางสาวเพียงตะวัน จุลมกร', id:'66149010092', major:'คณะเศรษฐศาสตร์', role:'หน้าที่' },
@@ -449,7 +463,8 @@ function initContent(){
   $('heroKicker').textContent = 'งานวิจัย ·';
   $('heroTitle').textContent = SITE.title;
   $('heroNames').innerHTML = SITE.team.map(m => ph(m.name)).join(' · ');
-  $('heroChips').innerHTML = '<span class="chip">สมาชิก '+SITE.team.length+' คน</span><span class="chip">'+ph(SITE.course)+'</span><span class="chip">ที่ปรึกษา: '+ph(SITE.advisor.name)+'</span>';
+  // ตัดชิป "สมาชิก 5 คน" ออกแล้ว เพราะมีรายชื่อสมาชิกอยู่ด้านบนแล้ว
+  $('heroChips').innerHTML = '<span class="chip">'+ph(SITE.course)+'</span><span class="chip">ที่ปรึกษา: '+ph(SITE.advisor.name)+'</span>';
   $('teamGrid').innerHTML = SITE.team.map((m,i) =>
     '<div class="card member"><div class="avatar">'+(i+1)+'</div><div><div class="m-name">'+ph(m.name)+'</div><div class="m-sub">'+ph(m.id)+' · '+ph(m.major)+'</div><div class="m-role">'+ph(m.role)+'</div></div></div>').join('');
   $('advisorCard').innerHTML = '<div class="avatar">🎓</div><div><div class="m-name">'+ph(SITE.advisor.name)+'</div><div class="m-sub">'+ph(SITE.advisor.sub)+'</div></div>';
@@ -473,6 +488,25 @@ function refreshLive(){
   }
 }
 
+// ===================== แก้ iPad: ให้แผนที่เต็มจอทั้งแนวตั้งและแนวนอน =====================
+// Safari บน iPad คำนวณ vh/dvh ใน iframe คลาดเคลื่อน เลยตั้งความสูงเป็นพิกเซลจากขนาดจอจริงทุกครั้งที่จอเปลี่ยน
+function fitMap(){
+  const frame = $('mapFrame');
+  const vh  = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+  const bar = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--bar'), 10) || 52;
+  const h = Math.max(200, Math.round(vh - bar));
+  frame.style.height = h + 'px';
+  try{
+    const w = frame.contentWindow, d = frame.contentDocument;
+    if(d && d.documentElement){
+      d.documentElement.style.height = h + 'px';
+      if(d.body) d.body.style.height = h + 'px';
+      w.dispatchEvent(new Event('resize'));
+      w.eval('typeof map!=="undefined" && map && map.invalidateSize && map.invalidateSize()');
+    }
+  }catch(e){}
+}
+
 function route(){
   let p = (location.hash || '#map').slice(1);
   if(PAGES.indexOf(p) === -1) p = 'map';
@@ -482,12 +516,17 @@ function route(){
   const pg = $('page-'+p); if(pg) pg.scrollTop = 0;
   document.title = TITLES[p] + ' | ' + SITE.short;
   if(p==='results' || p==='about') refreshLive();
+  if(p==='map') setTimeout(fitMap, 50);
 }
 
 initContent();
 $('burger').addEventListener('click', () => $('nav').classList.toggle('open'));
 window.addEventListener('hashchange', route);
-$('mapFrame').addEventListener('load', refreshLive);
+window.addEventListener('resize', fitMap);
+window.addEventListener('orientationchange', () => { setTimeout(fitMap, 150); setTimeout(fitMap, 500); });
+if(window.visualViewport) window.visualViewport.addEventListener('resize', fitMap);
+$('mapFrame').addEventListener('load', () => { fitMap(); setTimeout(fitMap, 400); refreshLive(); });
+fitMap();
 route();
 </script>
 </body>
