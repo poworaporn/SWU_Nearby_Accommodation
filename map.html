@@ -1658,8 +1658,9 @@ function buildSpans(h, direction){
   const spans = [];
   let cursor = start, pending = [];
 
-  if(direction === 'back' && steps[0] === 'เดิน' && steps.length > 1 && !TRANSIT_MODES.includes(steps[1])){
-    const pickup = h.returnPickup || defaultPickupFor(steps[1]);
+  if(steps[0] === 'เดิน' && steps.length > 1 && !TRANSIT_MODES.includes(steps[1])){
+  const pickup = direction === 'back' ? (h.returnPickup || defaultPickupFor(steps[1])) : h.pickupTo;
+
     if(pickup){
       const pick = { lat:pickup.lat, lng:pickup.lng, label:pickup.label || 'จุดขึ้นรถ' };
       spans.push({ from:cursor, to:pick, steps:['เดิน'] });
