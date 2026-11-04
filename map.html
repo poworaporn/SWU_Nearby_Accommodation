@@ -2064,7 +2064,6 @@ const housing = [
     quote: "ใกล้ห้างและMrt",
     ratings: { location: 5, cleanliness: 5, safety: 5, service: 3, facilities: 4, parking: 5, value: 3 }
   }
-]
 ];
 housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h.lng); });
 
