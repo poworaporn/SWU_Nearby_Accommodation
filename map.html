@@ -456,6 +456,7 @@ const housing = [
     gmapsLink: "https://maps.app.goo.gl/R54HJN83bXGAndR96?g_st=il",
     routeToSteps:["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
     routeBackSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง"],
+    viaTo: [ { lat: 13.748932141640962, lng: 100.56865375005334 } ],
     travelCostDay:80,
     travelCostGo:"40", travelCostBack:"40", 
     travelTimeGo:"10", travelTimeBack:"10", 
@@ -1763,8 +1764,10 @@ async function drawRoute(h, direction){
     } else if(span.bus){
       pts = await fetchRoad([span.from, span.to], 'car');
     } else {
-      const rideMode = span.steps.find(s => s !== 'เดิน');
-      pts = await fetchRoad([span.from, span.to], profileFor(rideMode || 'เดิน'));
+     const rideMode = span.steps.find(s => s !== 'เดิน');
+const via = (direction === 'to' ? h.viaTo : h.viaBack) || [];
+const wps = (via.length && rideMode) ? [span.from, ...via, span.to] : [span.from, span.to];
+pts = await fetchRoad(wps, profileFor(rideMode || 'เดิน'));
     }
     if(myReq !== routeReq) return;
 
