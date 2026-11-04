@@ -483,8 +483,8 @@ const housing = [
     gmapsLink: "https://maps.app.goo.gl/jzfaMSN8PXkuzbS49?g_st=ic",
     routeToSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง","MRT","เดิน"],
     routeBackSteps:["เดิน","MRT","วินมอเตอร์ไซค์รับจ้าง"],
-    pickupTo: { lat:13.772773 , lng: 100.567854, label: "วินซอยเปรมสมบัติ แยก 1 และ แยก 2" },
-    returnPickup: {label: "วินตลาดนัดรถไฟ รัชดา" },
+    vinpickupTo: { lat:13.772773 , lng: 100.567854, label: "วินซอยเปรมสมบัติ แยก 1 และ แยก 2" },
+    vinPickupBack: { lat: 13.766342513919584, lng: 100.57028014765686, label: "วินตลาดนัดรัชดา" },
     travelCostDay:70,
     travelCostGo:34, travelCostBack:39,
     travelTimeGo:30, travelTimeBack:20,
@@ -1578,9 +1578,21 @@ function buildSpans(h, direction){
 
   const spans = [];
   let cursor = start, pending = [];
-
-  if(steps[0] === 'เดิน' && steps.length > 1 && !TRANSIT_MODES.includes(steps[1])){
-  const pickup = direction === 'back' ? (h.returnPickup || defaultPickupFor(steps[1])) : h.pickupTo;
+  const vinStand = direction === 'to' ? h.vinPickupTo : h.vinPickupBack;
+function flush(from, to){
+  const vi = pending.indexOf('วินมอเตอร์ไซค์รับจ้าง');
+  if(vinStand && vi !== -1){
+    const pick = { lat:vinStand.lat, lng:vinStand.lng, label:vinStand.label || 'จุดขึ้นวิน' };
+    const before = pending.slice(0, vi);
+    if(before.length) spans.push({ from, to:pick, steps:before });
+    else if(haversineKm(from.lat, from.lng, pick.lat, pick.lng) > 0.03) spans.push({ from, to:pick, steps:['เดิน'] });
+    spans.push({ from:pick, to, steps:pending.slice(vi) });
+  } else {
+    spans.push({ from, to, steps:pending.slice() });
+  }
+}
+  if(direction === 'back' && steps[0] === 'เดิน' && steps.length > 1 && !TRANSIT_MODES.includes(steps[1])){
+  const pickup = h.returnPickup || defaultPickupFor(steps[1]);
 
     if(pickup){
       const pick = { lat:pickup.lat, lng:pickup.lng, label:pickup.label || 'จุดขึ้นรถ' };
@@ -1589,7 +1601,6 @@ function buildSpans(h, direction){
       steps.shift();
     }
   }
-
   steps.forEach(mode => {
     if(TRANSIT_MODES.includes(mode)){
       let board, alight;
@@ -1601,7 +1612,7 @@ function buildSpans(h, direction){
         if(!b || !a) return;
         board  = { lat:b.lat, lng:b.lng, label:`${mode} ${b.name}` };
         alight = { lat:a.lat, lng:a.lng, label:`${mode} ${a.name}` };
-        if(pending.length) spans.push({ from:cursor, to:board, steps:pending.slice() });
+        if(pending.length) flush(cursor, board);
         pending = [];
         spans.push({ from:board, to:alight, steps:[mode], bus:{ from:b.name, to:a.name } });
       } else {
@@ -1612,7 +1623,7 @@ function buildSpans(h, direction){
         if(!ST[bName] || !ST[aName]) return;
         board  = { lat:ST[bName][0], lng:ST[bName][1], label:`${mode} ${stTh(bName)}` };
         alight = { lat:ST[aName][0], lng:ST[aName][1], label:`${mode} ${stTh(aName)}` };
-        if(pending.length) spans.push({ from:cursor, to:board, steps:pending.slice() });
+        if(pending.length) flush(cursor, board);
         pending = [];
         spans.push({ from:board, to:alight, steps:[mode], rail:{ line:mode, a:bName, b:aName } });
       }
@@ -1621,10 +1632,9 @@ function buildSpans(h, direction){
       pending.push(mode);
     }
   });
-  if(pending.length) spans.push({ from:cursor, to:end, steps:pending.slice() });
+ if(pending.length) flush(cursor, end);
   return spans;
 }
-
 function stationSequence(lineKey, a, b){
   const order = LINES[lineKey];
   const mk = n => ({ lat:ST[n][0], lng:ST[n][1], name:n });
@@ -1634,7 +1644,6 @@ function stationSequence(lineKey, a, b){
   const slice = i <= j ? order.slice(i, j+1) : order.slice(j, i+1).reverse();
   return slice.filter(n => ST[n]).map(mk);
 }
-
 function polylineLengthKm(points){
   let t = 0;
   for(let i=1;i<points.length;i++) t += haversineKm(points[i-1][0],points[i-1][1],points[i][0],points[i][1]);
