@@ -483,6 +483,8 @@ const housing = [
     gmapsLink: "https://maps.app.goo.gl/jzfaMSN8PXkuzbS49?g_st=ic",
     routeToSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง","MRT","เดิน"],
     routeBackSteps:["เดิน","MRT","วินมอเตอร์ไซค์รับจ้าง"],
+    pickupTo: { lat:13.772773 , lng: 100.567854, label: "วินซอยเปรมสมบัติ แยก 1 และ แยก 2" },
+    returnPickup: {label: "วินตลาดนัดรถไฟ รัชดา" },
     travelCostDay:70,
     travelCostGo:34, travelCostBack:39,
     travelTimeGo:30, travelTimeBack:20,
@@ -739,7 +741,7 @@ const housing = [
     ratings: { location: 5, cleanliness: 5, safety: 5, service: 5, facilities: 5, parking: 5, value: 5 }
   },
   {
-    name: "I-House Laguna Garden RCA", nameTh: "ไอ-เฮ้าส์ ลากูนา การ์เด้น",
+    name: "I-House Laguna Garden RCA building G", nameTh: "ไอ-เฮ้าส์ ลากูนา การ์เด้น ตึกจี",
     type: "คอนโดมิเนียม", lat: 13.7517783, lng: 100.5790984,
     respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท" },
     roomSize: "29 ตร.ม.", floor: "4", occupants: "1 คน",
@@ -1337,33 +1339,6 @@ const housing = [
     ratings: { location: 5, cleanliness: 4, safety: 5, service: 4, facilities: 4, parking: 5, value: 5 }
   },
   {
-    name: "Chewathai Hallmark Ladprao-Chokchai4 Phase1",nameTh: "คอนโดชีวาทัย ฮอล์ลมาร์ค ลาดพร้าว-โชคชัย 4 เฟส 1",
-    type: "คอนโดมิเนียม", lat: 13.7960463, lng: 100.5996545,
-    respondent: { gender: "ชาย", age: 20, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท" },
-    roomSize: "24 ตร.ม.", floor: "3", occupants: "1 คน",
-    furnishing: "มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
-    rent: 12000, paymentTiming: "ชำระค่าเช่าทุกต้นเดือน", initialCost: 20000,
-    contractDuration: "มากกว่า 1 ปี", stayDuration: "2 ปี",
-    electricity: "ชำระตามเรทการไฟฟ้า",
-    water: "เหมาจ่ายรายเดือน", waterNote: "70 บาท/เดือน",
-    commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
-    wifi: "ไม่มี", wifiSource: "ติดตั้งเอง", wifiSelfCost: 500,
-    gmapsLink: "https://maps.app.goo.gl/uT9nQSvraCAYMXb66?g_st=ic",
-    routeToSteps: ["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)","MRT","เดิน"],
-    routeBackSteps: ["เดิน","MRT","เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
-    travelCostDay: 160,
-    travelCostGo: 80, travelCostBack: 80,
-    travelTimeGo: 30, travelTimeBack: 30,
-    appliances: [{name:"เครื่องปรับอากาศ (แอร์)",qty:2},{name:"โทรทัศน์ (TV)",qty:1},{name:"ตู้เย็น",qty:1},{name:"ไมโครเวฟ",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1},{name:"เตาไฟฟ้า (สำหรับทำอาหาร)",qty:1}],
-    laundry: "มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
-    fitness: "มี", pool: "มี", poolSize: "25 เมตร",
-    elevator: "มี", elevatorCount: "2", parking: "มี", parkingCount: "100", parkingFeeNote: "ไม่มี/ไม่เก็บเพิ่ม",
-    security: { building: "ระบบคีย์การ์ด (Keycard)", elevator: "ระบบคีย์การ์ด (Keycard)", room: "กดรหัสผ่าน, กุญแจ" },
-    buildingCondition: "ใหม่ (ดูทันสมัย / เพิ่งสร้าง / หรือเพิ่งปรับปรุงใหม่)",
-    quote: "สะดวก ใกล้รถไฟฟ้า ใกล้ห้าง ส่วนกลางพอได้ อาหารมีให้เลือกเยอะ เดินทางง่าย ที่จอดรถค่อนข้างอัดกันถ้ากลับดึกก็มีโอกาสเต็ม ซอยค่อนข้างเงียบ มีเซเว่นและ CJ Mall ใกล้คอนโด มีตู้เต่าบินให้กด แต่ห้องไม่ค่อยเก็บเสียงและเสียงข้างนอกเข้ามาง่าย",
-    ratings: { location: 4, cleanliness: 4, safety: 4, service: 3, facilities: 4, parking: 3, value: 3 }
-  },
-  {
     name: "Arsa Place",nameTh: "อาษาเพลส",
     type: "อพาร์ตเมนต์", lat: 13.7795451, lng: 100.5815838,
     respondent: { gender: "หญิง", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "10,001-15,000 บาท" },
@@ -1389,33 +1364,6 @@ const housing = [
     buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
     quote: "ไกลจาก MRT เหนื่อยมาก เจ้าของหอเหวี่ยงมาก เรื่องเล็กๆน้อยๆเก็บแต่เงิน แต่ข้อดีคือสงบมาก ไม่มีห้องไหนเสียงดังรบกวนเลย เพราะเจ๊เขาดุเกิน แม่บ้านขี้เม้า",
     ratings: { location: 2, cleanliness: 4, safety: 3, service: 2, facilities: 3, parking: 1, value: 3 }
-  },
-  {
-    name: "Chapter One Midtown Lat Phrao24",nameTh: "แชปเตอร์ วัน มิดทาวน์ ลาดพร้าว24",
-    type: "คอนโดมิเนียม", lat: 13.8064882, lng: 100.5727580,
-    respondent: { gender: "ชาย", age: 22, faculty: "คณะเศรษฐศาสตร์", income: "มากกว่า 20,000 บาท" },
-    roomSize: "24 ตร.ม.", floor: "9", occupants: "1 คน",
-    furnishing: "มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
-    rent: 11500, paymentTiming: "ชำระค่าเช่าทุกกลางเดือน", initialCost: 34500,
-    contractDuration: "1 ปี", stayDuration: "5 เดือน",
-    electricity: "ชำระตามเรทการไฟฟ้า",
-    water: "ชำระตามยูนิต", waterNote: "18 บาท/ยูนิต",
-    commonFee: "รวมอยู่ในค่าเช่ารายเดือน",
-    wifi: "ไม่มี", wifiSource: "ติดตั้งเอง", wifiSelfCost: 640.93,
-    gmapsLink: "https://maps.app.goo.gl/Eht2UoiLm9vggWXz7?g_st=ic",
-    routeToSteps: ["เดิน","MRT","เดิน"],
-    routeBackSteps: ["เดิน","MRT","เดิน"],
-    travelCostDay: 116,
-    travelCostGo: 58, travelCostBack: 58,
-    travelTimeGo: 30, travelTimeBack: 30,
-    appliances: [{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"โทรทัศน์ (TV)",qty:1},{name:"ตู้เย็น",qty:1},{name:"ไมโครเวฟ",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1}],
-    laundry: "มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
-    fitness: "มี", pool: "มี", poolSize: "25 เมตร",
-    elevator: "มี", elevatorCount: "3", parking: "มี", parkingCount: "50", parkingFeeNote: "ไม่มี/ไม่เก็บเพิ่ม",
-    security: { building: "ไม่มีระบบควบคุมการเข้าออก", elevator: "ระบบคีย์การ์ด (Keycard)", room: "ระบบคีย์การ์ด (Keycard), กดรหัสผ่าน, กุญแจ" },
-    buildingCondition: "ใหม่ (ดูทันสมัย / เพิ่งสร้าง / หรือเพิ่งปรับปรุงใหม่)",
-    quote: "สะดวก ใกล้รถไฟฟ้า",
-    ratings: { location: 5, cleanliness: 5, safety: 5, service: 5, facilities: 5, parking: 5, value: 3 }
   },
   {
     name: "My Space Apartment",nameTh: "มาย สเปซ อพาร์ตเมนต์",
@@ -1551,33 +1499,6 @@ const housing = [
     buildingCondition: "ใหม่ (ดูทันสมัย / เพิ่งสร้าง / หรือเพิ่งปรับปรุงใหม่)",
     quote: "เดินทางง่าย ใกล้ฟอร์จูน ใกล้รถไฟฟ้า ของกินมากมาย สบายมากที่สุดในโลก",
     ratings: { location: 5, cleanliness: 5, safety: 5, service: 5, facilities: 5, parking: 1, value: 3 }
-  },
-  {
-    name: "Plum Condo Phahonyothin89",nameTh: "พลัม คอนโด พหลโยธิน89",
-    type: "คอนโดมิเนียม", lat: 13.9702034, lng: 100.6176240,
-    respondent: { gender: "", age: 23, faculty: "คณะเศรษฐศาสตร์", income: "10,001-15,000 บาท" },
-    roomSize: "30 ตร.ม.", floor: "3", occupants: "1 คน",
-    furnishing: "มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบพร้อมอยู่",
-    rent: 7500, paymentTiming: "ชำระค่าเช่าทุกต้นเดือน", initialCost: 24000,
-    contractDuration: "1 ปี", stayDuration: "6 เดือน",
-    electricity: "ชำระตามเรทการไฟฟ้า",
-    water: "ชำระตามยูนิต", waterNote: "4 บาท/ยูนิต",
-    commonFee: "ไม่มี",
-    wifi: "ไม่มี", wifiSource: "ติดตั้งเอง", wifiSelfCost: 500,
-    gmapsLink: "https://maps.app.goo.gl/upkunMc89rR6spCH8?g_st=ic",
-    routeToSteps: ["เดิน","BTS","MRT","เดิน"],
-    routeBackSteps: ["เดิน","MRT","BTS","เดิน"],
-    travelCostDay: 160,
-    travelCostGo: 80, travelCostBack: 80,
-    travelTimeGo: 80, travelTimeBack: 90,
-    appliances: [{name:"เครื่องปรับอากาศ (แอร์)",qty:1},{name:"โทรทัศน์ (TV)",qty:1},{name:"ตู้เย็น",qty:1},{name:"ไมโครเวฟ",qty:1},{name:"เครื่องทำน้ำอุ่น",qty:1},{name:"เตาไฟฟ้า (สำหรับทำอาหาร)",qty:1}],
-    laundry: "มีเครื่องซักผ้าภายในห้องพัก (อยู่ในสัญญาเช่า)",
-    fitness: "มี", pool: "ไม่มี", poolSize: "",
-    elevator: "มี", elevatorCount: "2", parking: "มี", parkingCount: "50", parkingFeeNote: "ไม่มี/ไม่เก็บเพิ่ม",
-    security: { building: "ระบบคีย์การ์ด (Keycard)", elevator: "ระบบคีย์การ์ด (Keycard)", room: "กุญแจ" },
-    buildingCondition: "ปานกลาง (สภาพทั่วไปตามอายุการใช้งาน)",
-    quote: "มีความสะดวกใกล้รถไฟฟ้าสายสีแดง และมีวินมอเตอร์ไซค์เยอะ รวมถึงของกินหน้าคอนโดเยอะมาก",
-    ratings: { location: 4, cleanliness: 4, safety: 4, service: 4, facilities: 5, parking: 5, value: 5 }
   },
   {
     name: "Uspire Apartment",nameTh: "ยู สปายร์ อพาร์ตเมนต์",
@@ -1866,7 +1787,6 @@ async function drawRoute(h, direction){
   }
   if(bounds.length) map.fitBounds(L.latLngBounds(bounds).pad(0.15));
 }
-
 const markers = {};
 housing.forEach((h, i) => {
   const near = h.distanceKm <= 3;
