@@ -456,7 +456,6 @@ const housing = [
     gmapsLink: "https://maps.app.goo.gl/R54HJN83bXGAndR96?g_st=il",
     routeToSteps:["เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)"],
     routeBackSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง"],
-    viaTo: [ { lat: 13.751917893910587, lng: 100.56946829291157 } ],
     travelCostDay:80,
     travelCostGo:"40", travelCostBack:"40", 
     travelTimeGo:"10", travelTimeBack:"10", 
@@ -484,8 +483,6 @@ const housing = [
     gmapsLink: "https://maps.app.goo.gl/jzfaMSN8PXkuzbS49?g_st=ic",
     routeToSteps:["เดิน","วินมอเตอร์ไซค์รับจ้าง","MRT","เดิน"],
     routeBackSteps:["เดิน","MRT","วินมอเตอร์ไซค์รับจ้าง"],
-    vinpickupTo: { lat:13.772773 , lng: 100.567854, label: "วินซอยเปรมสมบัติ แยก 1 และ แยก 2" },
-    vinPickupBack: { lat: 13.766342513919584, lng: 100.57028014765686, label: "วินตลาดนัดรัชดา" },
     travelCostDay:70,
     travelCostGo:34, travelCostBack:39,
     travelTimeGo:30, travelTimeBack:20,
@@ -742,7 +739,7 @@ const housing = [
     ratings: { location: 5, cleanliness: 5, safety: 5, service: 5, facilities: 5, parking: 5, value: 5 }
   },
   {
-    name: "I-House Laguna Garden RCA building G", nameTh: "ไอ-เฮ้าส์ ลากูนา การ์เด้น ตึกจี",
+    name: "I-House Laguna Garden RCA", nameTh: "ไอ-เฮ้าส์ ลากูนา การ์เด้น",
     type: "คอนโดมิเนียม", lat: 13.7517783, lng: 100.5790984,
     respondent: { gender: "ชาย", age: 21, faculty: "คณะเศรษฐศาสตร์", income: "15,001-20,000 บาท" },
     roomSize: "29 ตร.ม.", floor: "4", occupants: "1 คน",
@@ -1501,6 +1498,7 @@ const housing = [
     quote: "เดินทางง่าย ใกล้ฟอร์จูน ใกล้รถไฟฟ้า ของกินมากมาย สบายมากที่สุดในโลก",
     ratings: { location: 5, cleanliness: 5, safety: 5, service: 5, facilities: 5, parking: 1, value: 3 }
   },
+
   {
     name: "Uspire Apartment",nameTh: "ยู สปายร์ อพาร์ตเมนต์",
     type: "อพาร์ตเมนต์", lat: 13.7786226, lng: 100.5753098,
@@ -1579,21 +1577,9 @@ function buildSpans(h, direction){
 
   const spans = [];
   let cursor = start, pending = [];
-  const vinStand = direction === 'to' ? h.vinPickupTo : h.vinPickupBack;
-function flush(from, to){
-  const vi = pending.indexOf('วินมอเตอร์ไซค์รับจ้าง');
-  if(vinStand && vi !== -1){
-    const pick = { lat:vinStand.lat, lng:vinStand.lng, label:vinStand.label || 'จุดขึ้นวิน' };
-    const before = pending.slice(0, vi);
-    if(before.length) spans.push({ from, to:pick, steps:before });
-    else if(haversineKm(from.lat, from.lng, pick.lat, pick.lng) > 0.03) spans.push({ from, to:pick, steps:['เดิน'] });
-    spans.push({ from:pick, to, steps:pending.slice(vi) });
-  } else {
-    spans.push({ from, to, steps:pending.slice() });
-  }
-}
-  if(direction === 'back' && steps[0] === 'เดิน' && steps.length > 1 && !TRANSIT_MODES.includes(steps[1])){
-  const pickup = h.returnPickup || defaultPickupFor(steps[1]);
+
+  if(steps[0] === 'เดิน' && steps.length > 1 && !TRANSIT_MODES.includes(steps[1])){
+  const pickup = direction === 'back' ? (h.returnPickup || defaultPickupFor(steps[1])) : h.pickupTo;
 
     if(pickup){
       const pick = { lat:pickup.lat, lng:pickup.lng, label:pickup.label || 'จุดขึ้นรถ' };
@@ -1602,6 +1588,7 @@ function flush(from, to){
       steps.shift();
     }
   }
+
   steps.forEach(mode => {
     if(TRANSIT_MODES.includes(mode)){
       let board, alight;
@@ -1613,7 +1600,7 @@ function flush(from, to){
         if(!b || !a) return;
         board  = { lat:b.lat, lng:b.lng, label:`${mode} ${b.name}` };
         alight = { lat:a.lat, lng:a.lng, label:`${mode} ${a.name}` };
-        if(pending.length) flush(cursor, board);
+        if(pending.length) spans.push({ from:cursor, to:board, steps:pending.slice() });
         pending = [];
         spans.push({ from:board, to:alight, steps:[mode], bus:{ from:b.name, to:a.name } });
       } else {
@@ -1624,7 +1611,7 @@ function flush(from, to){
         if(!ST[bName] || !ST[aName]) return;
         board  = { lat:ST[bName][0], lng:ST[bName][1], label:`${mode} ${stTh(bName)}` };
         alight = { lat:ST[aName][0], lng:ST[aName][1], label:`${mode} ${stTh(aName)}` };
-        if(pending.length) flush(cursor, board);
+        if(pending.length) spans.push({ from:cursor, to:board, steps:pending.slice() });
         pending = [];
         spans.push({ from:board, to:alight, steps:[mode], rail:{ line:mode, a:bName, b:aName } });
       }
@@ -1633,9 +1620,10 @@ function flush(from, to){
       pending.push(mode);
     }
   });
- if(pending.length) flush(cursor, end);
+  if(pending.length) spans.push({ from:cursor, to:end, steps:pending.slice() });
   return spans;
 }
+
 function stationSequence(lineKey, a, b){
   const order = LINES[lineKey];
   const mk = n => ({ lat:ST[n][0], lng:ST[n][1], name:n });
@@ -1645,6 +1633,7 @@ function stationSequence(lineKey, a, b){
   const slice = i <= j ? order.slice(i, j+1) : order.slice(j, i+1).reverse();
   return slice.filter(n => ST[n]).map(mk);
 }
+
 function polylineLengthKm(points){
   let t = 0;
   for(let i=1;i<points.length;i++) t += haversineKm(points[i-1][0],points[i-1][1],points[i][0],points[i][1]);
@@ -1764,10 +1753,8 @@ async function drawRoute(h, direction){
     } else if(span.bus){
       pts = await fetchRoad([span.from, span.to], 'car');
     } else {
-     const rideMode = span.steps.find(s => s !== 'เดิน');
-const via = (direction === 'to' ? h.viaTo : h.viaBack) || [];
-const wps = (via.length && rideMode) ? [span.from, ...via, span.to] : [span.from, span.to];
-pts = await fetchRoad(wps, profileFor(rideMode || 'เดิน'));
+      const rideMode = span.steps.find(s => s !== 'เดิน');
+      pts = await fetchRoad([span.from, span.to], profileFor(rideMode || 'เดิน'));
     }
     if(myReq !== routeReq) return;
 
@@ -1799,6 +1786,7 @@ pts = await fetchRoad(wps, profileFor(rideMode || 'เดิน'));
   }
   if(bounds.length) map.fitBounds(L.latLngBounds(bounds).pad(0.15));
 }
+
 const markers = {};
 housing.forEach((h, i) => {
   const near = h.distanceKm <= 3;
