@@ -1,10 +1,16 @@
+/* =====================================================================
+   map-upgrade.js — เวอร์ชันสมบูรณ์ (รวมทุกการแก้ไข)
+   - เพิ่มเวลา Auto-Tour เป็น 7.5 วินาที
+   - แยกตำแหน่งป้าย "ขาไป ➜" (25%) และ "⬅ ขากลับ" (75%) ไม่ให้ซ้อนทับกัน
+   - รองรับ Scroll และปรับสเกลสำหรับ iPad/มือถือ ทั้งแนวตั้งและแนวนอน
+   - ซ่อนหมุดอื่น + ซ่อน Sidebar เมื่อเลือกที่พัก
+   ===================================================================== */
 window.addEventListener('load', function() {
   'use strict';
 
-  // ตรวจสอบความพร้อมของตัวแปรหลัก
   if (typeof housing === 'undefined' || typeof markers === 'undefined' || typeof map === 'undefined' ||
       typeof buildSpans === 'undefined' || typeof render === 'undefined' || typeof openDrawer === 'undefined'){
-    console.warn('[map-upgrade] ไม่พบตัวแปรหลักของแผนที่ ข้ามการอัปเกรดเพื่อป้องกันหน้าเว็บพัง');
+    console.warn('[map-upgrade] ไม่พบตัวแปรหลักของแผนที่ ข้ามการอัปเกรดเพื่อป้องกันข้อผิดพลาด');
     return;
   }
 
@@ -21,6 +27,12 @@ window.addEventListener('load', function() {
   .dr-handle{ display:none; }
   .drawer-price .cmp{ margin-top:6px; font-size:12px; color:#d8e6de; }
   #dBody > div:first-child iframe{ height:230px !important; }
+
+  /* ให้คอนเทนต์ของ Drawer เลื่อนสกอร์ลได้อย่างลื่นไหล */
+  #dBody {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
 
   /* ซ่อน Sidebar เมื่อกดเลือกหมุด */
   .sidebar.hide-on-select { display: none !important; }
@@ -65,6 +77,23 @@ window.addEventListener('load', function() {
     100% { box-shadow: 0 0 0 0 rgba(218, 33, 40, 0); }
   }
 
+  /* ป้ายกำกับ ขาไป (เขียว) / ขากลับ (ทอง) */
+  .dir-chip {
+    position: absolute; transform: translate(-50%, -50%);
+    padding: 4px 10px; border-radius: 12px;
+    font-size: 11.5px; font-weight: 800; color: #fff;
+    background: var(--emerald-deep, #0a352a); border: 2px solid #fff;
+    box-shadow: 0 3px 8px rgba(0,0,0,.4); white-space: nowrap;
+    animation: ppPop .35s both;
+  }
+  .dir-chip.back { background: var(--gold, #b98b3e); }
+  .gate-chip {
+    position: absolute; transform: translate(-50%, -100%); margin-top: -4px;
+    padding: 3px 9px; border-radius: 12px; background: var(--red, #DA2128);
+    color: #fff; font-size: 11px; font-weight: 800; border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,.35); white-space: nowrap;
+  }
+
   .pp{ position:absolute; left:0; top:0; transform:translate(-50%,-100%); margin-top:-8px; }
   .pp-body{ position:relative; display:flex; align-items:center; gap:4px; padding:4px 10px 4px 7px; border-radius:16px; color:#fff; font-size:12px; font-weight:800; white-space:nowrap; border:2px solid #fff; box-shadow:0 3px 9px rgba(0,0,0,.35); cursor:pointer; transform-origin:50% 100%; transition:transform .18s ease; }
   .pp-body::after{ content:''; position:absolute; left:50%; bottom:-8px; margin-left:-6px; border:6px solid transparent; border-top-color:inherit; }
@@ -79,10 +108,6 @@ window.addEventListener('load', function() {
   @keyframes ppPop{ from{ transform:scale(0); opacity:0; } to{ transform:scale(1); opacity:1; } }
   @keyframes ppRing{ 0%{ box-shadow:0 0 0 0 rgba(185,139,62,.8), 0 6px 16px rgba(0,0,0,.4); } 100%{ box-shadow:0 0 0 16px rgba(185,139,62,0), 0 6px 16px rgba(0,0,0,.4); } }
   .pin-tip{ font-family:inherit; font-size:12px; font-weight:700; color:var(--emerald-deep, #0a352a); border-radius:10px; border:1px solid var(--line, #e4dcc5); box-shadow:0 4px 12px rgba(0,0,0,.2); }
-
-  .dir-chip{ position:absolute; transform:translate(-50%,-50%); padding:3px 9px; border-radius:12px; font-size:11px; font-weight:800; color:#fff; background:var(--emerald-deep, #0a352a); border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.35); white-space:nowrap; animation:ppPop .35s both; }
-  .dir-chip.back{ background:var(--gold, #b98b3e); }
-  .gate-chip{ position:absolute; transform:translate(-50%,-100%); margin-top:-4px; padding:3px 9px; border-radius:12px; background:var(--red, #DA2128); color:#fff; font-size:11px; font-weight:800; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.35); white-space:nowrap; }
 
   .map-summary{ position:absolute; z-index:500; left:362px; top:12px; display:flex; gap:8px; align-items:center; padding:7px 14px; background:rgba(255,253,249,.95); border:1px solid var(--line, #e4dcc5); border-radius:20px; font-size:12px; color:var(--emerald-deep, #0a352a); box-shadow:0 2px 8px rgba(0,0,0,.12); }
   .map-summary b{ font-weight:800; }
@@ -117,6 +142,7 @@ window.addEventListener('load', function() {
   .rb-avg{ position:absolute; top:-3px; width:2px; height:16px; background:var(--gold, #b98b3e); border-radius:1px; }
   .rb-v{ font-weight:800; color:var(--gold, #b98b3e); text-align:right; }
 
+  /* หน้าจอแนวตั้ง (iPad / Mobile Portrait) */
   @media (max-width:820px){
     .drawer{ top:auto !important; left:0 !important; right:0 !important; bottom:0 !important; width:100% !important; max-width:none !important; height:78% !important; border-radius:20px 20px 0 0; transform:translateY(105%) !important; box-shadow:0 -8px 30px rgba(15,77,58,.3) !important; transition:transform .3s ease, height .3s ease; }
     .drawer.open{ transform:translateY(0) !important; }
@@ -138,6 +164,12 @@ window.addEventListener('load', function() {
     .tour-btn { right: 12px; top: 10px; padding: 6px 12px; font-size: 11.5px; }
     #dBody > div:first-child iframe{ height:180px !important; }
     .rb{ grid-template-columns:104px 1fr 22px; }
+  }
+
+  /* หน้าจอแนวนอน (iPad / Mobile Landscape) */
+  @media (max-height: 600px) {
+    #dBody > div:first-child iframe { height: 130px !important; }
+    .stat-row { padding: 6px 16px 2px !important; }
   }
   `;
   const styleEl = document.createElement('style');
@@ -421,11 +453,23 @@ window.addEventListener('load', function() {
       html:'<div class="waypoint-dot" style="border-color:'+s.color+'"></div>' }) })
       .bindTooltip(s.pt.label, { permanent:false });
   }
+
+  /* แยกป้าย "ขาไป ➜" (25%) และ "⬅ ขากลับ" (75%) บนเส้นทาง ไม่ให้ซ้อนกัน */
   function makeDirLabel(dir, segs){
     const all = []; segs.forEach(s => s.pts.forEach(p => all.push(p)));
     if(all.length < 2) return null;
-    return L.marker(pointAt(all, dir==='to' ? 0.4 : 0.62), { interactive:false, keyboard:false,
-      icon:L.divIcon({ className:'', iconSize:[0,0], html:'<div class="dir-chip '+dir+'">'+(dir==='to' ? 'ไป ➜' : '⬅ กลับ')+'</div>' }) });
+    const ratio = (dir === 'to') ? 0.25 : 0.75;
+    const labelText = (dir === 'to') ? 'ขาไป ➜' : '⬅ ขากลับ';
+    return L.marker(pointAt(all, ratio), {
+      interactive: false,
+      keyboard: false,
+      zIndexOffset: (dir === 'to') ? 600 : 500,
+      icon: L.divIcon({
+        className: '',
+        iconSize: [0, 0],
+        html: `<div class="dir-chip ${dir}">${labelText}</div>`
+      })
+    });
   }
 
   async function playDirection(dir, data, token){
@@ -629,7 +673,8 @@ window.addEventListener('load', function() {
     showHouse(houseIndex);
 
     tourPos = (tourPos + 1) % order.length;
-    tourTimer = setTimeout(playTourStep, 4500);
+    /* ปรับเพิ่มเวลานำเสนอหอพักละ 7.5 วินาที (7500ms) */
+    tourTimer = setTimeout(playTourStep, 7500);
   }
 
   tourBtn.addEventListener('click', () => {
