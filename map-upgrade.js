@@ -64,7 +64,7 @@
   .clear-chip.show{ display:block; }
 
   /* ตำแหน่งคำอธิบายสี (legend) ย้ายมาชิดซ้าย เพราะไม่มีแถบซ้ายกินที่แล้ว */
-  .mu-legend{ left:12px !important; right:auto !important; }
+  .mu-legend{ left:12px !important; right:auto !important; top:auto !important; bottom:12px !important; z-index:400 !important; }
 
   /* คลื่นเรดาร์รอบ มศว */
   .radar-pulse-icon{ position:relative; width:0; height:0; }
@@ -156,9 +156,12 @@
     .drawer-price{ padding:8px 16px !important; }
     .drawer-price .amount{ font-size:21px !important; }
     .drawer-price .cmp{ margin-top:2px !important; font-size:11px !important; line-height:1.3 !important; }
-    .dr-nav{ top:8px; }
+    .drawer-head h2{ padding-right:44px !important; }
+    .drawer-head .badge-row{ padding-right:0 !important; }
+    .dr-nav{ position:static !important; align-self:flex-end; margin:0 40px 6px auto; width:max-content; }
     .drawer-close{ top:8px; }
     .app.dr-open .top-ctl{ max-width:calc(100% - 24px); }
+    .app.dr-open .map-summary, .app.dr-open .mu-legend{ display:none !important; }
     .top-ctl{ gap:6px; }
     .side-btn, .tour-btn{ padding:6px 12px; font-size:11.5px; }
     #dBody > div:first-child iframe{ height:180px !important; }
@@ -254,7 +257,7 @@
       const cands = Array.from(app.querySelectorAll('div')).filter(el =>
         !el.closest('.sidebar, .drawer, .top-ctl, #list') &&
         /ประสานมิตร/.test(el.textContent) && /3\s*กม/.test(el.textContent) &&
-        getComputedStyle(el).position === 'absolute');
+        /absolute|fixed/.test(getComputedStyle(el).position));
       cands.sort((a, b) => a.textContent.length - b.textContent.length);
       if (cands[0]) cands[0].classList.add('mu-legend');
     } catch (e) {}
@@ -279,7 +282,7 @@
       const nav = document.createElement('div');
       nav.className = 'dr-nav';
       nav.innerHTML = '<button type="button" id="drPrev" aria-label="ที่พักก่อนหน้า">‹</button><span id="drPos"></span><button type="button" id="drNext" aria-label="ที่พักถัดไป">›</button>';
-      head.appendChild(nav);
+      head.insertBefore(nav, head.firstChild);
     }
 
     const handle = document.createElement('div');
@@ -695,6 +698,36 @@
     let tourTimer = null;
     let isTouring = false;
     let tourPos = 0;
+    let tourRun = 0;
+    let scrollToken = 0;
+
+    // หาตัวที่เลื่อนได้จริง (กล่องเนื้อหา หรือทั้งลิ้นชักในจอแนวนอน)
+    function getScroller() {
+      const body = $('dBody');
+      const can = el => el && el.scrollHeight - el.clientHeight > 4 && /(auto|scroll)/.test(getComputedStyle(el).overflowY);
+      return can(body) ? body : (can(drawer) ? drawer : body);
+    }
+    function cancelAutoScroll() { scrollToken++; }
+    function autoScrollDrawer() {
+      const token = ++scrollToken;
+      const el = getScroller();
+      return new Promise(resolve => {
+        if (!el) return resolve();
+        el.scrollTop = 0;
+        const dist = el.scrollHeight - el.clientHeight;
+        if (dist <= 4) return resolve();
+        const ms = Math.min(14000, Math.max(3500, dist * 14)); // ยิ่งยาว ยิ่งเลื่อนนาน
+        const t0 = performance.now();
+        function step(now) {
+          if (token !== scrollToken) return resolve();
+          const t = Math.min(1, (now - t0) / ms);
+          el.scrollTop = dist * t;
+          if (t < 1) requestAnimationFrame(step); else resolve();
+        }
+        requestAnimationFrame(step);
+      });
+    }
+    const tourWait = ms => new Promise(r => { tourTimer = setTimeout(r, ms); });
 
     function startTour() {
       const order = visibleOrder();
@@ -708,22 +741,33 @@
     }
 
     function stopTour() {
+      cancelAutoScroll();
       if (!isTouring) return;
       isTouring = false;
+      tourRun++;
       if (tourTimer) clearTimeout(tourTimer);
       tourBtn.classList.remove('active');
       tourBtn.innerHTML = '▶ Auto-Tour';
     }
 
-    function playTourStep() {
+    // ต่อที่พัก: แสดงหมุด+เส้นทาง -> รอ -> เลื่อนข้อมูลลงเอง -> พักที่ท้ายหน้า -> ที่พักถัดไป
+    async function playTourStep() {
       if (!isTouring) return;
+      const run = ++tourRun;
+      const alive = () => isTouring && run === tourRun;
       const order = visibleOrder();
       if (!order.length) { stopTour(); return; }
-      const houseIndex = order[tourPos];
-      showHouse(houseIndex);
+      showHouse(order[tourPos]);
       tourPos = (tourPos + 1) % order.length;
-      tourTimer = setTimeout(playTourStep, 8000);
+      await tourWait(2200); if (!alive()) return;
+      await autoScrollDrawer(); if (!alive()) return;
+      await tourWait(2500); if (!alive()) return;
+      playTourStep();
     }
+
+    // ผู้ใช้แตะ/เลื่อนในลิ้นชักเอง = ขอควบคุมเอง -> หยุดทัวร์
+    ['touchstart', 'wheel', 'mousedown'].forEach(ev =>
+      drawer.addEventListener(ev, () => { if (isTouring) stopTour(); else cancelAutoScroll(); }, { passive: true }));
 
     tourBtn.addEventListener('click', () => {
       if (isTouring) stopTour();
@@ -733,6 +777,7 @@
     /* -------------------------------------------------- จุดเข้าหลัก */
     function showHouse(i) {
       const h = housing[i]; if (!h) return;
+      cancelAutoScroll();
       setSel(i);
       focus = 'both';
       window.openDrawer(i);
