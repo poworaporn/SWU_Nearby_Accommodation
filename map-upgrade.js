@@ -1,3 +1,6 @@
+/* =====================================================================
+   map-upgrade.js — เวอร์ชันแก้ไขป้ายทับกัน + แนวนอนเต็มจอ + Auto-Scroll สมบูรณ์
+   ===================================================================== */
 window.addEventListener('load', function() {
   'use strict';
 
@@ -21,14 +24,14 @@ window.addEventListener('load', function() {
   .drawer-price .cmp{ margin-top:6px; font-size:12px; color:#d8e6de; }
   #dBody > div:first-child iframe{ height:210px !important; }
 
-  /* คอนเทนต์ของ Drawer เลื่อนสกอร์ลได้ลื่นไหล */
+  /* ให้คอนเทนต์ Drawer เลื่อนสกอร์ลแบบนุ่มนวล */
   #dBody {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
   }
 
-  /* ซ่อน Sidebar เมื่อกดเลือกหมุด */
+  /* ซ่อน Sidebar เมื่อเลือกหมุด */
   .sidebar.hide-on-select { display: none !important; }
 
   /* คลื่นเรดาร์รอบ มศว */
@@ -136,9 +139,9 @@ window.addEventListener('load', function() {
   .rb-avg{ position:absolute; top:-3px; width:2px; height:16px; background:var(--gold, #b98b3e); border-radius:1px; }
   .rb-v{ font-weight:800; color:var(--gold, #b98b3e); text-align:right; }
 
-  /* -------------------------------------------------- CSS สำหรับหน้าจอมือถือ/ไอแพด/แนวนอน */
-  @media (max-width: 820px), (orientation: landscape) and (max-height: 550px) {
-    .drawer{ top:auto !important; left:0 !important; right:0 !important; bottom:0 !important; width:100% !important; max-width:none !important; height:80% !important; border-radius:20px 20px 0 0; transform:translateY(105%) !important; box-shadow:0 -8px 30px rgba(15,77,58,.3) !important; transition:transform .3s ease, height .3s ease; }
+  /* -------------------------------------------------- CSS แก้ไขสำหรับหน้าจอมือถือ/ไอแพด/แนวนอนทั้งหมด */
+  @media (max-width: 1024px), (orientation: landscape) {
+    .drawer{ top:auto !important; left:0 !important; right:0 !important; bottom:0 !important; width:100% !important; max-width:none !important; height:78% !important; border-radius:20px 20px 0 0; transform:translateY(105%) !important; box-shadow:0 -8px 30px rgba(15,77,58,.3) !important; transition:transform .3s ease, height .3s ease; }
     .drawer.open{ transform:translateY(0) !important; }
     .drawer.full{ height:92% !important; }
     .drawer.low{ height:30% !important; }
@@ -156,14 +159,14 @@ window.addEventListener('load', function() {
     .map-summary{ left:12px; top:52px; }
     .clear-chip{ left:12px; top:92px; }
     .tour-btn { right: 12px; top: 10px; padding: 6px 12px; font-size: 11.5px; }
-    #dBody > div:first-child iframe{ height:150px !important; }
+    #dBody > div:first-child iframe{ height:140px !important; }
     .rb{ grid-template-columns:104px 1fr 22px; }
   }
 
-  /* ปรับย่อขนาดเพิ่มเติมเมื่อถือแนวนอนความสูงต่ำ */
+  /* ปรับแต่งพิเศษสำหรับ แหนวนอนความสูงต่ำ (Mobile Landscape) */
   @media (orientation: landscape) and (max-height: 550px) {
     .drawer { height: 85% !important; }
-    #dBody > div:first-child iframe { height: 110px !important; }
+    #dBody > div:first-child iframe { height: 100px !important; }
     .stat-row { padding: 6px 16px 2px !important; }
   }
   `;
@@ -173,7 +176,7 @@ window.addEventListener('load', function() {
 
   /* ----------------------------------------------------------- helpers */
   const $ = id => document.getElementById(id);
-  const isMobile = () => window.innerWidth <= 820 || window.innerHeight <= 550;
+  const isMobile = () => window.innerWidth <= 1024 || window.innerHeight <= 550;
   const mean = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : null;
   const numOrNull = v => { if(v===undefined||v===null||v==='') return null; const n=parseFloat(String(v).replace(/,/g,'')); return Number.isFinite(n)?n:null; };
   const fmtN = n => Math.round(n).toLocaleString('en-US');
@@ -256,6 +259,8 @@ window.addEventListener('load', function() {
         sb.classList.remove('hide-on-select');
       }
     }
+    // คำนวณขนาดแผนที่ใหม่ทันที ป้องกันแถบขาวค้าง
+    setTimeout(() => { if (map && map.invalidateSize) map.invalidateSize(); }, 120);
   }
 
   /* ----------------------------------------- ตัวกรอง/เรียง -> หมุด + รายการ */
@@ -449,10 +454,11 @@ window.addEventListener('load', function() {
       .bindTooltip(s.pt.label, { permanent:false });
   }
 
+  /* ปรับป้าย "ขาไป ➜" (35% จากหอพัก) และ "⬅ ขากลับ" (35% จาก มศว) แยกกันคนละทิศ */
   function makeDirLabel(dir, segs){
     const all = []; segs.forEach(s => s.pts.forEach(p => all.push(p)));
     if(all.length < 2) return null;
-    const ratio = (dir === 'to') ? 0.25 : 0.75;
+    const ratio = 0.35; // ขาไปนับจากหอไป 35% / ขากลับนับจาก มศว ออกมา 35%
     const labelText = (dir === 'to') ? 'ขาไป ➜' : '⬅ ขากลับ';
     return L.marker(pointAt(all, ratio), {
       interactive: false,
@@ -635,7 +641,7 @@ window.addEventListener('load', function() {
     if (drPos) drPos.textContent = pos >= 0 ? (pos+1)+'/'+order.length : '';
   };
 
-  /* -------------------------------------------------- AUTO-TOUR (พร้อมระบบเลื่อนอัตโนมัติ) */
+  /* -------------------------------------------------- AUTO-TOUR (ระบบเลื่อนอัตโนมัติแม่นยำ) */
   let tourTimer = null;
   let tourScrollTimer1 = null;
   let tourScrollTimer2 = null;
@@ -674,25 +680,26 @@ window.addEventListener('load', function() {
     const houseIndex = order[tourPos];
     showHouse(houseIndex);
 
-    const body = $('dBody');
-    if (body) {
-      body.scrollTop = 0;
-      // วินาทีที่ 2.2: เลื่อนหน้าต่างลงเพื่อแสดงกล่องสถิติและข้อมูลเส้นทาง
-      tourScrollTimer1 = setTimeout(() => {
-        if (!isTouring) return;
-        body.scrollTo({ top: 220, behavior: 'smooth' });
-      }, 2200);
+    // เลื่อนลงไปที่กล่องสถิติอัตโนมัติในวินาทีที่ 2.8
+    tourScrollTimer1 = setTimeout(() => {
+      if (!isTouring) return;
+      const body = $('dBody');
+      const statBlock = body ? body.querySelector('.stat-row') : null;
+      if (body && statBlock) {
+        body.scrollTo({ top: statBlock.offsetTop - 10, behavior: 'smooth' });
+      }
+    }, 2800);
 
-      // วินาทีที่ 6.5: เลื่อนหน้าต่างกลับขึ้นด้านบนก่อนย้ายไปหอถัดไป
-      tourScrollTimer2 = setTimeout(() => {
-        if (!isTouring) return;
-        body.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 6500);
-    }
+    // เลื่อนกลับขึ้นบนในวินาทีที่ 7.0 ก่อนย้ายที่พัก
+    tourScrollTimer2 = setTimeout(() => {
+      if (!isTouring) return;
+      const body = $('dBody');
+      if (body) body.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 7000);
 
     tourPos = (tourPos + 1) % order.length;
-    // ปรับเวลานำเสนอรวมเป็น 8 วินาทีต่อหอพัก
-    tourTimer = setTimeout(playTourStep, 8000);
+    // ตั้งเวลารวมนำเสนอหอละ 8.5 วินาที
+    tourTimer = setTimeout(playTourStep, 8500);
   }
 
   tourBtn.addEventListener('click', () => {
