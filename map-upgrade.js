@@ -1,16 +1,20 @@
+/* =====================================================================
+   map-upgrade.js — อัปเกรดหน้าแผนที่ (Safe & Guarded Version)
+   ===================================================================== */
 window.addEventListener('load', function() {
   'use strict';
 
+  // ตรวจสอบความพร้อมของตัวแปรหลัก
   if (typeof housing === 'undefined' || typeof markers === 'undefined' || typeof map === 'undefined' ||
       typeof buildSpans === 'undefined' || typeof render === 'undefined' || typeof openDrawer === 'undefined'){
-    console.warn('[map-upgrade] ไม่พบตัวแปรหลักของแผนที่ ข้ามการอัปเกรดเพื่อป้องกันข้อผิดพลาด');
+    console.warn('[map-upgrade] ไม่พบตัวแปรหลักของแผนที่ ข้ามการอัปเกรดเพื่อป้องกันหน้าเว็บพัง');
     return;
   }
 
   /* ---------------------------------------------------------------- CSS */
   const css = `
   .drawer-overlay{ display:none !important; }
-  .drawer{ width:480px; z-index: 1000 !important; }
+  .drawer{ width:480px; }
   .drawer-head h2{ padding-right:112px; }
   .drawer-head .badge-row{ padding-right:128px; }
   .drawer:not(.open), .filter-panel:not(.open){ box-shadow:none !important; }
@@ -19,9 +23,12 @@ window.addEventListener('load', function() {
   .dr-nav span{ font-size:11px; color:var(--muted); min-width:34px; text-align:center; }
   .dr-handle{ display:none; }
   .drawer-price .cmp{ margin-top:6px; font-size:12px; color:#d8e6de; }
-  #dBody > div:first-child iframe{ height:210px !important; }
+  #dBody > div:first-child iframe{ height:230px !important; }
 
-  /* 1. คลื่นเรดาร์รอบ มศว */
+  /* ซ่อน Sidebar เมื่อกดเลือกหมุด */
+  .sidebar.hide-on-select { display: none !important; }
+
+  /* คลื่นเรดาร์รอบ มศว */
   .radar-pulse-icon { position: relative; width: 0; height: 0; }
   .radar-ring {
     position: absolute; width: 40px; height: 40px; top: -20px; left: -20px;
@@ -35,7 +42,7 @@ window.addEventListener('load', function() {
     100% { transform: scale(3.5); opacity: 0; }
   }
 
-  /* 2. เส้นทางเคลื่อนไหว (Commute Flow) */
+  /* เส้นทางเคลื่อนไหว (Commute Flow) */
   path.leaflet-interactive.flow-line {
     stroke-dasharray: 8, 12 !important;
     animation: flowDash 1.2s linear infinite !important;
@@ -45,7 +52,7 @@ window.addEventListener('load', function() {
     to { stroke-dashoffset: 0; }
   }
 
-  /* 3. ปุ่มกดนำเสนออัตโนมัติ (Auto-Tour) */
+  /* ปุ่มกดนำเสนออัตโนมัติ (Auto-Tour) */
   .tour-btn {
     position: absolute; z-index: 500; right: 14px; top: 12px;
     display: flex; align-items: center; gap: 6px; padding: 8px 16px;
@@ -59,55 +66,6 @@ window.addEventListener('load', function() {
     0% { box-shadow: 0 0 0 0 rgba(218, 33, 40, 0.6); }
     70% { box-shadow: 0 0 0 10px rgba(218, 33, 40, 0); }
     100% { box-shadow: 0 0 0 0 rgba(218, 33, 40, 0); }
-  }
-
-  /* 4. ปุ่มเปิด/ปิด แถบรายการซ้ายบน (Sidebar Toggle Button) */
-  .sidebar-toggle-btn {
-    position: absolute; z-index: 500; left: 14px; top: 12px;
-    display: flex; align-items: center; gap: 6px; padding: 8px 14px;
-    border-radius: 20px; background: rgba(255,253,249,.95); color: var(--emerald-deep, #0a352a);
-    border: 1.5px solid var(--line, #e4dcc5); font-family: inherit; font-size: 12.5px; font-weight: 700;
-    cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15); transition: all .2s;
-  }
-  .sidebar-toggle-btn:hover { background: #fff; transform: translateY(-1px); }
-
-  /* ป้ายสรุปจำนวนที่พัก */
-  .map-summary{ position:absolute; z-index:500; left:210px; top:12px; display:flex; gap:8px; align-items:center; padding:7px 14px; background:rgba(255,253,249,.95); border:1px solid var(--line, #e4dcc5); border-radius:20px; font-size:12px; color:var(--emerald-deep, #0a352a); box-shadow:0 2px 8px rgba(0,0,0,.12); }
-  .map-summary b{ font-weight:800; }
-  .map-summary span{ color:var(--muted, #8b8371); }
-  .clear-chip{ position:absolute; z-index:500; left:210px; top:54px; display:none; padding:7px 14px; border:none; border-radius:20px; background:var(--red, #DA2128); color:#fff; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.25); }
-  .clear-chip.show{ display:block; }
-
-  /* -------------------------------------------------- การจัดการซ่อน/แสดง Sidebar บน iPad & มือถือ */
-  @media (max-width: 1024px), (orientation: landscape) {
-    .sidebar {
-      position: absolute !important;
-      left: 0; top: 0; bottom: 0;
-      z-index: 900 !important;
-      width: 320px !important;
-      max-width: 85vw !important;
-      background: var(--panel, #fffdf9);
-      transform: translateX(-100%);
-      transition: transform .3s ease;
-      box-shadow: 4px 0 20px rgba(0,0,0,0.2) !important;
-    }
-    .sidebar.show-sidebar {
-      transform: translateX(0) !important;
-    }
-    .map-summary { left: 14px; top: 54px; }
-    .clear-chip { left: 14px; top: 94px; }
-
-    /* ปรับแต่ง Drawer บนหน้าจอมือถือ/ไอแพด */
-    .drawer{ top:auto !important; left:0 !important; right:0 !important; bottom:0 !important; width:100% !important; max-width:none !important; height:78% !important; border-radius:20px 20px 0 0; transform:translateY(105%) !important; box-shadow:0 -8px 30px rgba(15,77,58,.3) !important; transition:transform .3s ease, height .3s ease; }
-    .drawer.open{ transform:translateY(0) !important; }
-    .dr-handle{ display:block; height:22px; cursor:pointer; flex-shrink:0; }
-    .dr-handle::before{ content:''; display:block; width:40px; height:5px; background:#ccc; border-radius:3px; margin:9px auto 0; }
-    .drawer-head { padding: 8px 16px 6px !important; }
-    .drawer-head h2 { font-size: 16px !important; margin-bottom: 2px !important; }
-    .badge-row { margin-bottom: 4px !important; gap: 4px !important; }
-    .badge { padding: 2px 7px !important; font-size: 10px !important; }
-    .drawer-price { padding: 8px 16px !important; }
-    .drawer-price .amount { font-size: 21px !important; }
   }
 
   .pp{ position:absolute; left:0; top:0; transform:translate(-50%,-100%); margin-top:-8px; }
@@ -128,6 +86,12 @@ window.addEventListener('load', function() {
   .dir-chip{ position:absolute; transform:translate(-50%,-50%); padding:3px 9px; border-radius:12px; font-size:11px; font-weight:800; color:#fff; background:var(--emerald-deep, #0a352a); border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.35); white-space:nowrap; animation:ppPop .35s both; }
   .dir-chip.back{ background:var(--gold, #b98b3e); }
   .gate-chip{ position:absolute; transform:translate(-50%,-100%); margin-top:-4px; padding:3px 9px; border-radius:12px; background:var(--red, #DA2128); color:#fff; font-size:11px; font-weight:800; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.35); white-space:nowrap; }
+
+  .map-summary{ position:absolute; z-index:500; left:362px; top:12px; display:flex; gap:8px; align-items:center; padding:7px 14px; background:rgba(255,253,249,.95); border:1px solid var(--line, #e4dcc5); border-radius:20px; font-size:12px; color:var(--emerald-deep, #0a352a); box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .map-summary b{ font-weight:800; }
+  .map-summary span{ color:var(--muted, #8b8371); }
+  .clear-chip{ position:absolute; z-index:500; left:362px; top:54px; display:none; padding:7px 14px; border:none; border-radius:20px; background:var(--red, #DA2128); color:#fff; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  .clear-chip.show{ display:block; }
 
   .card-in{ animation:cardIn .35s ease both; }
   @keyframes cardIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
@@ -155,6 +119,29 @@ window.addEventListener('load', function() {
   .rb-f{ height:100%; width:0; border-radius:6px; background:linear-gradient(90deg,var(--emerald, #0f4d3a),#2f8f5b); transition:width .8s cubic-bezier(.2,.8,.2,1); }
   .rb-avg{ position:absolute; top:-3px; width:2px; height:16px; background:var(--gold, #b98b3e); border-radius:1px; }
   .rb-v{ font-weight:800; color:var(--gold, #b98b3e); text-align:right; }
+
+  @media (max-width:820px){
+    .drawer{ top:auto !important; left:0 !important; right:0 !important; bottom:0 !important; width:100% !important; max-width:none !important; height:78% !important; border-radius:20px 20px 0 0; transform:translateY(105%) !important; box-shadow:0 -8px 30px rgba(15,77,58,.3) !important; transition:transform .3s ease, height .3s ease; }
+    .drawer.open{ transform:translateY(0) !important; }
+    .drawer.full{ height:92% !important; }
+    .drawer.low{ height:30% !important; }
+    .dr-handle{ display:block; height:22px; cursor:pointer; flex-shrink:0; }
+    .dr-handle::before{ content:''; display:block; width:40px; height:5px; background:#ccc; border-radius:3px; margin:9px auto 0; }
+    .drawer-head { padding: 8px 16px 6px !important; }
+    .drawer-head h2 { font-size: 16px !important; margin-bottom: 2px !important; }
+    .badge-row { margin-bottom: 4px !important; gap: 4px !important; }
+    .badge { padding: 2px 7px !important; font-size: 10px !important; }
+    .drawer-price { padding: 8px 16px !important; }
+    .drawer-price .amount { font-size: 21px !important; }
+    .drawer-price .cmp { margin-top: 2px !important; font-size: 11px !important; line-height: 1.3 !important; }
+    .dr-nav{ top:8px; }
+    .drawer-close{ top:8px; }
+    .map-summary{ left:12px; top:52px; }
+    .clear-chip{ left:12px; top:92px; }
+    .tour-btn { right: 12px; top: 10px; padding: 6px 12px; font-size: 11.5px; }
+    #dBody > div:first-child iframe{ height:180px !important; }
+    .rb{ grid-template-columns:104px 1fr 22px; }
+  }
   `;
   const styleEl = document.createElement('style');
   styleEl.textContent = css;
@@ -162,7 +149,7 @@ window.addEventListener('load', function() {
 
   /* ----------------------------------------------------------- helpers */
   const $ = id => document.getElementById(id);
-  const isMobile = () => window.innerWidth <= 1024 || window.innerHeight <= 550;
+  const isMobile = () => window.innerWidth <= 820;
   const mean = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : null;
   const numOrNull = v => { if(v===undefined||v===null||v==='') return null; const n=parseFloat(String(v).replace(/,/g,'')); return Number.isFinite(n)?n:null; };
   const fmtN = n => Math.round(n).toLocaleString('en-US');
@@ -182,25 +169,11 @@ window.addEventListener('load', function() {
   chip.textContent = '✕ ล้างเส้นทาง';
   app.appendChild(chip);
 
-  // ปุ่มกดนำเสนออัตโนมัติ (Auto-Tour)
   const tourBtn = document.createElement('button');
   tourBtn.className = 'tour-btn'; tourBtn.id = 'tourBtn'; tourBtn.type = 'button';
   tourBtn.innerHTML = '▶ เริ่มนำเสนอ (Auto-Tour)';
   app.appendChild(tourBtn);
 
-  // ปุ่มเปิด/ปิด แถบซ้ายมือ
-  const sidebarBtn = document.createElement('button');
-  sidebarBtn.className = 'sidebar-toggle-btn'; sidebarBtn.id = 'sidebarBtn'; sidebarBtn.type = 'button';
-  sidebarBtn.innerHTML = '📋 รายการที่พัก & ตัวกรอง';
-  app.appendChild(sidebarBtn);
-
-  const sb = document.querySelector('.sidebar');
-  sidebarBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (sb) sb.classList.toggle('show-sidebar');
-  });
-
-  // สร้างคลื่นเรดาร์รอบ มศว
   if (typeof CENTER !== 'undefined' && map) {
     L.marker(CENTER, {
       icon: L.divIcon({ className: '', html: '<div class="radar-pulse-icon"><div class="radar-ring"></div></div>', iconSize: [0, 0] }),
@@ -251,8 +224,14 @@ window.addEventListener('load', function() {
     syncPins(new Set(visibleOrder()));
     document.querySelectorAll('#list .card').forEach(c => c.classList.toggle('selected', Number(c.dataset.index)===i));
 
-    // ปิด Sidebar อัตโนมัติเมื่อเลือกหมุด
-    if (sb) sb.classList.remove('show-sidebar');
+    const sb = document.querySelector('.sidebar');
+    if (sb) {
+      if (i >= 0) {
+        sb.classList.add('hide-on-select');
+      } else {
+        sb.classList.remove('hide-on-select');
+      }
+    }
   }
 
   /* ----------------------------------------- ตัวกรอง/เรียง -> หมุด + รายการ */
@@ -445,12 +424,11 @@ window.addEventListener('load', function() {
       html:'<div class="waypoint-dot" style="border-color:'+s.color+'"></div>' }) })
       .bindTooltip(s.pt.label, { permanent:false });
   }
-
   function makeDirLabel(dir, segs){
     const all = []; segs.forEach(s => s.pts.forEach(p => all.push(p)));
     if(all.length < 2) return null;
     return L.marker(pointAt(all, dir==='to' ? 0.4 : 0.62), { interactive:false, keyboard:false,
-      icon:L.divIcon({ className:'', iconSize:[0,0], html:'<div class="dir-chip '+dir+'">'+(dir==='to' ? 'ขาไป ➜' : '⬅ ขากลับ')+'</div>' }) });
+      icon:L.divIcon({ className:'', iconSize:[0,0], html:'<div class="dir-chip '+dir+'">'+(dir==='to' ? 'ไป ➜' : '⬅ กลับ')+'</div>' }) });
   }
 
   async function playDirection(dir, data, token){
@@ -654,7 +632,7 @@ window.addEventListener('load', function() {
     showHouse(houseIndex);
 
     tourPos = (tourPos + 1) % order.length;
-    tourTimer = setTimeout(playTourStep, 5000);
+    tourTimer = setTimeout(playTourStep, 8000);
   }
 
   tourBtn.addEventListener('click', () => {
@@ -700,10 +678,7 @@ window.addEventListener('load', function() {
     };
   }
 
-  map.on('click', () => {
-    if (sb) sb.classList.remove('show-sidebar');
-    if(drawer.classList.contains('open')) { stopTour(); closeDrawer(); }
-  });
+  map.on('click', () => { if(drawer.classList.contains('open')) { stopTour(); closeDrawer(); } });
 
   window.mapUpgrade = { show:showHouse, order:visibleOrder, clear:() => chip.click(), startTour, stopTour };
   window.render();
