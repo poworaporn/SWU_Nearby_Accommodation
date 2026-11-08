@@ -81,13 +81,19 @@ const css = `
 .rb-v{ font-weight:800; color:var(--gold); text-align:right; }
 
 @media (max-width:820px){
-  .drawer{ top:auto !important; left:0 !important; right:0 !important; bottom:0 !important; width:100% !important; max-width:none !important; height:64% !important; border-radius:20px 20px 0 0; transform:translateY(105%) !important; box-shadow:0 -8px 30px rgba(15,77,58,.3) !important; transition:transform .3s ease, height .3s ease; }
+  .drawer{ top:auto !important; left:0 !important; right:0 !important; bottom:0 !important; width:100% !important; max-width:none !important; height:78% !important; border-radius:20px 20px 0 0; transform:translateY(105%) !important; box-shadow:0 -8px 30px rgba(15,77,58,.3) !important; transition:transform .3s ease, height .3s ease; }
   .drawer.open{ transform:translateY(0) !important; }
   .drawer.full{ height:92% !important; }
   .drawer.low{ height:30% !important; }
   .dr-handle{ display:block; height:22px; cursor:pointer; flex-shrink:0; }
   .dr-handle::before{ content:''; display:block; width:40px; height:5px; background:#ccc; border-radius:3px; margin:9px auto 0; }
-  .drawer-head{ padding-top:10px; }
+  .drawer-head { padding: 8px 16px 6px !important; }
+  .drawer-head h2 { font-size: 16px !important; margin-bottom: 2px !important; }
+  .badge-row { margin-bottom: 4px !important; gap: 4px !important; }
+  .badge { padding: 2px 7px !important; font-size: 10px !important; }
+  .drawer-price { padding: 8px 16px !important; }
+  .drawer-price .amount { font-size: 21px !important; }
+  .drawer-price .cmp { margin-top: 2px !important; font-size: 11px !important; line-height: 1.3 !important; }
   .dr-nav{ top:8px; }
   .drawer-close{ top:8px; }
   .map-summary{ left:12px; top:52px; }
@@ -96,6 +102,7 @@ const css = `
   .rb{ grid-template-columns:104px 1fr 22px; }
 }
 `;
+
 const styleEl = document.createElement('style');
 styleEl.textContent = css;
 document.head.appendChild(styleEl);
