@@ -23,6 +23,46 @@ const css = `
 /* CSS สำหรับซ่อน Sidebar เมื่อกดเลือกหมุด */
 .sidebar.hide-on-select { display: none !important; }
 
+/* ---------- 1. แอนิเมชันคลื่นเรดาร์รอบ มศว ---------- */
+.radar-pulse-icon { position: relative; width: 0; height: 0; }
+.radar-ring {
+  position: absolute; width: 40px; height: 40px; top: -20px; left: -20px;
+  border-radius: 50%; background: rgba(218, 33, 40, 0.35); border: 1.5px solid var(--red);
+  animation: radarWave 2.4s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+  pointer-events: none;
+}
+@keyframes radarWave {
+  0% { transform: scale(0.3); opacity: 1; }
+  80% { transform: scale(3.2); opacity: 0; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+
+/* ---------- 2. แอนิเมชันเส้นทางเคลื่อนไหว (Commute Flow) ---------- */
+path.leaflet-interactive.flow-line {
+  stroke-dasharray: 8, 12 !important;
+  animation: flowDash 1.2s linear infinite !important;
+}
+@keyframes flowDash {
+  from { stroke-dashoffset: 40; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* ---------- 3. ปุ่มกดโหมดนำเสนออัตโนมัติ (Auto-Tour) ---------- */
+.tour-btn {
+  position: absolute; z-index: 500; right: 14px; top: 12px;
+  display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+  border-radius: 20px; background: var(--emerald-deep); color: var(--gold-light);
+  border: 1.5px solid var(--gold); font-family: inherit; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25); transition: all .2s;
+}
+.tour-btn:hover { background: var(--emerald); transform: translateY(-1px); }
+.tour-btn.active { background: var(--red); border-color: #fff; color: #fff; animation: tourPulse 1.5s infinite; }
+@keyframes tourPulse {
+  0% { box-shadow: 0 0 0 0 rgba(218, 33, 40, 0.6); }
+  70% { box-shadow: 0 0 0 10px rgba(218, 33, 40, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(218, 33, 40, 0); }
+}
+
 .pp{ position:absolute; left:0; top:0; transform:translate(-50%,-100%); margin-top:-8px; }
 .pp-body{ position:relative; display:flex; align-items:center; gap:4px; padding:4px 10px 4px 7px; border-radius:16px; color:#fff; font-size:12px; font-weight:800; white-space:nowrap; border:2px solid #fff; box-shadow:0 3px 9px rgba(0,0,0,.35); cursor:pointer; transform-origin:50% 100%; transition:transform .18s ease; }
 .pp-body::after{ content:''; position:absolute; left:50%; bottom:-8px; margin-left:-6px; border:6px solid transparent; border-top-color:inherit; }
@@ -93,6 +133,7 @@ const css = `
   .drawer-close{ top:8px; }
   .map-summary{ left:12px; top:52px; }
   .clear-chip{ left:12px; top:92px; }
+  .tour-btn { right: 12px; top: 10px; padding: 6px 12px; font-size: 11.5px; }
   #dBody > div:first-child iframe{ height:180px !important; }
   .rb{ grid-template-columns:104px 1fr 22px; }
 }
@@ -120,6 +161,20 @@ const chip = document.createElement('button');
 chip.className = 'clear-chip'; chip.id = 'clearChip'; chip.type = 'button';
 chip.textContent = '✕ ล้างเส้นทาง';
 app.appendChild(chip);
+
+// ปุ่ม Auto-Tour (นำเสนออัตโนมัติ)
+const tourBtn = document.createElement('button');
+tourBtn.className = 'tour-btn'; tourBtn.id = 'tourBtn'; tourBtn.type = 'button';
+tourBtn.innerHTML = '▶ เริ่มนำเสนอ (Auto-Tour)';
+app.appendChild(tourBtn);
+
+// สร้างคลื่นเรดาร์รอบ มศว
+if (typeof CENTER !== 'undefined') {
+  L.marker(CENTER, {
+    icon: L.divIcon({ className: '', html: '<div class="radar-pulse-icon"><div class="radar-ring"></div></div>', iconSize: [0, 0] }),
+    interactive: false
+  }).addTo(map);
+}
 
 const head = drawer.querySelector('.drawer-head');
 const nav = document.createElement('div');
@@ -150,7 +205,7 @@ housing.forEach((h,i) => {
   const m = markers[i]; if(!m) return;
   if(m.unbindPopup) m.unbindPopup();
   m.setIcon(pinIcon(h, false, true, Math.min(i*18, 700)));
-  m.on('click', () => showHouse(i));
+  m.on('click', () => { stopTour(); showHouse(i); });
   m.bindTooltip(h.name+' · '+fmtN(h.rent)+' บาท', { direction:'top', offset:[0,-38], className:'pin-tip' });
   m.on('mouseover', () => m.setZIndexOffset(600));
   m.on('mouseout',  () => m.setZIndexOffset(i===sel ? 1000 : 0));
@@ -161,7 +216,6 @@ function setSel(i){
   syncPins(new Set(visibleOrder()));
   document.querySelectorAll('#list .card').forEach(c => c.classList.toggle('selected', Number(c.dataset.index)===i));
 
-  // ซ่อนแถบรายการทางซ้าย/ล่าง เมื่อกดเลือกหมุด
   const sb = document.querySelector('.sidebar');
   if (sb) {
     if (i >= 0) {
@@ -193,7 +247,6 @@ function visibleOrder(){
 function syncPins(vis){
   housing.forEach((h,i) => {
     const m = markers[i]; if(!m) return;
-    // ถ้ามีการเลือกหมุด (sel >= 0) ให้แสดงเฉพาะหมุดที่เลือกตัวเดียว
     const on = (sel >= 0) ? (i === sel) : vis.has(i);
     if(on && !map.hasLayer(m)){ m.addTo(map); m.setIcon(pinIcon(h, i===sel, true, 0)); }
     else if(!on && map.hasLayer(m)){ map.removeLayer(m); }
@@ -241,7 +294,7 @@ function newRender(){
      +'<div class="card-meta">'+h.type+' · ⭐ '+avgRating(h)+'</div>'
      +'<div class="card-price">'+h.rent.toLocaleString()+' บาท/เดือน</div>'
      +(trip?'<div class="card-trip">'+trip+'</div>':'');
-    card.addEventListener('click', () => showHouse(i));
+    card.addEventListener('click', () => { stopTour(); showHouse(i); });
     listEl.appendChild(card);
   });
 }
@@ -262,6 +315,7 @@ searchSuggest.addEventListener('click', e => {
   searchInput.value = housing[i].name;
   searchSuggest.classList.remove('show');
   window.render();
+  stopTour();
   showHouse(i);
 }, true);
 
@@ -369,197 +423,5 @@ async function playDirection(dir, data, token){
     const st = tStyle(seg.mode), walk = seg.mode === 'เดิน';
     const line = L.polyline([seg.pts[0], seg.pts[0]], {
       color:st.color, weight: outer ? 7 : 3.5, opacity: outer ? 0.55 : 1,
-      lineCap:'round', lineJoin:'round', dashArray: walk ? (outer ? '1 12' : '1 8') : null, interactive:false });
-    J[dir].layers.push(line);
-    if(isShown(dir)) line.addTo(map);
-    return line;
-  });
-  for(let k=0; k<segs.length; k++){
-    if(token !== journeyToken) return;
-    await growLine(lines[k], segs[k].pts, Math.max(280, 1900*lens[k]/total), token);
-  }
-  if(token !== journeyToken) return;
-  data.stops.forEach(s => { const mk = makeStopMarker(s); J[dir].layers.push(mk); if(isShown(dir)) mk.addTo(map); });
-  const lab = makeDirLabel(dir, segs);
-  if(lab){ J[dir].layers.push(lab); if(isShown(dir)) lab.addTo(map); }
-}
-
-function clearJourneyLayers(){
-  if(!J) return;
-  ['to','back'].forEach(d => J[d].layers.forEach(l => { if(map.hasLayer(l)) map.removeLayer(l); }));
-  if(J.gate && map.hasLayer(J.gate)) map.removeLayer(J.gate);
-  J = null;
-}
-
-function flyToJourney(h){
-  const pts = [[h.lat,h.lng],[UNI_GATE.lat,UNI_GATE.lng]];
-  ['to','back'].forEach(d => buildSpans(h,d).forEach(s => { pts.push([s.from.lat,s.from.lng],[s.to.lat,s.to.lng]); }));
-  const size = map.getSize();
-  let tl, br;
-  if(isMobile()){ tl = [30,70]; br = [30, Math.min(Math.round(size.y*0.62)+12, Math.max(size.y-120, 40))]; }
-  else { tl = [40,70]; br = [Math.min(500, Math.round(size.x*0.55)), 60]; }
-  map.flyToBounds(L.latLngBounds(pts), { paddingTopLeft:tl, paddingBottomRight:br, maxZoom:16, duration:1.0 });
-}
-
-async function drawJourney(h){
-  const token = ++journeyToken;
-  clearJourneyLayers();
-  const t0 = performance.now();
-  let dTo, dBack;
-  try{ const r = await Promise.all([buildDirection(h,'to'), buildDirection(h,'back')]); dTo = r[0]; dBack = r[1]; }
-  catch(err){ console.warn('[map-upgrade] สร้างเส้นทางไม่สำเร็จ', err); return; }
-  if(token !== journeyToken) return;
-  const wait = Math.max(0, 950 - (performance.now()-t0));
-  if(wait) await new Promise(r => setTimeout(r, wait));
-  if(token !== journeyToken) return;
-  J = { token, to:{ layers:[] }, back:{ layers:[] }, gate:null };
-  J.gate = L.marker([UNI_GATE.lat, UNI_GATE.lng], { interactive:false, keyboard:false,
-    icon:L.divIcon({ className:'', iconSize:[0,0], html:'<div class="gate-chip">🎓 มศว</div>' }) }).addTo(map);
-  updateJCards();
-  await Promise.all([ playDirection('to', dTo, token), playDirection('back', dBack, token) ]);
-  if(token === journeyToken) updateChip();
-}
-
-function setFocus(f){
-  focus = f;
-  if(J){
-    ['to','back'].forEach(d => {
-      const show = isShown(d);
-      J[d].layers.forEach(l => { if(show){ if(!map.hasLayer(l)) l.addTo(map); } else if(map.hasLayer(l)) map.removeLayer(l); });
-    });
-  }
-  updateJCards();
-}
-const toggleFocus = dir => setFocus(focus===dir ? 'both' : dir);
-function updateJCards(){
-  document.querySelectorAll('#dBody .jcard').forEach(c => {
-    const d = c.dataset.dir;
-    c.classList.toggle('on',  focus===d);
-    c.classList.toggle('dim', focus!=='both' && focus!==d);
-  });
-}
-function updateChip(){ chip.classList.toggle('show', !!J && !drawer.classList.contains('open')); }
-new MutationObserver(updateChip).observe(drawer, { attributes:true, attributeFilter:['class'] });
-chip.addEventListener('click', () => { journeyToken++; clearJourneyLayers(); setSel(-1); updateChip(); });
-
-/* ------------------------------------------------ หน้ารายละเอียดใหญ่ */
-const RK = [['location','ทำเลที่ตั้ง'],['cleanliness','ความสะอาด'],['safety','ความปลอดภัย'],['service','การบริการ'],
-            ['facilities','สิ่งอำนวยความสะดวก'],['parking','ที่จอดรถ'],['value','ความคุ้มค่ากับราคา']];
-let avgR = null;
-function avgRatings(){
-  if(!avgR) avgR = RK.map(r => mean(housing.map(x => x.ratings && x.ratings[r[0]]).filter(v => typeof v === 'number')) || 0);
-  return avgR;
-}
-function tripVal(v, unit, isCost){
-  if(v===undefined || v===null || v==='') return 'ไม่มีข้อมูล';
-  const n = Number(v);
-  return (Number.isFinite(n) ? (isCost ? n.toLocaleString('en-US') : String(n)) : String(v)) + ' ' + unit;
-}
-function statRowHTML(h){
-  const size = numOrNull(h.roomSize), psm = (size && h.rent) ? Math.round(h.rent/size) : null;
-  const t = (v,l) => '<div class="stat-tile"><b>'+v+'</b><span>'+l+'</span></div>';
-  return '<div class="stat-row">'
-    + t(h.distanceKm.toFixed(1)+' กม.', 'ห่างจาก มศว') + t(size ? size+' ตร.ม.' : '—', 'ขนาดห้อง')
-    + t(h.floor ? 'ชั้น '+h.floor : '—', 'ชั้นที่พัก') + t(psm ? fmtN(psm) : '—', 'บาท/ตร.ม.') + '</div>';
-}
-function jcardHTML(h, dir){
-  const t = dir==='to' ? h.travelTimeGo : h.travelTimeBack, c = dir==='to' ? h.travelCostGo : h.travelCostBack;
-  return '<div class="jcard" data-dir="'+dir+'"><div class="jc-top"><b>'+(dir==='to' ? '➜ ขาไป มศว' : '⬅ ขากลับที่พัก')+'</b><span class="jc-line '+dir+'"></span></div>'
-    + routeChipsHTML(h, dir)
-    + '<div class="jc-stats"><div><i>🕒</i>'+tripVal(t,'นาที',false)+'</div><div><i>💸</i>'+tripVal(c,'บาท',true)+'</div></div></div>';
-}
-function journeyBlockHTML(h){
-  return '<div class="blk"><h4>🚏 เส้นทางไป–กลับ แสดงบนแผนที่พร้อมกัน</h4><div class="jwrap">'+jcardHTML(h,'to')+jcardHTML(h,'back')+'</div>'
-    + '<div class="jnote">เส้นหนา = ขาไป · เส้นบาง = ขากลับ · แตะการ์ดเพื่อดูเฉพาะทิศทางนั้น แตะอีกครั้งเพื่อกลับมาดูทั้งคู่</div></div>';
-}
-function ratingBlockHTML(h){
-  if(!h.ratings) return '';
-  const av = avgRatings();
-  const rows = RK.map((r,idx) => {
-    const v = h.ratings[r[0]]; if(typeof v !== 'number') return '';
-    return '<div class="rb"><span>'+r[1]+'</span><div class="rb-t"><div class="rb-f" data-w="'+(v/5*100)+'"></div><i class="rb-avg" style="left:'+(av[idx]/5*100)+'%"></i></div><b class="rb-v">'+v+'</b></div>';
-  }).join('');
-  return '<div class="blk"><h4>⭐ คะแนนรีวิว (เฉลี่ย '+avgRating(h)+') <small style="font-weight:500;color:var(--muted)">· เส้นทอง = ค่าเฉลี่ยทุกที่พัก</small></h4>'+rows+'</div>';
-}
-function cmpHTML(h){
-  const same = housing.filter(x => x.type===h.type).map(x => numOrNull(x.rent)).filter(v => v!=null);
-  if(same.length < 2 || !h.rent) return '';
-  const avg = mean(same), d = (h.rent-avg)/avg*100;
-  const txt = Math.abs(d) < 3 ? 'ใกล้เคียงค่าเฉลี่ย'+h.type : (d<0 ? 'ถูกกว่า ' : 'แพงกว่า ')+Math.abs(Math.round(d))+'% เมื่อเทียบกับค่าเฉลี่ย'+h.type;
-  return '<div class="cmp">'+txt+' (เฉลี่ย '+fmtN(avg)+' บาท)</div>';
-}
-let cuId = 0;
-function countUp(el, to){
-  const id = ++cuId, t0 = performance.now();
-  function step(now){
-    if(id !== cuId) return;
-    const t = Math.min(1, (now-t0)/800), e = 1 - Math.pow(1-t, 3);
-    el.textContent = Math.round(to*e).toLocaleString('en-US');
-    if(t < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-const origOpenDrawer = window.openDrawer;
-window.openDrawer = function(i){
-  origOpenDrawer(i);
-  const h = housing[i];
-  $('overlay').classList.remove('open');
-  drawer.classList.remove('full','low');
-  const body = $('dBody');
-  body.querySelectorAll('details.section').forEach(d => { if(d.querySelector('#routeTabTo') || d.querySelector('.stars-row')) d.remove(); });
-  const html = statRowHTML(h) + journeyBlockHTML(h) + ratingBlockHTML(h);
-  const first = body.firstElementChild;
-  if(first) first.insertAdjacentHTML('afterend', html); else body.insertAdjacentHTML('afterbegin', html);
-  body.querySelectorAll('.jcard').forEach(c => c.addEventListener('click', () => toggleFocus(c.dataset.dir)));
-  updateJCards();
-  requestAnimationFrame(() => requestAnimationFrame(() => body.querySelectorAll('.rb-f').forEach(el => { el.style.width = el.dataset.w+'%'; })));
-  body.scrollTop = 0;
-  const strip = drawer.querySelector('.drawer-price');
-  strip.querySelectorAll('.cmp').forEach(n => n.remove());
-  strip.insertAdjacentHTML('beforeend', cmpHTML(h));
-  countUp($('dRent'), numOrNull(h.rent) || 0);
-  const order = visibleOrder(), pos = order.indexOf(i);
-  $('drPos').textContent = pos >= 0 ? (pos+1)+'/'+order.length : '';
-};
-
-/* -------------------------------------------------- จุดเข้าหลัก: แตะที่พัก */
-function showHouse(i){
-  const h = housing[i]; if(!h) return;
-  setSel(i);
-  focus = 'both';
-  window.openDrawer(i);
-  flyToJourney(h);
-  drawJourney(h);
-}
-function stepHouse(d){
-  const order = visibleOrder(); if(!order.length) return;
-  let pos = order.indexOf(sel);
-  pos = pos < 0 ? (d>0 ? 0 : order.length-1) : (pos+d+order.length) % order.length;
-  showHouse(order[pos]);
-}
-$('drPrev').addEventListener('click', () => stepHouse(-1));
-$('drNext').addEventListener('click', () => stepHouse(1));
-document.addEventListener('keydown', e => {
-  if(!drawer.classList.contains('open')) return;
-  const tag = (e.target && e.target.tagName) || '';
-  if(/INPUT|TEXTAREA|SELECT/.test(tag)) return;
-  if(e.key==='ArrowRight') stepHouse(1);
-  else if(e.key==='ArrowLeft') stepHouse(-1);
-  else if(e.key==='Escape') closeDrawer();
-});
-
-// คืนค่าหมุดทั้งหมดและดึง Sidebar กลับมาเมื่อปิดหน้ารายละเอียด
-const origCloseDrawer = window.closeDrawer;
-if (typeof origCloseDrawer === 'function') {
-  window.closeDrawer = function() {
-    origCloseDrawer();
-    setSel(-1);
-  };
-}
-
-map.on('click', () => { if(drawer.classList.contains('open')) closeDrawer(); });
-
-window.mapUpgrade = { show:showHouse, order:visibleOrder, clear:() => chip.click() };
-window.render();
-})();
+      lineCap:'round', lineJoin:'round', dashArray: walk ? (outer ? '1 12' : '1 8') : null,
+      className: 'flow-
