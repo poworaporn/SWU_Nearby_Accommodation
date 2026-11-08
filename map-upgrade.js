@@ -1,11 +1,3 @@
-/* =====================================================================
-   map-upgrade.js — อัปเกรดหน้าแผนที่ (ใส่ต่อท้าย map.html โดยไม่ต้องแก้ข้อมูลที่พักเดิม)
-   - แตะหมุด/ชื่อที่พัก -> บินไปที่ตำแหน่ง + เปิดหน้ารายละเอียดทันที (ไม่มีพรีวิว)
-   - เส้นทางขาไป + ขากลับ วาดพร้อมกัน แบบเส้นค่อยๆ ลากไป
-   - หมุดเป็นป้ายราคา สีตามระยะ 3/6 กม. และกรองแล้วหมุดเปลี่ยนตาม
-   - แถบสรุปสด (จำนวน/ค่าเช่าเฉลี่ย/ใกล้สุด) เปลี่ยนตามตัวกรอง
-   ใช้งาน: เพิ่มบรรทัด  <script src="map-upgrade.js"></script>  ก่อน </body> ของ map.html
-   ===================================================================== */
 (function(){
 'use strict';
 if (typeof housing==='undefined' || typeof markers==='undefined' || typeof map==='undefined' ||
@@ -27,6 +19,9 @@ const css = `
 .dr-handle{ display:none; }
 .drawer-price .cmp{ margin-top:6px; font-size:12px; color:#d8e6de; }
 #dBody > div:first-child iframe{ height:230px !important; }
+
+/* CSS สำหรับซ่อน Sidebar เมื่อกดเลือกหมุด */
+.sidebar.hide-on-select { display: none !important; }
 
 .pp{ position:absolute; left:0; top:0; transform:translate(-50%,-100%); margin-top:-8px; }
 .pp-body{ position:relative; display:flex; align-items:center; gap:4px; padding:4px 10px 4px 7px; border-radius:16px; color:#fff; font-size:12px; font-weight:800; white-space:nowrap; border:2px solid #fff; box-shadow:0 3px 9px rgba(0,0,0,.35); cursor:pointer; transform-origin:50% 100%; transition:transform .18s ease; }
@@ -102,7 +97,6 @@ const css = `
   .rb{ grid-template-columns:104px 1fr 22px; }
 }
 `;
-
 const styleEl = document.createElement('style');
 styleEl.textContent = css;
 document.head.appendChild(styleEl);
@@ -154,7 +148,7 @@ function pinIcon(h, selected, anim, delay){
 }
 housing.forEach((h,i) => {
   const m = markers[i]; if(!m) return;
-  if(m.unbindPopup) m.unbindPopup();            // ไม่ใช้พรีวิวป๊อปอัปอีกต่อไป
+  if(m.unbindPopup) m.unbindPopup();
   m.setIcon(pinIcon(h, false, true, Math.min(i*18, 700)));
   m.on('click', () => showHouse(i));
   m.bindTooltip(h.name+' · '+fmtN(h.rent)+' บาท', { direction:'top', offset:[0,-38], className:'pin-tip' });
@@ -163,14 +157,19 @@ housing.forEach((h,i) => {
 });
 
 function setSel(i){
-  if(sel>=0 && markers[sel]){ markers[sel].setIcon(pinIcon(housing[sel], false)); markers[sel].setZIndexOffset(0); }
   sel = i;
-  if(i>=0 && markers[i]){
-    if(!map.hasLayer(markers[i])) markers[i].addTo(map);
-    markers[i].setIcon(pinIcon(housing[i], true));
-    markers[i].setZIndexOffset(1000);
-  }
+  syncPins(new Set(visibleOrder()));
   document.querySelectorAll('#list .card').forEach(c => c.classList.toggle('selected', Number(c.dataset.index)===i));
+
+  // ซ่อนแถบรายการทางซ้าย/ล่าง เมื่อกดเลือกหมุด
+  const sb = document.querySelector('.sidebar');
+  if (sb) {
+    if (i >= 0) {
+      sb.classList.add('hide-on-select');
+    } else {
+      sb.classList.remove('hide-on-select');
+    }
+  }
 }
 
 /* ----------------------------------------- ตัวกรอง/เรียง -> หมุด + รายการ */
@@ -194,7 +193,8 @@ function visibleOrder(){
 function syncPins(vis){
   housing.forEach((h,i) => {
     const m = markers[i]; if(!m) return;
-    const on = vis.has(i) || i===sel;
+    // ถ้ามีการเลือกหมุด (sel >= 0) ให้แสดงเฉพาะหมุดที่เลือกตัวเดียว
+    const on = (sel >= 0) ? (i === sel) : vis.has(i);
     if(on && !map.hasLayer(m)){ m.addTo(map); m.setIcon(pinIcon(h, i===sel, true, 0)); }
     else if(!on && map.hasLayer(m)){ map.removeLayer(m); }
   });
@@ -247,14 +247,12 @@ function newRender(){
 }
 window.render = newRender;
 
-// ตัวกรองเครื่องใช้/ส่วนกลาง: ผูกใหม่ให้เรียก render ตัวใหม่ (ล้าง listener เดิมด้วยการ clone)
 document.querySelectorAll('.amenityCheck').forEach(cb => {
   const c = cb.cloneNode(true);
   cb.parentNode.replaceChild(c, cb);
   c.addEventListener('change', () => window.render());
 });
 
-// ผลค้นหาแบบ autocomplete: แตะแล้วเปิดรายละเอียดทันที
 searchSuggest.addEventListener('click', e => {
   const it = e.target.closest ? e.target.closest('.sg-item') : null;
   if(!it) return;
@@ -280,7 +278,7 @@ async function roadCached(from, to, profile){
   const key = profile+'|'+[from.lat,from.lng,to.lat,to.lng].map(v => (+v).toFixed(6)).join(',');
   if(routeCache.has(key)) return routeCache.get(key);
   const pts = await fetchRoad([from, to], profile);
-  if(pts && pts.length > 2) routeCache.set(key, pts);   // ไม่จำผลสำรอง (เส้นตรง) เผื่อลองใหม่ได้
+  if(pts && pts.length > 2) routeCache.set(key, pts);
   return pts;
 }
 
@@ -412,7 +410,7 @@ async function drawJourney(h){
   catch(err){ console.warn('[map-upgrade] สร้างเส้นทางไม่สำเร็จ', err); return; }
   if(token !== journeyToken) return;
   const wait = Math.max(0, 950 - (performance.now()-t0));
-  if(wait) await new Promise(r => setTimeout(r, wait));   // รอกล้องบินเสร็จก่อนเริ่มลากเส้น
+  if(wait) await new Promise(r => setTimeout(r, wait));
   if(token !== journeyToken) return;
   J = { token, to:{ layers:[] }, back:{ layers:[] }, gate:null };
   J.gate = L.marker([UNI_GATE.lat, UNI_GATE.lng], { interactive:false, keyboard:false,
@@ -550,6 +548,16 @@ document.addEventListener('keydown', e => {
   else if(e.key==='ArrowLeft') stepHouse(-1);
   else if(e.key==='Escape') closeDrawer();
 });
+
+// คืนค่าหมุดทั้งหมดและดึง Sidebar กลับมาเมื่อปิดหน้ารายละเอียด
+const origCloseDrawer = window.closeDrawer;
+if (typeof origCloseDrawer === 'function') {
+  window.closeDrawer = function() {
+    origCloseDrawer();
+    setSel(-1);
+  };
+}
+
 map.on('click', () => { if(drawer.classList.contains('open')) closeDrawer(); });
 
 window.mapUpgrade = { show:showHouse, order:visibleOrder, clear:() => chip.click() };
