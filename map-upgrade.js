@@ -714,9 +714,17 @@
       return new Promise(resolve => {
         if (!el) return resolve();
         el.scrollTop = 0;
-        const dist = el.scrollHeight - el.clientHeight;
+        // เลื่อนแค่ถึงท้ายบล็อกคะแนนรีวิว (บล็อกสุดท้ายที่เราสร้าง) ไม่ลงไปถึงส่วนพับเก็บด้านล่าง
+        const maxScroll = el.scrollHeight - el.clientHeight;
+        const blks = $('dBody') ? $('dBody').querySelectorAll('.blk') : [];
+        const last = blks.length ? blks[blks.length - 1] : null;
+        let dist = maxScroll;
+        if (last) {
+          const want = el.scrollTop + (last.getBoundingClientRect().bottom - el.getBoundingClientRect().top) - el.clientHeight + 16;
+          dist = Math.max(0, Math.min(maxScroll, want));
+        }
         if (dist <= 4) return resolve();
-        const ms = Math.min(14000, Math.max(3500, dist * 14)); // ยิ่งยาว ยิ่งเลื่อนนาน
+        const ms = Math.min(9000, Math.max(2500, dist * 12)); // ยิ่งยาว ยิ่งเลื่อนนาน
         const t0 = performance.now();
         function step(now) {
           if (token !== scrollToken) return resolve();
@@ -761,7 +769,7 @@
       tourPos = (tourPos + 1) % order.length;
       await tourWait(2200); if (!alive()) return;
       await autoScrollDrawer(); if (!alive()) return;
-      await tourWait(2500); if (!alive()) return;
+      await tourWait(1800); if (!alive()) return;
       playTourStep();
     }
 
