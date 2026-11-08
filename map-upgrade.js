@@ -424,4 +424,238 @@ async function playDirection(dir, data, token){
     const line = L.polyline([seg.pts[0], seg.pts[0]], {
       color:st.color, weight: outer ? 7 : 3.5, opacity: outer ? 0.55 : 1,
       lineCap:'round', lineJoin:'round', dashArray: walk ? (outer ? '1 12' : '1 8') : null,
-      className: 'flow-
+      className: 'flow-line', interactive:false });
+    J[dir].layers.push(line);
+    if(isShown(dir)) line.addTo(map);
+    return line;
+  });
+  for(let k=0; k<segs.length; k++){
+    if(token !== journeyToken) return;
+    await growLine(lines[k], segs[k].pts, Math.max(280, 1900*lens[k]/total), token);
+  }
+  if(token !== journeyToken) return;
+  data.stops.forEach(s => { const mk = makeStopMarker(s); J[dir].layers.push(mk); if(isShown(dir)) mk.addTo(map); });
+  const lab = makeDirLabel(dir, segs);
+  if(lab){ J[dir].layers.push(lab); if(isShown(dir)) lab.addTo(map); }
+}
+
+function clearJourneyLayers(){
+  if(!J) return;
+  ['to','back'].forEach(d => J[d].layers.forEach(l => { if(map.hasLayer(l)) map.removeLayer(l); }));
+  if(J.gate && map.hasLayer(J.gate)) map.removeLayer(J.gate);
+  J = null;
+}
+
+function flyToJourney(h){
+  const pts = [[h.lat,h.lng],[UNI_GATE.lat,UNI_GATE.lng]];
+  ['to','back'].forEach(d => buildSpans(h,d).forEach(s => { pts.push([s.from.lat,s.from.lng],[s.to.lat,s.to.lng]); }));
+  const size = map.getSize();
+  let tl, br;
+  if(isMobile()){ tl = [30,70]; br = [30, Math.min(Math.round(size.y*0.62)+12, Math.max(size.y-120, 40))]; }
+  else { tl = [40,70]; br = [Math.min(500, Math.round(size.x*0.55)), 60]; }
+  map.flyToBounds(L.latLngBounds(pts), { paddingTopLeft:tl, paddingBottomRight:br, maxZoom:16, duration:1.0 });
+}
+
+async function drawJourney(h){
+  const token = ++journeyToken;
+  clearJourneyLayers();
+  const t0 = performance.now();
+  let dTo, dBack;
+  try{ const r = await Promise.all([buildDirection(h,'to'), buildDirection(h,'back')]); dTo = r[0]; dBack = r[1]; }
+  catch(err){ console.warn('[map-upgrade] สร้างเส้นทางไม่สำเร็จ', err); return; }
+  if(token !== journeyToken) return;
+  const wait = Math.max(0, 950 - (performance.now()-t0));
+  if(wait) await new Promise(r => setTimeout(r, wait));
+  if(token !== journeyToken) return;
+  J = { token, to:{ layers:[] }, back:{ layers:[] }, gate:null };
+  J.gate = L.marker([UNI_GATE.lat, UNI_GATE.lng], { interactive:false, keyboard:false,
+    icon:L.divIcon({ className:'', iconSize:[0,0], html:'<div class="gate-chip">🎓 มศว</div>' }) }).addTo(map);
+  updateJCards();
+  await Promise.all([ playDirection('to', dTo, token), playDirection('back', dBack, token) ]);
+  if(token === journeyToken) updateChip();
+}
+
+function setFocus(f){
+  focus = f;
+  if(J){
+    ['to','back'].forEach(d => {
+      const show = isShown(d);
+      J[d].layers.forEach(l => { if(show){ if(!map.hasLayer(l)) l.addTo(map); } else if(map.hasLayer(l)) map.removeLayer(l); });
+    });
+  }
+  updateJCards();
+}
+const toggleFocus = dir => setFocus(focus===dir ? 'both' : dir);
+function updateJCards(){
+  document.querySelectorAll('#dBody .jcard').forEach(c => {
+    const d = c.dataset.dir;
+    c.classList.toggle('on',  focus===d);
+    c.classList.toggle('dim', focus!=='both' && focus!==d);
+  });
+}
+function updateChip(){ chip.classList.toggle('show', !!J && !drawer.classList.contains('open')); }
+new MutationObserver(updateChip).observe(drawer, { attributes:true, attributeFilter:['class'] });
+chip.addEventListener('click', () => { journeyToken++; clearJourneyLayers(); setSel(-1); updateChip(); stopTour(); });
+
+/* ------------------------------------------------ หน้ารายละเอียดใหญ่ */
+const RK = [['location','ทำเลที่ตั้ง'],['cleanliness','ความสะอาด'],['safety','ความปลอดภัย'],['service','การบริการ'],
+            ['facilities','สิ่งอำนวยความสะดวก'],['parking','ที่จอดรถ'],['value','ความคุ้มค่ากับราคา']];
+let avgR = null;
+function avgRatings(){
+  if(!avgR) avgR = RK.map(r => mean(housing.map(x => x.ratings && x.ratings[r[0]]).filter(v => typeof v === 'number')) || 0);
+  return avgR;
+}
+function tripVal(v, unit, isCost){
+  if(v===undefined || v===null || v==='') return 'ไม่มีข้อมูล';
+  const n = Number(v);
+  return (Number.isFinite(n) ? (isCost ? n.toLocaleString('en-US') : String(n)) : String(v)) + ' ' + unit;
+}
+function statRowHTML(h){
+  const size = numOrNull(h.roomSize), psm = (size && h.rent) ? Math.round(h.rent/size) : null;
+  const t = (v,l) => '<div class="stat-tile"><b>'+v+'</b><span>'+l+'</span></div>';
+  return '<div class="stat-row">'
+    + t(h.distanceKm.toFixed(1)+' กม.', 'ห่างจาก มศว') + t(size ? size+' ตร.ม.' : '—', 'ขนาดห้อง')
+    + t(h.floor ? 'ชั้น '+h.floor : '—', 'ชั้นที่พัก') + t(psm ? fmtN(psm) : '—', 'บาท/ตร.ม.') + '</div>';
+}
+function jcardHTML(h, dir){
+  const t = dir==='to' ? h.travelTimeGo : h.travelTimeBack, c = dir==='to' ? h.travelCostGo : h.travelCostBack;
+  return '<div class="jcard" data-dir="'+dir+'"><div class="jc-top"><b>'+(dir==='to' ? '➜ ขาไป มศว' : '⬅ ขากลับที่พัก')+'</b><span class="jc-line '+dir+'"></span></div>'
+    + routeChipsHTML(h, dir)
+    + '<div class="jc-stats"><div><i>🕒</i>'+tripVal(t,'นาที',false)+'</div><div><i>💸</i>'+tripVal(c,'บาท',true)+'</div></div></div>';
+}
+function journeyBlockHTML(h){
+  return '<div class="blk"><h4>🚏 เส้นทางไป–กลับ แสดงบนแผนที่พร้อมกัน</h4><div class="jwrap">'+jcardHTML(h,'to')+jcardHTML(h,'back')+'</div>'
+    + '<div class="jnote">เส้นหนา = ขาไป · เส้นบาง = ขากลับ · แตะการ์ดเพื่อดูเฉพาะทิศทางนั้น แตะอีกครั้งเพื่อกลับมาดูทั้งคู่</div></div>';
+}
+function ratingBlockHTML(h){
+  if(!h.ratings) return '';
+  const av = avgRatings();
+  const rows = RK.map((r,idx) => {
+    const v = h.ratings[r[0]]; if(typeof v !== 'number') return '';
+    return '<div class="rb"><span>'+r[1]+'</span><div class="rb-t"><div class="rb-f" data-w="'+(v/5*100)+'"></div><i class="rb-avg" style="left:'+(av[idx]/5*100)+'%"></i></div><b class="rb-v">'+v+'</b></div>';
+  }).join('');
+  return '<div class="blk"><h4>⭐ คะแนนรีวิว (เฉลี่ย '+avgRating(h)+') <small style="font-weight:500;color:var(--muted)">· เส้นทอง = ค่าเฉลี่ยทุกที่พัก</small></h4>'+rows+'</div>';
+}
+function cmpHTML(h){
+  const same = housing.filter(x => x.type===h.type).map(x => numOrNull(x.rent)).filter(v => v!=null);
+  if(same.length < 2 || !h.rent) return '';
+  const avg = mean(same), d = (h.rent-avg)/avg*100;
+  const txt = Math.abs(d) < 3 ? 'ใกล้เคียงค่าเฉลี่ย'+h.type : (d<0 ? 'ถูกกว่า ' : 'แพงกว่า ')+Math.abs(Math.round(d))+'% เมื่อเทียบกับค่าเฉลี่ย'+h.type;
+  return '<div class="cmp">'+txt+' (เฉลี่ย '+fmtN(avg)+' บาท)</div>';
+}
+let cuId = 0;
+function countUp(el, to){
+  const id = ++cuId, t0 = performance.now();
+  function step(now){
+    if(id !== cuId) return;
+    const t = Math.min(1, (now-t0)/800), e = 1 - Math.pow(1-t, 3);
+    el.textContent = Math.round(to*e).toLocaleString('en-US');
+    if(t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+const origOpenDrawer = window.openDrawer;
+window.openDrawer = function(i){
+  origOpenDrawer(i);
+  const h = housing[i];
+  $('overlay').classList.remove('open');
+  drawer.classList.remove('full','low');
+  const body = $('dBody');
+  body.querySelectorAll('details.section').forEach(d => { if(d.querySelector('#routeTabTo') || d.querySelector('.stars-row')) d.remove(); });
+  const html = statRowHTML(h) + journeyBlockHTML(h) + ratingBlockHTML(h);
+  const first = body.firstElementChild;
+  if(first) first.insertAdjacentHTML('afterend', html); else body.insertAdjacentHTML('afterbegin', html);
+  body.querySelectorAll('.jcard').forEach(c => c.addEventListener('click', () => toggleFocus(c.dataset.dir)));
+  updateJCards();
+  requestAnimationFrame(() => requestAnimationFrame(() => body.querySelectorAll('.rb-f').forEach(el => { el.style.width = el.dataset.w+'%'; })));
+  body.scrollTop = 0;
+  const strip = drawer.querySelector('.drawer-price');
+  strip.querySelectorAll('.cmp').forEach(n => n.remove());
+  strip.insertAdjacentHTML('beforeend', cmpHTML(h));
+  countUp($('dRent'), numOrNull(h.rent) || 0);
+  const order = visibleOrder(), pos = order.indexOf(i);
+  $('drPos').textContent = pos >= 0 ? (pos+1)+'/'+order.length : '';
+};
+
+/* -------------------------------------------------- โหมดนำเสนออัตโนมัติ (AUTO-TOUR) */
+let tourTimer = null;
+let isTouring = false;
+let tourPos = 0;
+
+function startTour(){
+  const order = visibleOrder();
+  if(!order.length) return;
+  isTouring = true;
+  tourBtn.classList.add('active');
+  tourBtn.innerHTML = '⏸ หยุดนำเสนอ (Pause)';
+  tourPos = 0;
+  playTourStep();
+}
+
+function stopTour(){
+  if(!isTouring) return;
+  isTouring = false;
+  if(tourTimer) clearTimeout(tourTimer);
+  tourBtn.classList.remove('active');
+  tourBtn.innerHTML = '▶ เริ่มนำเสนอ (Auto-Tour)';
+}
+
+function playTourStep(){
+  if(!isTouring) return;
+  const order = visibleOrder();
+  if(!order.length) { stopTour(); return; }
+  
+  const houseIndex = order[tourPos];
+  showHouse(houseIndex);
+
+  tourPos = (tourPos + 1) % order.length;
+  // ตั้งเวลานำเสนอหอพักละ 4.5 วินาที
+  tourTimer = setTimeout(playTourStep, 4500);
+}
+
+tourBtn.addEventListener('click', () => {
+  if(isTouring) stopTour();
+  else startTour();
+});
+
+/* -------------------------------------------------- จุดเข้าหลัก: แตะที่พัก */
+function showHouse(i){
+  const h = housing[i]; if(!h) return;
+  setSel(i);
+  focus = 'both';
+  window.openDrawer(i);
+  flyToJourney(h);
+  drawJourney(h);
+}
+function stepHouse(d){
+  const order = visibleOrder(); if(!order.length) return;
+  let pos = order.indexOf(sel);
+  pos = pos < 0 ? (d>0 ? 0 : order.length-1) : (pos+d+order.length) % order.length;
+  showHouse(order[pos]);
+}
+$('drPrev').addEventListener('click', () => { stopTour(); stepHouse(-1); });
+$('drNext').addEventListener('click', () => { stopTour(); stepHouse(1); });
+document.addEventListener('keydown', e => {
+  if(!drawer.classList.contains('open')) return;
+  const tag = (e.target && e.target.tagName) || '';
+  if(/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+  if(e.key==='ArrowRight') { stopTour(); stepHouse(1); }
+  else if(e.key==='ArrowLeft') { stopTour(); stepHouse(-1); }
+  else if(e.key==='Escape') { stopTour(); closeDrawer(); }
+});
+
+// คืนค่าหมุดทั้งหมดและดึง Sidebar กลับมาเมื่อปิดหน้ารายละเอียด
+const origCloseDrawer = window.closeDrawer;
+if (typeof origCloseDrawer === 'function') {
+  window.closeDrawer = function() {
+    origCloseDrawer();
+    setSel(-1);
+  };
+}
+
+map.on('click', () => { if(drawer.classList.contains('open')) { stopTour(); closeDrawer(); } });
+
+window.mapUpgrade = { show:showHouse, order:visibleOrder, clear:() => chip.click(), startTour, stopTour };
+window.render();
+})();
