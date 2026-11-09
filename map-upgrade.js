@@ -775,19 +775,15 @@
     const ratingOf = h => Number(avgRating(h)) || 0;
     const sc = (b, small) => '<div class="sc-item"><b>' + b + '</b><small>' + small + '</small></div>';
 
-    // เลือกที่พักไฮไลต์: ใกล้สุด / ถูกสุด / คุ้มสุด / รีวิวดีสุด / เร็วสุด / ห้องใหญ่สุด / แพงสุด / ไกลสุด
+    // เลือกที่พักไฮไลต์: ใกล้สุด / ถูกสุด / รีวิวดีสุด / เร็วสุด / ห้องใหญ่สุด / แพงสุด / ไกลสุด
     function highlightPicks() {
       const hs = visibleOrder().map(i => ({ i, h: housing[i] }));
       if (!hs.length) return [];
-      const maxRent = Math.max.apply(null, hs.map(o => rentOf(o.h))) || 1;
-      const maxDist = Math.max.apply(null, hs.map(o => o.h.distanceKm)) || 1;
-      const val = o => (ratingOf(o.h) / 5) / (0.6 * rentOf(o.h) / maxRent + 0.4 * o.h.distanceKm / maxDist + 0.05);
       const tGo = o => numOrNull(o.h.travelTimeGo);
       const sz = o => numOrNull(o.h.roomSize);
       const cats = [
         ['📍 ใกล้ มศว ที่สุด', () => true, (a, b) => a.h.distanceKm - b.h.distanceKm, o => 'ห่างเพียง ' + o.h.distanceKm.toFixed(1) + ' กม.'],
         ['💰 ค่าเช่าถูกที่สุด', o => rentOf(o.h) > 0, (a, b) => rentOf(a.h) - rentOf(b.h), o => fmtN(rentOf(o.h)) + ' บาท/เดือน'],
-        ['🏆 คุ้มค่าที่สุด (คะแนน·ราคา·ระยะทาง)', o => rentOf(o.h) > 0, (a, b) => val(b) - val(a), o => '⭐ ' + ratingOf(o.h) + ' · ' + fmtN(rentOf(o.h)) + ' บาท'],
         ['⭐ รีวิวดีที่สุด', () => true, (a, b) => ratingOf(b.h) - ratingOf(a.h), o => 'คะแนนเฉลี่ย ' + ratingOf(o.h)],
         ['⚡ เดินทางไป มศว เร็วที่สุด', o => tGo(o) != null, (a, b) => tGo(a) - tGo(b), o => tGo(o) + ' นาที'],
         ['📐 ห้องใหญ่ที่สุด', o => sz(o) != null, (a, b) => sz(b) - sz(a), o => sz(o) + ' ตร.ม.'],
