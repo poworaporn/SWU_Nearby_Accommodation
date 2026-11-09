@@ -114,6 +114,22 @@
   }
   .gate-chip{ position:absolute; transform:translate(-50%,-100%); margin-top:-4px; padding:3px 9px; border-radius:12px; background:var(--red, #DA2128); color:#fff; font-size:11px; font-weight:800; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.35); white-space:nowrap; }
 
+  .tour-btn.hidden{ display:none !important; }
+  .tour-progress{ position:absolute; z-index:900; left:0; top:0; height:4px; width:0; background:linear-gradient(90deg,var(--gold,#b98b3e),var(--gold-light,#f0dfb0)); transition:width .8s ease, opacity .4s; pointer-events:none; opacity:0; }
+  .app.touring .tour-progress{ opacity:1; }
+  .show-card{ position:absolute; inset:0; z-index:850; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity .5s ease; padding:16px; box-sizing:border-box; }
+  .show-card.on{ opacity:1; }
+  .sc-box{ background:rgba(10,53,42,.94); color:#fff; border:2px solid var(--gold,#b98b3e); border-radius:20px; padding:20px 22px; max-width:min(540px,92%); width:100%; box-shadow:0 12px 40px rgba(0,0,0,.4); transform:scale(.92); transition:transform .5s cubic-bezier(.2,1.2,.4,1); text-align:center; }
+  .show-card.on .sc-box{ transform:scale(1); }
+  .sc-box h3{ margin:0 0 6px; font-size:19px; color:var(--gold-light,#f0dfb0); }
+  .sc-box p{ margin:0 0 12px; font-size:13px; opacity:.85; }
+  .sc-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; text-align:left; }
+  .sc-item{ background:rgba(255,255,255,.09); border-radius:12px; padding:8px 10px; font-size:12px; animation:cardIn .5s ease both; }
+  .sc-item b{ display:block; font-size:14px; color:var(--gold-light,#f0dfb0); }
+  .sc-item small{ opacity:.75; }
+  .tour-flag{ margin:14px 22px 0; padding:9px 14px; border-radius:12px; background:linear-gradient(90deg,var(--gold,#b98b3e),#d9b26a); color:#2a1d05; font-weight:800; font-size:13.5px; animation:flagIn .6s cubic-bezier(.2,1.3,.4,1) both; }
+  @keyframes flagIn{ from{ opacity:0; transform:translateY(-10px) scale(.9); } to{ opacity:1; transform:none; } }
+
   .card-in{ animation:cardIn .35s ease both; }
   @keyframes cardIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
   .card-trip{ font-size:11.5px; color:var(--muted, #8b8371); margin-top:3px; }
@@ -240,8 +256,20 @@
 
     const tourBtn = document.createElement('button');
     tourBtn.className = 'tour-btn'; tourBtn.id = 'tourBtn'; tourBtn.type = 'button';
-    tourBtn.innerHTML = '▶ Auto-Tour';
+    tourBtn.innerHTML = '▶ ไฮไลต์';
     topCtl.appendChild(tourBtn);
+
+    const tourAllBtn = document.createElement('button');
+    tourAllBtn.className = 'tour-btn'; tourAllBtn.id = 'tourAllBtn'; tourAllBtn.type = 'button';
+    tourAllBtn.innerHTML = '▶▶ ทุกที่พัก';
+    topCtl.appendChild(tourAllBtn);
+
+    const progEl = document.createElement('div');
+    progEl.className = 'tour-progress';
+    app.appendChild(progEl);
+    const cardEl = document.createElement('div');
+    cardEl.className = 'show-card';
+    app.appendChild(cardEl);
 
     const summaryEl = document.createElement('div');
     summaryEl.className = 'map-summary'; summaryEl.id = 'mapSummary';
@@ -678,6 +706,10 @@
       const html = statRowHTML(h) + journeyBlockHTML(h) + ratingBlockHTML(h);
       const first = body.firstElementChild;
       if (first) first.insertAdjacentHTML('afterend', html); else body.insertAdjacentHTML('afterbegin', html);
+      if (pendingFlag && body.firstElementChild) {
+        body.firstElementChild.insertAdjacentHTML('afterend', '<div class="tour-flag">' + pendingFlag + '</div>');
+        pendingFlag = '';
+      }
       body.querySelectorAll('.jcard').forEach(c => c.addEventListener('click', () => toggleFocus(c.dataset.dir)));
       updateJCards();
       requestAnimationFrame(() => requestAnimationFrame(() => body.querySelectorAll('.rb-f').forEach(el => { el.style.width = el.dataset.w + '%'; })));
@@ -694,12 +726,10 @@
       if (drPos) drPos.textContent = pos >= 0 ? (pos + 1) + '/' + order.length : '';
     };
 
-    /* -------------------------------------------------- AUTO-TOUR */
-    let tourTimer = null;
-    let isTouring = false;
-    let tourPos = 0;
-    let tourRun = 0;
-    let scrollToken = 0;
+    /* -------------------------------------------------- AUTO-TOUR (โหมดนำเสนออัตโนมัติ) */
+    const IDLE_MS = 45000;   // ไม่มีใครแตะหน้าจอนานเท่านี้ (มิลลิวินาที) -> เริ่มนำเสนอเอง | ใส่ 0 = ปิด
+    let tourTimer = null, isTouring = false, tourRun = 0, scrollToken = 0;
+    let pendingFlag = '', pausedByUser = false, idleTimer = null;
 
     // หาตัวที่เลื่อนได้จริง (กล่องเนื้อหา หรือทั้งลิ้นชักในจอแนวนอน)
     function getScroller() {
@@ -714,7 +744,7 @@
       return new Promise(resolve => {
         if (!el) return resolve();
         el.scrollTop = 0;
-        // เลื่อนแค่ถึงท้ายบล็อกคะแนนรีวิว (บล็อกสุดท้ายที่เราสร้าง) ไม่ลงไปถึงส่วนพับเก็บด้านล่าง
+        // เลื่อนแค่ถึงท้ายบล็อกคะแนนรีวิว ไม่ลงไปถึงส่วนพับเก็บด้านล่าง
         const maxScroll = el.scrollHeight - el.clientHeight;
         const blks = $('dBody') ? $('dBody').querySelectorAll('.blk') : [];
         const last = blks.length ? blks[blks.length - 1] : null;
@@ -724,7 +754,7 @@
           dist = Math.max(0, Math.min(maxScroll, want));
         }
         if (dist <= 4) return resolve();
-        const ms = Math.min(9000, Math.max(2500, dist * 12)); // ยิ่งยาว ยิ่งเลื่อนนาน
+        const ms = Math.min(9000, Math.max(2500, dist * 12));
         const t0 = performance.now();
         function step(now) {
           if (token !== scrollToken) return resolve();
@@ -737,50 +767,153 @@
     }
     const tourWait = ms => new Promise(r => { tourTimer = setTimeout(r, ms); });
 
-    function startTour() {
+    const setProgress = f => { progEl.style.width = Math.round(Math.max(0, Math.min(1, f)) * 100) + '%'; };
+    function showCard(html) { cardEl.innerHTML = '<div class="sc-box">' + html + '</div>'; requestAnimationFrame(() => cardEl.classList.add('on')); }
+    function hideCard() { cardEl.classList.remove('on'); }
+
+    const rentOf = h => numOrNull(h.rent) || 0;
+    const ratingOf = h => Number(avgRating(h)) || 0;
+    const sc = (b, small) => '<div class="sc-item"><b>' + b + '</b><small>' + small + '</small></div>';
+
+    // เลือกที่พักไฮไลต์: ใกล้สุด / ถูกสุด / คุ้มสุด / รีวิวดีสุด / เร็วสุด / ห้องใหญ่สุด / แพงสุด / ไกลสุด
+    function highlightPicks() {
+      const hs = visibleOrder().map(i => ({ i, h: housing[i] }));
+      if (!hs.length) return [];
+      const maxRent = Math.max.apply(null, hs.map(o => rentOf(o.h))) || 1;
+      const maxDist = Math.max.apply(null, hs.map(o => o.h.distanceKm)) || 1;
+      const val = o => (ratingOf(o.h) / 5) / (0.6 * rentOf(o.h) / maxRent + 0.4 * o.h.distanceKm / maxDist + 0.05);
+      const tGo = o => numOrNull(o.h.travelTimeGo);
+      const sz = o => numOrNull(o.h.roomSize);
+      const cats = [
+        ['📍 ใกล้ มศว ที่สุด', () => true, (a, b) => a.h.distanceKm - b.h.distanceKm, o => 'ห่างเพียง ' + o.h.distanceKm.toFixed(1) + ' กม.'],
+        ['💰 ค่าเช่าถูกที่สุด', o => rentOf(o.h) > 0, (a, b) => rentOf(a.h) - rentOf(b.h), o => fmtN(rentOf(o.h)) + ' บาท/เดือน'],
+        ['🏆 คุ้มค่าที่สุด (คะแนน·ราคา·ระยะทาง)', o => rentOf(o.h) > 0, (a, b) => val(b) - val(a), o => '⭐ ' + ratingOf(o.h) + ' · ' + fmtN(rentOf(o.h)) + ' บาท'],
+        ['⭐ รีวิวดีที่สุด', () => true, (a, b) => ratingOf(b.h) - ratingOf(a.h), o => 'คะแนนเฉลี่ย ' + ratingOf(o.h)],
+        ['⚡ เดินทางไป มศว เร็วที่สุด', o => tGo(o) != null, (a, b) => tGo(a) - tGo(b), o => tGo(o) + ' นาที'],
+        ['📐 ห้องใหญ่ที่สุด', o => sz(o) != null, (a, b) => sz(b) - sz(a), o => sz(o) + ' ตร.ม.'],
+        ['💎 ค่าเช่าสูงที่สุด', () => true, (a, b) => rentOf(b.h) - rentOf(a.h), o => fmtN(rentOf(o.h)) + ' บาท/เดือน'],
+        ['🛣️ ไกลที่สุด', () => true, (a, b) => b.h.distanceKm - a.h.distanceKm, o => o.h.distanceKm.toFixed(1) + ' กม.']
+      ];
+      const used = new Set(), out = [];
+      cats.forEach(c => {
+        const pick = hs.filter(c[1]).filter(o => !used.has(o.i)).sort(c[2])[0];
+        if (pick) { used.add(pick.i); out.push({ i: pick.i, flag: c[0] + ' · ' + c[3](pick) }); }
+      });
+      return out;
+    }
+    const allPicks = () => visibleOrder().slice().sort((a, b) => housing[a].distanceKm - housing[b].distanceKm).map(i => ({ i, flag: '' }));
+
+    function introHTML(mode) {
+      const hs = visibleOrder().map(i => housing[i]);
+      const rents = hs.map(rentOf).filter(v => v > 0);
+      const minD = Math.min.apply(null, hs.map(h => h.distanceKm));
+      return '<h3>🎓 ผลสำรวจที่พักรอบ มศว ประสานมิตร</h3>'
+        + '<p>' + (mode === 'all' ? 'พาชมทุกที่พัก จากใกล้ไปไกล' : 'พาชมที่พักไฮไลต์ที่น่าสนใจ') + '</p>'
+        + '<div class="sc-grid">' + sc(hs.length + ' แห่ง', 'ที่พักทั้งหมดที่สำรวจ') + sc(fmtN(mean(rents) || 0) + ' บาท', 'ค่าเช่าเฉลี่ย')
+        + sc(minD.toFixed(1) + ' กม.', 'ใกล้ มศว ที่สุด') + sc(fmtN(Math.min.apply(null, rents)) + ' บาท', 'ถูกที่สุด') + '</div>';
+    }
+    function finaleHTML() {
+      const hs = visibleOrder().map(i => housing[i]);
+      if (!hs.length) return '';
+      const withRent = hs.filter(h => rentOf(h) > 0);
+      const cheap = withRent.slice().sort((a, b) => rentOf(a) - rentOf(b))[0];
+      const near = hs.slice().sort((a, b) => a.distanceKm - b.distanceKm)[0];
+      const best = hs.slice().sort((a, b) => ratingOf(b) - ratingOf(a))[0];
+      const groups = {};
+      hs.forEach(h => { (groups[h.type] = groups[h.type] || []).push(rentOf(h)); });
+      const types = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length).slice(0, 4);
+      let items = '';
+      if (cheap) items += sc('💰 ' + fmtN(rentOf(cheap)) + ' บาท', 'ถูกสุด: ' + cheap.name);
+      if (near) items += sc('📍 ' + near.distanceKm.toFixed(1) + ' กม.', 'ใกล้สุด: ' + near.name);
+      if (best) items += sc('⭐ ' + ratingOf(best), 'รีวิวดีสุด: ' + best.name);
+      items += sc('🏠 ' + hs.length + ' แห่ง', 'เฉลี่ย ' + fmtN(mean(withRent.map(rentOf)) || 0) + ' บาท');
+      types.forEach(t => { const g = groups[t].filter(v => v > 0); items += sc(t, g.length + ' แห่ง · เฉลี่ย ' + fmtN(mean(g) || 0) + ' บาท'); });
+      return '<h3>📊 สรุปผลสำรวจ</h3><p>ข้อมูลภาพรวมของที่พักรอบ มศว ประสานมิตร</p><div class="sc-grid">' + items + '</div>';
+    }
+
+    // เคลียร์เวทีแล้วบินกล้องไปดูภาพรวมทั้งหมด
+    function overview() {
+      journeyToken++; clearJourneyLayers();
+      if (drawer.classList.contains('open') && typeof closeDrawer === 'function') closeDrawer(); else setSel(-1);
+      updateChip();
       const order = visibleOrder();
-      if (!order.length) return;
-      isTouring = true;
+      const pts = order.map(i => [housing[i].lat, housing[i].lng]).concat([[UNI_GATE.lat, UNI_GATE.lng]]);
+      map.flyToBounds(L.latLngBounds(pts), { padding: [50, 50], maxZoom: 15, duration: 2.2 });
+    }
+
+    // รอบนำเสนอ: ภาพรวม -> ที่พักทีละแห่ง (เลื่อนข้อมูลเอง) -> การ์ดสรุป -> วนซ้ำ
+    async function runTour(mode) {
+      const run = ++tourRun;
+      const alive = () => isTouring && run === tourRun;
+      while (alive()) {
+        const list = mode === 'all' ? allPicks() : highlightPicks();
+        if (!list.length) { stopTour(); return; }
+        overview(); showCard(introHTML(mode)); setProgress(0);
+        await tourWait(4200); if (!alive()) return;
+        hideCard();
+        await tourWait(600); if (!alive()) return;
+        for (let k = 0; k < list.length; k++) {
+          if (!alive()) return;
+          setProgress(k / list.length);
+          pendingFlag = list[k].flag;
+          showHouse(list[k].i);
+          await tourWait(2200); if (!alive()) return;
+          await autoScrollDrawer(); if (!alive()) return;
+          await tourWait(1800); if (!alive()) return;
+        }
+        setProgress(1);
+        overview(); showCard(finaleHTML());
+        await tourWait(10000); if (!alive()) return;
+        hideCard();
+        await tourWait(900);
+      }
+    }
+
+    function startTour(mode) {
+      if (isTouring) return;
+      if (!visibleOrder().length) return;
+      mode = mode === 'all' ? 'all' : 'hi';
+      isTouring = true; pausedByUser = false;
+      clearTimeout(idleTimer);
       setSide(false);
-      tourBtn.classList.add('active');
-      tourBtn.innerHTML = '⏸ หยุดนำเสนอ';
-      tourPos = 0;
-      playTourStep();
+      app.classList.add('touring');
+      const act = mode === 'all' ? tourAllBtn : tourBtn, other = mode === 'all' ? tourBtn : tourAllBtn;
+      act.classList.add('active'); act.innerHTML = '⏸ หยุดนำเสนอ';
+      other.classList.add('hidden');
+      runTour(mode);
     }
 
     function stopTour() {
       cancelAutoScroll();
       if (!isTouring) return;
-      isTouring = false;
-      tourRun++;
+      isTouring = false; tourRun++;
       if (tourTimer) clearTimeout(tourTimer);
-      tourBtn.classList.remove('active');
-      tourBtn.innerHTML = '▶ Auto-Tour';
+      pendingFlag = '';
+      hideCard(); setProgress(0);
+      app.classList.remove('touring');
+      tourBtn.classList.remove('active', 'hidden'); tourBtn.innerHTML = '▶ ไฮไลต์';
+      tourAllBtn.classList.remove('active', 'hidden'); tourAllBtn.innerHTML = '▶▶ ทุกที่พัก';
+      resetIdle();
     }
 
-    // ต่อที่พัก: แสดงหมุด+เส้นทาง -> รอ -> เลื่อนข้อมูลลงเอง -> พักที่ท้ายหน้า -> ที่พักถัดไป
-    async function playTourStep() {
-      if (!isTouring) return;
-      const run = ++tourRun;
-      const alive = () => isTouring && run === tourRun;
-      const order = visibleOrder();
-      if (!order.length) { stopTour(); return; }
-      showHouse(order[tourPos]);
-      tourPos = (tourPos + 1) % order.length;
-      await tourWait(2200); if (!alive()) return;
-      await autoScrollDrawer(); if (!alive()) return;
-      await tourWait(1800); if (!alive()) return;
-      playTourStep();
+    // ไม่มีใครแตะจอนาน -> เริ่มนำเสนอเอง (เหมือนจอโชว์งาน)
+    function resetIdle() {
+      clearTimeout(idleTimer);
+      if (!IDLE_MS || isTouring || pausedByUser) return;
+      idleTimer = setTimeout(() => {
+        if (isTouring) return;
+        if (app.classList.contains('side-open') || document.hidden) return resetIdle();
+        startTour('hi');
+      }, IDLE_MS);
     }
+    ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(ev => document.addEventListener(ev, resetIdle, { passive: true }));
 
     // ผู้ใช้แตะ/เลื่อนในลิ้นชักเอง = ขอควบคุมเอง -> หยุดทัวร์
     ['touchstart', 'wheel', 'mousedown'].forEach(ev =>
       drawer.addEventListener(ev, () => { if (isTouring) stopTour(); else cancelAutoScroll(); }, { passive: true }));
 
-    tourBtn.addEventListener('click', () => {
-      if (isTouring) stopTour();
-      else startTour();
-    });
+    tourBtn.addEventListener('click', () => { if (isTouring) { pausedByUser = true; stopTour(); } else startTour('hi'); });
+    tourAllBtn.addEventListener('click', () => { if (isTouring) { pausedByUser = true; stopTour(); } else startTour('all'); });
 
     /* -------------------------------------------------- จุดเข้าหลัก */
     function showHouse(i) {
@@ -829,6 +962,8 @@
     window.mapUpgrade = { show: showHouse, order: visibleOrder, clear: () => chip.click(), startTour, stopTour, openList: () => setSide(true), closeList: () => setSide(false) };
     window.render();
     setTimeout(fixSize, 300);
+    if (/[?&]autoplay/.test(location.search)) setTimeout(() => startTour('hi'), 2000); // เปิดลิงก์ ...?autoplay=1 -> เริ่มเองทันที
+    else resetIdle();
   }
 
   function boot() {
