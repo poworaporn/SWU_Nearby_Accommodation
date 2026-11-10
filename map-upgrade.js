@@ -1,14 +1,7 @@
-/* =====================================================================
-   map-upgrade.js — อัปเกรดหน้าแผนที่ (v2: แก้บั๊กมือถือ/ไอแพด + ซ่อนแถบซ้าย)
-   ===================================================================== */
 (function () {
   'use strict';
-
-  /* ------------------------------------------------------------------
-     1) CSS — ฉีดทันทีที่ไฟล์ถูกโหลด (ไม่รอ load) เพื่อไม่ให้หน้าแวบ
-     ------------------------------------------------------------------ */
   const css = `
-  /* ซ่อนทั้งแอปไว้จนกว่าสคริปต์จะจัดหน้าเสร็จ -> ไม่มีภาพแวบตอนเริ่ม */
+  /* ซ่อนทั้งแอปไว้จนกว่าสคริปต์จะจัดหน้าเสร็จ*/
   html:not(.mu-ready) .app{ opacity:0; }
   .app{ transition:opacity .3s ease; }
 
@@ -26,10 +19,8 @@
   .drawer-price .cmp{ margin-top:6px; font-size:12px; color:#d8e6de; }
   #dBody > div:first-child iframe{ height:230px !important; }
 
-  /* ---- ให้แผนที่เต็มพื้นที่เสมอ (แก้แถบเปล่าตรงกลางบนไอแพด) ---- */
   .mu-span{ grid-area:1 / 1 / -1 / -1 !important; width:100% !important; min-width:0 !important; }
 
-  /* ---- แถบซ้าย (รายการที่พัก) = ซ่อนไว้ก่อน กดปุ่มแล้วค่อยเลื่อนออกมา ---- */
   .sidebar{
     position:absolute !important; left:0; top:0; bottom:0; height:100% !important;
     width:min(350px, 88vw) !important; max-width:none !important;
@@ -40,7 +31,6 @@
   }
   .app.side-open .sidebar{ transform:none; visibility:visible; box-shadow:6px 0 24px rgba(0,0,0,.25); transition:transform .3s ease, visibility 0s; }
 
-  /* ---- กลุ่มปุ่มมุมซ้ายบนของแผนที่ ---- */
   .top-ctl{ position:absolute; z-index:800; left:12px; top:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; max-width:calc(100% - 24px); }
   .app.dr-open .top-ctl{ max-width:calc(100% - 504px); }
   .app.side-open .top-ctl > :not(.side-btn){ display:none !important; }
@@ -63,10 +53,8 @@
   .clear-chip{ display:none; padding:7px 14px; border:none; border-radius:20px; background:var(--red, #DA2128); color:#fff; font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.25); }
   .clear-chip.show{ display:block; }
 
-  /* ตำแหน่งคำอธิบายสี (legend) ย้ายมาชิดซ้าย เพราะไม่มีแถบซ้ายกินที่แล้ว */
   .mu-legend{ left:12px !important; right:auto !important; top:auto !important; bottom:12px !important; z-index:400 !important; }
 
-  /* คลื่นเรดาร์รอบ มศว */
   .radar-pulse-icon{ position:relative; width:0; height:0; }
   .radar-ring{
     position:absolute; width:40px; height:40px; top:-20px; left:-20px;
@@ -79,7 +67,6 @@
     100%{ transform:scale(3.5); opacity:0; }
   }
 
-  /* เส้นทางเคลื่อนไหว */
   path.leaflet-interactive.flow-line{ stroke-dasharray:8,12 !important; animation:flowDash 1.2s linear infinite !important; }
   @keyframes flowDash{ from{ stroke-dashoffset:40; } to{ stroke-dashoffset:0; } }
 
@@ -98,7 +85,6 @@
   @keyframes ppRing{ 0%{ box-shadow:0 0 0 0 rgba(185,139,62,.8), 0 6px 16px rgba(0,0,0,.4); } 100%{ box-shadow:0 0 0 16px rgba(185,139,62,0), 0 6px 16px rgba(0,0,0,.4); } }
   .pin-tip{ font-family:inherit; font-size:12px; font-weight:700; color:var(--emerald-deep, #0a352a); border-radius:10px; border:1px solid var(--line, #e4dcc5); box-shadow:0 4px 12px rgba(0,0,0,.2); }
 
-  /* ป้าย ไป/กลับ — แยกตำแหน่ง: "ไป" อยู่เหนือเส้น "กลับ" อยู่ใต้เส้น (ไม่ซ้อนกันแล้ว) */
   .dir-chip{
     --tx:-50%; --ty:-50%;
     position:absolute; transform:translate(var(--tx), var(--ty));
@@ -157,7 +143,6 @@
   .rb-avg{ position:absolute; top:-3px; width:2px; height:16px; background:var(--gold, #b98b3e); border-radius:1px; }
   .rb-v{ font-weight:800; color:var(--gold, #b98b3e); text-align:right; }
 
-  /* ---------- มือถือแนวตั้ง / จอแคบ: ลิ้นชักเลื่อนจากล่าง ---------- */
   @media (max-width:820px){
     .drawer{ top:auto !important; left:0 !important; right:0 !important; bottom:0 !important; width:100% !important; max-width:none !important; height:78% !important; border-radius:20px 20px 0 0; transform:translateY(105%) !important; box-shadow:0 -8px 30px rgba(15,77,58,.3) !important; transition:transform .3s ease, height .3s ease, visibility 0s linear .3s; }
     .drawer.open{ transform:translateY(0) !important; transition:transform .3s ease, height .3s ease, visibility 0s; }
@@ -184,7 +169,6 @@
     .rb{ grid-template-columns:104px 1fr 22px; }
   }
 
-  /* ---------- มือถือแนวนอน (จอเตี้ย): ทั้งลิ้นชักเลื่อนได้ด้วยนิ้ว ---------- */
   @media (max-height:520px){
     .drawer{ overflow-y:auto !important; overflow-x:hidden !important; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y; }
     .drawer > *{ flex-shrink:0 !important; }
@@ -208,21 +192,15 @@
   (document.head || document.documentElement).appendChild(styleEl);
 
   const reveal = () => document.documentElement.classList.add('mu-ready');
-  setTimeout(reveal, 3500); // กันพลาด: ถ้าสคริปต์ล่ม หน้าเว็บก็ยังโผล่
+  setTimeout(reveal, 3500); 
 
-  /* ------------------------------------------------------------------
-     2) ตัวสคริปต์หลัก — รอให้หน้าโหลดครบก่อน
-     ------------------------------------------------------------------ */
   function init() {
-    // ตรวจสอบความพร้อมของตัวแปรหลัก
     if (typeof housing === 'undefined' || typeof markers === 'undefined' || typeof map === 'undefined' ||
         typeof buildSpans === 'undefined' || typeof render === 'undefined' || typeof openDrawer === 'undefined') {
       console.warn('[map-upgrade] ไม่พบตัวแปรหลักของแผนที่ ข้ามการอัปเกรดเพื่อป้องกันหน้าเว็บพัง');
       styleEl.remove();
       return;
     }
-
-    /* ----------------------------------------------------------- helpers */
     const $ = id => document.getElementById(id);
     const isMobile = () => window.innerWidth <= 820;
     const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
@@ -231,11 +209,9 @@
     const kLabel = r => r >= 1000 ? (r / 1000).toFixed(r % 1000 === 0 ? 0 : 1) + 'k' : String(r);
     const drawer = $('drawer');
 
-    /* ------------------------------------------------- องค์ประกอบใน DOM */
     const app = document.querySelector('.app');
     if (!app || !drawer) { styleEl.remove(); return; }
 
-    // ให้แผนที่ (และกล่องที่ห่อมัน) กินพื้นที่เต็มหน้า แล้วบอก Leaflet ให้คำนวณขนาดใหม่
     const mapEl = map.getContainer();
     for (let n = mapEl; n && n !== app; n = n.parentElement) n.classList.add('mu-span');
     const fixSize = () => { try { map.invalidateSize({ animate: false }); } catch (e) {} };
@@ -244,7 +220,6 @@
     window.addEventListener('orientationchange', () => setTimeout(fixSize, 250));
     if (window.ResizeObserver) new ResizeObserver(fixSize).observe(mapEl);
 
-    // กลุ่มปุ่มมุมซ้ายบน
     const topCtl = document.createElement('div');
     topCtl.className = 'top-ctl';
     app.appendChild(topCtl);
@@ -280,7 +255,6 @@
     chip.textContent = '✕ ล้างเส้นทาง';
     topCtl.appendChild(chip);
 
-    // ย้ายคำอธิบายสี (legend) ที่เคยหลบแถบซ้าย ให้ชิดซ้ายแทน
     try {
       const cands = Array.from(app.querySelectorAll('div')).filter(el =>
         !el.closest('.sidebar, .drawer, .top-ctl, #list') &&
@@ -312,7 +286,6 @@
       nav.innerHTML = '<button type="button" id="drPrev" aria-label="ที่พักก่อนหน้า">‹</button><span id="drPos"></span><button type="button" id="drNext" aria-label="ที่พักถัดไป">›</button>';
       head.insertBefore(nav, head.firstChild);
     }
-
     const handle = document.createElement('div');
     handle.className = 'dr-handle';
     drawer.insertBefore(handle, drawer.firstChild);
@@ -322,7 +295,6 @@
       else drawer.classList.add('full');
     });
 
-    /* -------------------------------------------------------------- หมุด */
     let sel = -1;
     function pinIcon(h, selected, anim, delay) {
       const near = h.distanceKm <= 3;
@@ -347,10 +319,9 @@
       sel = i;
       syncPins(new Set(visibleOrder()));
       document.querySelectorAll('#list .card').forEach(c => c.classList.toggle('selected', Number(c.dataset.index) === i));
-      if (i >= 0) setSide(false); // เลือกที่พักแล้ว -> เก็บแถบซ้าย ให้เห็นแผนที่เต็มๆ
+      if (i >= 0) setSide(false); 
     }
 
-    /* ----------------------------------------- ตัวกรอง/เรียง -> หมุด + รายการ */
     function visibleOrder() {
       let items = housing.map((h, i) => ({ h, i }));
       const searchInput = $('searchInput');
@@ -368,7 +339,6 @@
       if (s === 'rating-desc') items.sort((a, b) => avgRating(b.h) - avgRating(a.h));
       return items.map(o => o.i);
     }
-
     function syncPins(vis) {
       housing.forEach((h, i) => {
         const m = markers[i]; if (!m) return;
@@ -377,7 +347,6 @@
         else if (!on && map.hasLayer(m)) { map.removeLayer(m); }
       });
     }
-
     function updateSummary(order) {
       if (!order.length) { summaryEl.innerHTML = 'ไม่พบที่พักตามเงื่อนไข'; return; }
       const hs = order.map(i => housing[i]);
@@ -385,14 +354,12 @@
       const dmin = Math.min.apply(null, hs.map(h => h.distanceKm));
       summaryEl.innerHTML = '<b>' + order.length + '</b> แห่ง <span>·</span> เฉลี่ย <b>' + fmtN(mean(rents)) + '</b> บาท <span>·</span> ใกล้สุด <b>' + dmin.toFixed(1) + '</b> กม.';
     }
-
     function tripText(h) {
       const a = h.travelTimeGo, b = h.travelTimeBack;
       const ok = v => v !== undefined && v !== null && v !== '';
       if (!ok(a) && !ok(b)) return '';
       return '🕒 ไป ' + (ok(a) ? a : '–') + ' · กลับ ' + (ok(b) ? b : '–') + ' นาที';
     }
-
     let lastKey = '';
     function newRender() {
       const order = visibleOrder();
@@ -544,7 +511,6 @@
     function makeDirLabel(dir, segs) {
       const all = []; segs.forEach(s => s.pts.forEach(p => all.push(p)));
       if (all.length < 2) return null;
-      // "ไป" อยู่ช่วงต้นเส้น (30%) / "กลับ" อยู่ช่วงปลายเส้น (70%) — ไม่ทับกัน
       return L.marker(pointAt(all, dir === 'to' ? 0.3 : 0.7), { interactive: false, keyboard: false,
         icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<div class="dir-chip ' + dir + '">' + (dir === 'to' ? 'ไป ➜' : '⬅ กลับ') + '</div>' }) });
     }
@@ -579,7 +545,6 @@
       if (J.gate && map.hasLayer(J.gate)) map.removeLayer(J.gate);
       J = null;
     }
-
     function flyToJourney(h) {
       const pts = [[h.lat, h.lng], [UNI_GATE.lat, UNI_GATE.lng]];
       ['to', 'back'].forEach(d => buildSpans(h, d).forEach(s => { pts.push([s.from.lat, s.from.lng], [s.to.lat, s.to.lng]); }));
@@ -589,7 +554,6 @@
       else { tl = [40, 70]; br = [Math.min(500, Math.round(size.x * 0.55)), 60]; }
       map.flyToBounds(L.latLngBounds(pts), { paddingTopLeft: tl, paddingBottomRight: br, maxZoom: 16, duration: 1.0 });
     }
-
     async function drawJourney(h) {
       const token = ++journeyToken;
       clearJourneyLayers();
@@ -634,7 +598,6 @@
     }).observe(drawer, { attributes: true, attributeFilter: ['class'] });
     chip.addEventListener('click', () => { journeyToken++; clearJourneyLayers(); setSel(-1); updateChip(); stopTour(); });
 
-    /* ------------------------------------------------ หน้ารายละเอียดใหญ่ */
     const RK = [['location', 'ทำเลที่ตั้ง'], ['cleanliness', 'ความสะอาด'], ['safety', 'ความปลอดภัย'], ['service', 'การบริการ'],
                 ['facilities', 'สิ่งอำนวยความสะดวก'], ['parking', 'ที่จอดรถ'], ['value', 'ความคุ้มค่ากับราคา']];
     let avgR = null;
@@ -726,12 +689,10 @@
       if (drPos) drPos.textContent = pos >= 0 ? (pos + 1) + '/' + order.length : '';
     };
 
-    /* -------------------------------------------------- AUTO-TOUR (โหมดนำเสนออัตโนมัติ) */
-    const IDLE_MS = 45000;   // ไม่มีใครแตะหน้าจอนานเท่านี้ (มิลลิวินาที) -> เริ่มนำเสนอเอง | ใส่ 0 = ปิด
+    const IDLE_MS = 20000;
     let tourTimer = null, isTouring = false, tourRun = 0, scrollToken = 0;
     let pendingFlag = '', pausedByUser = false, idleTimer = null;
 
-    // หาตัวที่เลื่อนได้จริง (กล่องเนื้อหา หรือทั้งลิ้นชักในจอแนวนอน)
     function getScroller() {
       const body = $('dBody');
       const can = el => el && el.scrollHeight - el.clientHeight > 4 && /(auto|scroll)/.test(getComputedStyle(el).overflowY);
@@ -744,7 +705,7 @@
       return new Promise(resolve => {
         if (!el) return resolve();
         el.scrollTop = 0;
-        // เลื่อนแค่ถึงท้ายบล็อกคะแนนรีวิว ไม่ลงไปถึงส่วนพับเก็บด้านล่าง
+
         const maxScroll = el.scrollHeight - el.clientHeight;
         const blks = $('dBody') ? $('dBody').querySelectorAll('.blk') : [];
         const last = blks.length ? blks[blks.length - 1] : null;
@@ -775,7 +736,6 @@
     const ratingOf = h => Number(avgRating(h)) || 0;
     const sc = (b, small) => '<div class="sc-item"><b>' + b + '</b><small>' + small + '</small></div>';
 
-    // เลือกที่พักไฮไลต์: ใกล้สุด / ถูกสุด / รีวิวดีสุด / เร็วสุด / ห้องใหญ่สุด / แพงสุด / ไกลสุด
     function highlightPicks() {
       const hs = visibleOrder().map(i => ({ i, h: housing[i] }));
       if (!hs.length) return [];
@@ -827,7 +787,6 @@
       return '<h3>📊 สรุปผลสำรวจ</h3><p>ข้อมูลภาพรวมของที่พักรอบ มศว ประสานมิตร</p><div class="sc-grid">' + items + '</div>';
     }
 
-    // เคลียร์เวทีแล้วบินกล้องไปดูภาพรวมทั้งหมด
     function overview() {
       journeyToken++; clearJourneyLayers();
       if (drawer.classList.contains('open') && typeof closeDrawer === 'function') closeDrawer(); else setSel(-1);
@@ -836,8 +795,6 @@
       const pts = order.map(i => [housing[i].lat, housing[i].lng]).concat([[UNI_GATE.lat, UNI_GATE.lng]]);
       map.flyToBounds(L.latLngBounds(pts), { padding: [50, 50], maxZoom: 15, duration: 2.2 });
     }
-
-    // รอบนำเสนอ: ภาพรวม -> ที่พักทีละแห่ง (เลื่อนข้อมูลเอง) -> การ์ดสรุป -> วนซ้ำ
     async function runTour(mode) {
       const run = ++tourRun;
       const alive = () => isTouring && run === tourRun;
@@ -892,7 +849,6 @@
       resetIdle();
     }
 
-    // ไม่มีใครแตะจอนาน -> เริ่มนำเสนอเอง (เหมือนจอโชว์งาน)
     function resetIdle() {
       clearTimeout(idleTimer);
       if (!IDLE_MS || isTouring || pausedByUser) return;
@@ -904,14 +860,12 @@
     }
     ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(ev => document.addEventListener(ev, resetIdle, { passive: true }));
 
-    // ผู้ใช้แตะ/เลื่อนในลิ้นชักเอง = ขอควบคุมเอง -> หยุดทัวร์
     ['touchstart', 'wheel', 'mousedown'].forEach(ev =>
       drawer.addEventListener(ev, () => { if (isTouring) stopTour(); else cancelAutoScroll(); }, { passive: true }));
 
     tourBtn.addEventListener('click', () => { if (isTouring) { pausedByUser = true; stopTour(); } else startTour('hi'); });
     tourAllBtn.addEventListener('click', () => { if (isTouring) { pausedByUser = true; stopTour(); } else startTour('all'); });
 
-    /* -------------------------------------------------- จุดเข้าหลัก */
     function showHouse(i) {
       const h = housing[i]; if (!h) return;
       cancelAutoScroll();
