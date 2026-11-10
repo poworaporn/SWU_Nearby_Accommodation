@@ -245,7 +245,7 @@
   (document.head || document.documentElement).appendChild(styleEl);
 
   const reveal = () => document.documentElement.classList.add('mu-ready');
-  setTimeout(reveal, 9000); // กันพลาด: ถ้าสคริปต์ล่ม หน้าเว็บก็ยังโผล่
+  setTimeout(reveal, 4500); // กันพลาด: ถ้าสคริปต์ล่ม หน้าเว็บก็ยังโผล่
 
   /* ------------------------------------------------------------------
      2) ตัวสคริปต์หลัก — รอให้หน้าโหลดครบก่อน
@@ -1242,19 +1242,45 @@
     else resetIdle();
   }
 
-  function ready() {
-    try {
-      return !!(housing && housing.length > 0 && markers && markers.length >= housing.length && map && state && UNI_GATE &&
-        typeof buildSpans === 'function' && typeof render === 'function' && typeof openDrawer === 'function' &&
-        typeof typeIcon === 'function' && typeof avgRating === 'function' &&
-        document.querySelector('.app') && document.getElementById('drawer'));
-    } catch (e) { return false; }   // ตัวแปรยังไม่ถูกสร้าง
+  // รายการที่ยังไม่พร้อม (ว่าง = พร้อมแล้ว)
+  function missing() {
+    const out = [];
+    const chk = (name, fn) => { try { if (!fn()) out.push(name); } catch (e) { out.push(name); } };
+    chk('housing', () => housing && housing.length > 0);
+    chk('markers', () => markers && (markers.length >= housing.length || document.readyState === 'complete'));
+    chk('map', () => map && typeof map.getContainer === 'function');
+    chk('state', () => state);
+    chk('UNI_GATE', () => UNI_GATE);
+    chk('buildSpans', () => typeof buildSpans === 'function');
+    chk('render', () => typeof render === 'function');
+    chk('openDrawer', () => typeof openDrawer === 'function');
+    chk('typeIcon', () => typeof typeIcon === 'function');
+    chk('avgRating', () => typeof avgRating === 'function');
+    chk('.app', () => document.querySelector('.app'));
+    chk('#drawer', () => document.getElementById('drawer'));
+    return out;
   }
-  let booted = false, tries = 0;
+
+  // จัดเลย์เอาต์ให้แผนที่เต็มจอทันทีที่มีแผนที่ (ไม่ต้องรอให้ข้อมูลครบ) -> ระหว่างรอไม่เห็นหน้าครึ่งๆ กลางๆ
+  let spanDone = false;
+  function earlySpan() {
+    if (spanDone) return;
+    const app = document.querySelector('.app');
+    const mc = app && app.querySelector('.leaflet-container');
+    if (!mc) return;
+    spanDone = true;
+    for (let n = mc; n && n !== app; n = n.parentElement) n.classList.add('mu-span');
+    try { map.invalidateSize({ animate: false }); } catch (e) {}
+  }
+
+  let booted = false, tries = 0, lastMissing = [];
   function tryBoot() {
     if (booted) return;
-    if (ready() || ++tries > 200) {   // เช็คทุก 40ms นานสุด ~8 วิ
+    earlySpan();
+    lastMissing = missing();
+    if (!lastMissing.length || ++tries > 200) {   // เช็คทุก 40ms นานสุด ~8 วิ
       booted = true;
+      if (lastMissing.length) console.warn('[map-upgrade] เริ่มทำงานทั้งที่ยังไม่พร้อม ขาด:', lastMissing.join(', '));
       try { init(); }
       catch (err) { console.error('[map-upgrade] error', err); }
       finally { reveal(); }
@@ -1262,5 +1288,6 @@
     }
     setTimeout(tryBoot, 40);
   }
+  window.addEventListener('load', () => { if (!booted) tryBoot(); });
   tryBoot();
 })();
