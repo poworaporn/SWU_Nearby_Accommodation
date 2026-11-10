@@ -409,7 +409,9 @@ function tStyle(mode){ return TRANSPORT_STYLE[mode] || { icon:'📍', color:'#8b
 const RAIL_MODES = ['MRT','BTS','Airport Rail Link'];
 const BUS_MODES = ['รถโดยสารประจำทาง'];
 const TRANSIT_MODES = RAIL_MODES.concat(BUS_MODES); // โหมดที่ต้องหาจุดขึ้น/ลงจากป้าย/สถานี
+
 // ข้อมูลที่พัก
+// routeToSteps / routeBackSteps = ลำดับวิธีเดินทางตามที่ผู้ตอบกรอก (ขั้นตอนที่ 1..6)
 const housing = [
   {
     name: "Life Asoke Hype", nameTh: "ไลฟ์ อโศก ไฮป์",
@@ -2434,6 +2436,8 @@ const housing = [
 ];
 housing.forEach(h => { h.distanceKm = haversineKm(CENTER[0], CENTER[1], h.lat, h.lng); });
 
+// จุดขึ้นรถขากลับ (ค่าเริ่มต้นตามวิธีเดินทาง): เรียกรถผ่านแอป ใช้ป้ายฝั่งตรงข้าม มศว ได้ปกติ
+
 const BUS_APP_PICKUP    = { lat:13.745787302693586, lng:100.56260548830315, label:"ป้ายรถฝั่งตรงข้าม มศว (อโศกทาวเวอร์)" };
 const MOTORCYCLE_PICKUP = { lat:13.7484838, lng:100.5634913, label:"แยกเพชรบุรี-อโศก (จุดขึ้นวิน)" };
 function defaultPickupFor(mode){
@@ -2441,6 +2445,7 @@ function defaultPickupFor(mode){
   if(mode === 'เรียกรถผ่านแอปพลิเคชั่น (Bike/Car)') return BUS_APP_PICKUP;
   return null;
 }
+
 function buildSpans(h, direction){
   const raw = (direction==='to' ? h.routeToSteps : h.routeBackSteps) || [];
   const steps = raw.filter(s => s && s !== 'จบการเดินทาง').slice();
@@ -2462,6 +2467,7 @@ function buildSpans(h, direction){
       steps.shift();
     }
   }
+
   steps.forEach(mode => {
     if(TRANSIT_MODES.includes(mode)){
       let board, alight;
@@ -2496,6 +2502,7 @@ function buildSpans(h, direction){
   if(pending.length) spans.push({ from:cursor, to:end, steps:pending.slice() });
   return spans;
 }
+
 function stationSequence(lineKey, a, b){
   const order = LINES[lineKey];
   const mk = n => ({ lat:ST[n][0], lng:ST[n][1], name:n });
@@ -2505,6 +2512,7 @@ function stationSequence(lineKey, a, b){
   const slice = i <= j ? order.slice(i, j+1) : order.slice(j, i+1).reverse();
   return slice.filter(n => ST[n]).map(mk);
 }
+
 function polylineLengthKm(points){
   let t = 0;
   for(let i=1;i<points.length;i++) t += haversineKm(points[i-1][0],points[i-1][1],points[i][0],points[i][1]);
@@ -2607,6 +2615,7 @@ function addWaypointMarker(pt, color){
   }).addTo(map).bindTooltip(pt.label, { permanent:false });
   return mk;
 }
+
 async function drawRoute(h, direction){
   const myReq = ++routeReq;
   clearRoute();
@@ -2680,6 +2689,7 @@ housing.forEach((h, i) => {
     </div>`, { maxWidth:260 });
   markers[i] = m;
 });
+
 const listEl = document.getElementById('list');
 const state = { sort:'default', dist:'all', type:'all' };
 const searchInput = document.getElementById('searchInput');
