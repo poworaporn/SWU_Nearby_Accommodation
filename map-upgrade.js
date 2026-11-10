@@ -44,13 +44,13 @@
   .top-ctl{ position:absolute; z-index:800; left:12px; top:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; max-width:calc(100% - 24px); }
   .app.dr-open .top-ctl{ max-width:calc(100% - 504px); }
   .app.side-open .top-ctl > :not(.side-btn){ display:none !important; }
-  .side-btn, .tour-btn{
+  .side-btn, .tour-btn, .view-btn{
     display:flex; align-items:center; gap:6px; padding:8px 16px; border-radius:20px;
     background:var(--emerald-deep, #0a352a); color:var(--gold-light, #f0dfb0);
     border:1.5px solid var(--gold, #b98b3e); font-family:inherit; font-size:12.5px; font-weight:700;
     cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); transition:all .2s; white-space:nowrap;
   }
-  .side-btn:hover, .tour-btn:hover{ background:var(--emerald, #0f4d3a); transform:translateY(-1px); }
+  .side-btn:hover, .tour-btn:hover, .view-btn:hover{ background:var(--emerald, #0f4d3a); transform:translateY(-1px); }
   .tour-btn.active{ background:var(--red, #DA2128); border-color:#fff; color:#fff; animation:tourPulse 1.5s infinite; }
   @keyframes tourPulse{
     0%{ box-shadow:0 0 0 0 rgba(218,33,40,.6); }
@@ -86,10 +86,10 @@
   .pp{ position:absolute; left:0; top:0; transform:translate(-50%,-100%); margin-top:-8px; }
   .pp-body{ position:relative; display:flex; align-items:center; gap:4px; padding:4px 10px 4px 7px; border-radius:16px; color:#fff; font-size:12px; font-weight:800; white-space:nowrap; border:2px solid #fff; box-shadow:0 3px 9px rgba(0,0,0,.35); cursor:pointer; transform-origin:50% 100%; transition:transform .18s ease; }
   .pp-body::after{ content:''; position:absolute; left:50%; bottom:-8px; margin-left:-6px; border:6px solid transparent; border-top-color:inherit; }
-  .pp-near .pp-body{ background:var(--emerald, #0f4d3a); border-top-color:#fff; }
-  .pp-far .pp-body{ background:var(--gold, #b98b3e); }
-  .pp-near .pp-body::after{ border-top-color:var(--emerald, #0f4d3a); }
-  .pp-far .pp-body::after{ border-top-color:var(--gold, #b98b3e); }
+  .pp-near .pp-body{ background:var(--pc, var(--emerald, #0f4d3a)); border-top-color:#fff; }
+  .pp-far .pp-body{ background:var(--pc, var(--gold, #b98b3e)); }
+  .pp-near .pp-body::after{ border-top-color:var(--pc, var(--emerald, #0f4d3a)); }
+  .pp-far .pp-body::after{ border-top-color:var(--pc, var(--gold, #b98b3e)); }
   .pp:hover .pp-body{ transform:scale(1.1); }
   .pp-sel .pp-body{ background:var(--emerald-deep, #0a352a); transform:scale(1.18); animation:ppRing 1.5s ease-out infinite; }
   .pp-sel .pp-body::after{ border-top-color:var(--emerald-deep, #0a352a); }
@@ -115,6 +115,43 @@
   .gate-chip{ position:absolute; transform:translate(-50%,-100%); margin-top:-4px; padding:3px 9px; border-radius:12px; background:var(--red, #DA2128); color:#fff; font-size:11px; font-weight:800; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.35); white-space:nowrap; }
 
   .tour-btn.hidden{ display:none !important; }
+  .app.touring .view-btn, .app.touring .ctl-panel{ display:none !important; }
+
+  /* แผงมุมมอง / ชั้นข้อมูล / งบ / เปรียบเทียบ */
+  .ctl-panel{ display:none; flex:0 0 100%; width:min(340px,100%); max-height:calc(100vh - 210px); overflow-y:auto; box-sizing:border-box; background:rgba(255,253,249,.97); border:1px solid var(--line,#e4dcc5); border-radius:16px; padding:6px 14px 10px; box-shadow:0 8px 28px rgba(0,0,0,.28); font-size:12px; color:var(--emerald-deep,#0a352a); }
+  .ctl-panel.open{ display:block; animation:cardIn .25s ease both; }
+  .cp-sec{ padding:8px 0; border-bottom:1px solid var(--line,#e4dcc5); }
+  .cp-sec:last-child{ border-bottom:none; }
+  .cp-sec h5{ margin:0 0 6px; font-size:12.5px; display:flex; justify-content:space-between; gap:8px; }
+  .cp-sec h5 span{ font-weight:600; color:var(--muted,#8b8371); }
+  .cp-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .cp-chips button, .cp-btn{ border:1px solid var(--line,#e4dcc5); background:#fff; border-radius:14px; padding:5px 10px; font-family:inherit; font-size:11.5px; font-weight:700; color:var(--emerald-deep,#0a352a); cursor:pointer; }
+  .cp-chips button.on{ background:var(--emerald-deep,#0a352a); color:var(--gold-light,#f0dfb0); border-color:var(--gold,#b98b3e); }
+  .cp-btn:disabled{ opacity:.4; cursor:default; }
+  .cp-row{ display:flex; align-items:center; gap:8px; margin:4px 0; }
+  .cp-row span{ min-width:44px; color:var(--muted,#8b8371); }
+  .cp-row input[type=range]{ flex:1; accent-color:var(--emerald,#0f4d3a); }
+  .cp-check{ display:flex; align-items:center; gap:8px; margin:6px 0; cursor:pointer; }
+  .cmp-tag{ display:inline-block; margin:2px 4px 6px 0; padding:3px 9px; border-radius:12px; background:#ece6d4; font-size:11px; font-weight:700; cursor:pointer; }
+  .mode-legend{ position:absolute; z-index:450; left:12px; bottom:58px; width:190px; padding:8px 12px; background:rgba(255,253,249,.95); border:1px solid var(--line,#e4dcc5); border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.15); font-size:11px; color:var(--emerald-deep,#0a352a); display:none; }
+  .mode-legend.on{ display:block; animation:cardIn .35s ease both; }
+  .ml-t{ font-weight:800; margin-bottom:5px; }
+  .ml-bar{ height:9px; border-radius:5px; }
+  .ml-r{ display:flex; justify-content:space-between; margin-top:3px; color:var(--muted,#8b8371); }
+  .ring-lbl{ position:absolute; transform:translate(-50%,-120%); font-size:10.5px; font-weight:800; color:var(--emerald,#0f4d3a); background:rgba(255,253,249,.88); padding:1px 6px; border-radius:8px; white-space:nowrap; }
+  .cmp-wrap{ padding:12px 22px 0; }
+  .cmp-add{ width:100%; padding:9px 12px; border-radius:12px; border:1.5px dashed var(--emerald,#0f4d3a); background:#fff; color:var(--emerald-deep,#0a352a); font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
+  .cmp-add.on{ background:var(--emerald-deep,#0a352a); color:var(--gold-light,#f0dfb0); border-style:solid; }
+  .cmp-modal{ position:absolute; inset:0; z-index:950; display:none; align-items:center; justify-content:center; background:rgba(10,53,42,.55); padding:12px; box-sizing:border-box; }
+  .cmp-modal.on{ display:flex; }
+  .cm-box{ position:relative; background:#fffdf9; border-radius:18px; padding:16px 16px 14px; max-width:min(760px,100%); max-height:100%; overflow:auto; box-shadow:0 14px 44px rgba(0,0,0,.4); animation:cardIn .35s ease both; }
+  .cm-box h3{ margin:0 40px 10px 0; color:var(--emerald-deep,#0a352a); font-size:16px; }
+  .cm-x{ position:absolute; top:10px; right:12px; width:30px; height:30px; border-radius:50%; border:1px solid var(--line,#e4dcc5); background:#fff; cursor:pointer; font-size:14px; }
+  .cm-box table{ border-collapse:collapse; width:100%; font-size:12.5px; }
+  .cm-box th, .cm-box td{ padding:7px 9px; border-bottom:1px solid var(--line,#e4dcc5); text-align:center; }
+  .cm-box th{ color:var(--emerald-deep,#0a352a); }
+  .cm-box td:first-child, .cm-box th:first-child{ text-align:left; color:var(--muted,#8b8371); font-weight:700; white-space:nowrap; }
+  .cm-box td.best{ background:#e5f4ea; color:#14663d; font-weight:800; }
   .tour-progress{ position:absolute; z-index:900; left:0; top:0; height:4px; width:0; background:linear-gradient(90deg,var(--gold,#b98b3e),var(--gold-light,#f0dfb0)); transition:width .8s ease, opacity .4s; pointer-events:none; opacity:0; }
   .app.touring .tour-progress{ opacity:1; }
   .show-card{ position:absolute; inset:0; z-index:850; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity .5s ease; padding:16px; box-sizing:border-box; }
@@ -177,9 +214,9 @@
     .dr-nav{ position:static !important; align-self:flex-end; margin:0 40px 6px auto; width:max-content; }
     .drawer-close{ top:8px; }
     .app.dr-open .top-ctl{ max-width:calc(100% - 24px); }
-    .app.dr-open .map-summary, .app.dr-open .mu-legend{ display:none !important; }
+    .app.dr-open .map-summary, .app.dr-open .mu-legend, .app.dr-open .mode-legend{ display:none !important; }
     .top-ctl{ gap:6px; }
-    .side-btn, .tour-btn{ padding:6px 12px; font-size:11.5px; }
+    .side-btn, .tour-btn, .view-btn{ padding:6px 12px; font-size:11.5px; }
     #dBody > div:first-child iframe{ height:180px !important; }
     .rb{ grid-template-columns:104px 1fr 22px; }
   }
@@ -208,7 +245,7 @@
   (document.head || document.documentElement).appendChild(styleEl);
 
   const reveal = () => document.documentElement.classList.add('mu-ready');
-  setTimeout(reveal, 3500); // กันพลาด: ถ้าสคริปต์ล่ม หน้าเว็บก็ยังโผล่
+  setTimeout(reveal, 9000); // กันพลาด: ถ้าสคริปต์ล่ม หน้าเว็บก็ยังโผล่
 
   /* ------------------------------------------------------------------
      2) ตัวสคริปต์หลัก — รอให้หน้าโหลดครบก่อน
@@ -324,11 +361,35 @@
 
     /* -------------------------------------------------------------- หมุด */
     let sel = -1;
+
+    /* ---- สีหมุดตามมุมมอง + ตัวกรองงบ (ต้องประกาศก่อนสร้างหมุด) ---- */
+    let curMode = 'default';
+    const budget = { lo: null, hi: null };
+    const RANGE = (function () {
+      const rents = housing.map(h => numOrNull(h.rent)).filter(v => v != null);
+      const dists = housing.map(h => h.distanceKm);
+      const rts = housing.map(h => Number(avgRating(h))).filter(v => v > 0);
+      return { rMin: Math.min.apply(null, rents), rMax: Math.max.apply(null, rents),
+               dMin: Math.min.apply(null, dists), dMax: Math.max.apply(null, dists),
+               tMin: rts.length ? Math.min.apply(null, rts) : 0, tMax: rts.length ? Math.max.apply(null, rts) : 5 };
+    })();
+    const clamp01 = v => Math.max(0, Math.min(1, v));
+    const modeHue = (m, t) => m === 'price' ? 130 * (1 - t) : m === 'distance' ? 200 - 170 * t : 130 * t;
+    function modeT(h, m) {
+      if (m === 'price') { const v = numOrNull(h.rent); return v == null ? 0.5 : clamp01((v - RANGE.rMin) / ((RANGE.rMax - RANGE.rMin) || 1)); }
+      if (m === 'distance') return clamp01((h.distanceKm - RANGE.dMin) / ((RANGE.dMax - RANGE.dMin) || 1));
+      const r = Number(avgRating(h)) || 0;
+      return r > 0 ? clamp01((r - RANGE.tMin) / ((RANGE.tMax - RANGE.tMin) || 1)) : 0.5;
+    }
+    function pinColor(h) {
+      if (curMode === 'default') return '';
+      return 'hsl(' + Math.round(modeHue(curMode, modeT(h, curMode))) + ',72%,40%)';
+    }
     function pinIcon(h, selected, anim, delay) {
       const near = h.distanceKm <= 3;
       return L.divIcon({
         className: '', iconSize: [0, 0], iconAnchor: [0, 0],
-        html: '<div class="pp ' + (near ? 'pp-near' : 'pp-far') + (selected ? ' pp-sel' : '') + (anim ? ' pp-in' : '') + '">'
+        html: '<div class="pp ' + (near ? 'pp-near' : 'pp-far') + (selected ? ' pp-sel' : '') + (anim ? ' pp-in' : '') + '"' + (pinColor(h) ? ' style="--pc:' + pinColor(h) + '"' : '') + '>'
           + '<div class="pp-body"' + (anim ? ' style="animation-delay:' + (delay || 0) + 'ms"' : '') + '><span>' + typeIcon(h.type) + '</span><b>' + kLabel(h.rent) + '</b></div></div>'
       });
     }
@@ -359,6 +420,8 @@
       if (state.dist === 'near') items = items.filter(o => o.h.distanceKm <= 3);
       if (state.dist === 'far') items = items.filter(o => o.h.distanceKm > 3);
       if (state.type !== 'all') items = items.filter(o => o.h.type === state.type);
+      if (budget.lo != null) items = items.filter(o => (numOrNull(o.h.rent) || 0) >= budget.lo);
+      if (budget.hi != null) items = items.filter(o => (numOrNull(o.h.rent) || 0) <= budget.hi);
       const checked = Array.from(document.querySelectorAll('.amenityCheck:checked')).map(c => c.dataset.amenity);
       if (checked.length) items = items.filter(o => checked.every(a => hasAmenity(o.h, a)));
       const s = state.sort;
@@ -703,7 +766,7 @@
       const body = $('dBody');
       if (!body) return;
       body.querySelectorAll('details.section').forEach(d => { if (d.querySelector('#routeTabTo') || d.querySelector('.stars-row')) d.remove(); });
-      const html = statRowHTML(h) + journeyBlockHTML(h) + ratingBlockHTML(h);
+      const html = statRowHTML(h) + cmpBtnHTML(i) + journeyBlockHTML(h) + ratingBlockHTML(h);
       const first = body.firstElementChild;
       if (first) first.insertAdjacentHTML('afterend', html); else body.insertAdjacentHTML('afterbegin', html);
       if (pendingFlag && body.firstElementChild) {
@@ -711,6 +774,8 @@
         pendingFlag = '';
       }
       body.querySelectorAll('.jcard').forEach(c => c.addEventListener('click', () => toggleFocus(c.dataset.dir)));
+      const cmpB = body.querySelector('.cmp-add');
+      if (cmpB) { cmpB.addEventListener('click', () => cmpToggle(Number(cmpB.dataset.i))); refreshCmpUI(); }
       updateJCards();
       requestAnimationFrame(() => requestAnimationFrame(() => body.querySelectorAll('.rb-f').forEach(el => { el.style.width = el.dataset.w + '%'; })));
       body.scrollTop = 0;
@@ -729,7 +794,7 @@
     /* -------------------------------------------------- AUTO-TOUR (โหมดนำเสนออัตโนมัติ) */
     const IDLE_MS = 45000;   // ไม่มีใครแตะหน้าจอนานเท่านี้ (มิลลิวินาที) -> เริ่มนำเสนอเอง | ใส่ 0 = ปิด
     let tourTimer = null, isTouring = false, tourRun = 0, scrollToken = 0;
-    let pendingFlag = '', pausedByUser = false, idleTimer = null;
+    let pendingFlag = '', pausedByUser = false, idleTimer = null, modeBefore = 'default';
 
     // หาตัวที่เลื่อนได้จริง (กล่องเนื้อหา หรือทั้งลิ้นชักในจอแนวนอน)
     function getScroller() {
@@ -838,6 +903,17 @@
     }
 
     // รอบนำเสนอ: ภาพรวม -> ที่พักทีละแห่ง (เลื่อนข้อมูลเอง) -> การ์ดสรุป -> วนซ้ำ
+    // ภาพรวม: วนสีหมุด ราคา -> ระยะทาง -> รีวิว (หมุดเด้งออกจาก มศว เป็นระลอก) แล้วคืนค่าเดิม
+    async function modeShow(total) {
+      const seq = ['price', 'distance', 'rating'], step = total / seq.length;
+      for (let k = 0; k < seq.length; k++) {
+        if (!isTouring) return;
+        setMode(seq[k]);
+        await tourWait(step);
+      }
+      if (isTouring) setMode(modeBefore);
+    }
+
     async function runTour(mode) {
       const run = ++tourRun;
       const alive = () => isTouring && run === tourRun;
@@ -845,7 +921,7 @@
         const list = mode === 'all' ? allPicks() : highlightPicks();
         if (!list.length) { stopTour(); return; }
         overview(); showCard(introHTML(mode)); setProgress(0);
-        await tourWait(4200); if (!alive()) return;
+        await modeShow(4200); if (!alive()) return;
         hideCard();
         await tourWait(600); if (!alive()) return;
         for (let k = 0; k < list.length; k++) {
@@ -859,7 +935,7 @@
         }
         setProgress(1);
         overview(); showCard(finaleHTML());
-        await tourWait(10000); if (!alive()) return;
+        await modeShow(10000); if (!alive()) return;
         hideCard();
         await tourWait(900);
       }
@@ -870,6 +946,7 @@
       if (!visibleOrder().length) return;
       mode = mode === 'all' ? 'all' : 'hi';
       isTouring = true; pausedByUser = false;
+      modeBefore = curMode; closePanel();
       clearTimeout(idleTimer);
       setSide(false);
       app.classList.add('touring');
@@ -883,6 +960,7 @@
       cancelAutoScroll();
       if (!isTouring) return;
       isTouring = false; tourRun++;
+      if (curMode !== modeBefore) setMode(modeBefore);
       if (tourTimer) clearTimeout(tourTimer);
       pendingFlag = '';
       hideCard(); setProgress(0);
@@ -910,6 +988,207 @@
 
     tourBtn.addEventListener('click', () => { if (isTouring) { pausedByUser = true; stopTour(); } else startTour('hi'); });
     tourAllBtn.addEventListener('click', () => { if (isTouring) { pausedByUser = true; stopTour(); } else startTour('all'); });
+
+    /* -------------------------------------------------- มุมมองสีหมุด / ชั้นข้อมูล / งบ / เปรียบเทียบ */
+    const viewBtn = document.createElement('button');
+    viewBtn.className = 'view-btn'; viewBtn.type = 'button'; viewBtn.innerHTML = '🎛 มุมมอง';
+    topCtl.insertBefore(viewBtn, summaryEl);
+
+    const rMinR = Math.floor(RANGE.rMin / 500) * 500, rMaxR = Math.ceil(RANGE.rMax / 500) * 500;
+    const panel = document.createElement('div');
+    panel.className = 'ctl-panel';
+    panel.innerHTML =
+        '<div class="cp-sec"><h5>🎨 สีหมุด</h5><div class="cp-chips" id="cpModes">'
+      + '<button type="button" data-mode="default" class="on">ใกล้/ไกล</button>'
+      + '<button type="button" data-mode="price">💰 ค่าเช่า</button>'
+      + '<button type="button" data-mode="distance">📍 ระยะทาง</button>'
+      + '<button type="button" data-mode="rating">⭐ รีวิว</button></div></div>'
+      + '<div class="cp-sec"><h5>💸 งบประมาณ <span id="cpBudLbl">ทั้งหมด</span></h5>'
+      + '<div class="cp-row"><span>ต่ำสุด</span><input type="range" id="cpLo" min="' + rMinR + '" max="' + rMaxR + '" step="500" value="' + rMinR + '"></div>'
+      + '<div class="cp-row"><span>สูงสุด</span><input type="range" id="cpHi" min="' + rMinR + '" max="' + rMaxR + '" step="500" value="' + rMaxR + '"></div>'
+      + '<button type="button" class="cp-btn" id="cpBudReset">รีเซ็ตงบ</button></div>'
+      + '<div class="cp-sec"><h5>🗺️ ชั้นข้อมูล</h5>'
+      + '<label class="cp-check"><input type="checkbox" id="cpRings"> วงรัศมีจาก มศว (1 / 2 / 5 กม.)</label>'
+      + '<label class="cp-check"><input type="checkbox" id="cpRail"> 🚇 สถานี MRT/BTS ที่ใช้ในเส้นทาง</label></div>'
+      + '<div class="cp-sec"><h5>⚖️ เปรียบเทียบ <span id="cpCmpCnt"></span></h5><div id="cpCmpList"></div>'
+      + '<button type="button" class="cp-btn" id="cpCmpOpen" disabled>เปิดตารางเปรียบเทียบ</button> '
+      + '<button type="button" class="cp-btn" id="cpCmpClear">ล้าง</button></div>';
+    topCtl.appendChild(panel);
+
+    const mlEl = document.createElement('div');
+    mlEl.className = 'mode-legend';
+    app.appendChild(mlEl);
+
+    const cmpModal = document.createElement('div');
+    cmpModal.className = 'cmp-modal';
+    cmpModal.innerHTML = '<div class="cm-box"><button type="button" class="cm-x" aria-label="ปิด">✕</button><h3>⚖️ เปรียบเทียบที่พัก</h3><div class="cm-body"></div></div>';
+    app.appendChild(cmpModal);
+
+    function closePanel() { panel.classList.remove('open'); }
+    viewBtn.addEventListener('click', () => { stopTour(); panel.classList.toggle('open'); });
+
+    /* ---- สีหมุดตามมุมมอง ---- */
+    const modeInfo = {
+      price:    { t: '💰 ค่าเช่า (บาท/เดือน)', lo: fmtN(RANGE.rMin), hi: fmtN(RANGE.rMax) },
+      distance: { t: '📍 ระยะห่างจาก มศว', lo: RANGE.dMin.toFixed(1) + ' กม.', hi: RANGE.dMax.toFixed(1) + ' กม.' },
+      rating:   { t: '⭐ คะแนนรีวิวเฉลี่ย', lo: RANGE.tMin.toFixed(1), hi: RANGE.tMax.toFixed(1) }
+    };
+    function gradCSS(m) {
+      const st = [];
+      for (let k = 0; k <= 6; k++) st.push('hsl(' + Math.round(modeHue(m, k / 6)) + ',72%,40%) ' + Math.round(k / 6 * 100) + '%');
+      return 'linear-gradient(90deg,' + st.join(',') + ')';
+    }
+    function updateModeLegend() {
+      if (curMode === 'default') { mlEl.classList.remove('on'); return; }
+      const inf = modeInfo[curMode];
+      mlEl.innerHTML = '<div class="ml-t">' + inf.t + '</div><div class="ml-bar" style="background:' + gradCSS(curMode) + '"></div>'
+        + '<div class="ml-r"><span>' + inf.lo + '</span><span>' + inf.hi + '</span></div>';
+      mlEl.classList.add('on');
+    }
+    function setMode(m) {
+      if (m === curMode) return;
+      curMode = m;
+      document.querySelectorAll('#cpModes button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+      updateModeLegend();
+      housing.forEach((h, i) => {   // หมุดเด้งเปลี่ยนสีเป็นระลอก ออกจาก มศว
+        const mk = markers[i];
+        if (mk && map.hasLayer(mk)) mk.setIcon(pinIcon(h, i === sel, true, Math.min(Math.round(h.distanceKm * 160), 900)));
+      });
+    }
+    document.querySelectorAll('#cpModes button').forEach(b => b.addEventListener('click', () => { stopTour(); setMode(b.dataset.mode); }));
+
+    /* ---- งบประมาณ ---- */
+    const bLo = $('cpLo'), bHi = $('cpHi');
+    function applyBudget(src) {
+      let a = +bLo.value, b = +bHi.value;
+      if (a > b) { if (src === bLo) { a = b; bLo.value = a; } else { b = a; bHi.value = b; } }
+      budget.lo = a <= rMinR ? null : a;
+      budget.hi = b >= rMaxR ? null : b;
+      $('cpBudLbl').textContent = (budget.lo == null && budget.hi == null) ? 'ทั้งหมด' : '฿ ' + fmtN(a) + ' – ' + fmtN(b);
+      window.render();
+    }
+    bLo.addEventListener('input', () => applyBudget(bLo));
+    bHi.addEventListener('input', () => applyBudget(bHi));
+    $('cpBudReset').addEventListener('click', () => { bLo.value = rMinR; bHi.value = rMaxR; applyBudget(bLo); });
+
+    /* ---- ชั้นข้อมูล: วงรัศมี ---- */
+    const ringLayer = L.layerGroup();
+    let ringsBuilt = false;
+    function buildRings() {
+      if (ringsBuilt) return; ringsBuilt = true;
+      const c = L.latLng((typeof CENTER !== 'undefined' && CENTER) ? CENTER : [UNI_GATE.lat, UNI_GATE.lng]);
+      [1000, 2000, 5000].forEach(r => {
+        L.circle(c, { radius: r, color: '#0f4d3a', weight: 1.5, opacity: .55, dashArray: '6 8', fill: false, interactive: false }).addTo(ringLayer);
+        L.marker([c.lat + r / 111320, c.lng], { interactive: false, keyboard: false,
+          icon: L.divIcon({ className: '', iconSize: [0, 0], html: '<div class="ring-lbl">' + (r / 1000) + ' กม.</div>' }) }).addTo(ringLayer);
+      });
+    }
+    $('cpRings').addEventListener('change', e => {
+      if (e.target.checked) { buildRings(); ringLayer.addTo(map); } else map.removeLayer(ringLayer);
+    });
+
+    /* ---- ชั้นข้อมูล: สถานีรถไฟฟ้าที่ถูกใช้ในเส้นทางของที่พักทั้งหมด (ดึงจากข้อมูลเส้นทางเดิม ไม่ได้พิมพ์พิกัดเพิ่มเอง) ---- */
+    const railLayer = L.layerGroup();
+    let railBuilt = false;
+    function buildRail() {
+      if (railBuilt) return; railBuilt = true;
+      const drawn = new Set(), stops = new Map();
+      const addStop = (pt, st, hi) => {
+        if (!pt || pt.lat == null) return;
+        const key = (pt.label || '') + '|' + (+pt.lat).toFixed(5) + ',' + (+pt.lng).toFixed(5);
+        let o = stops.get(key);
+        if (!o) { o = { pt, st, users: new Set() }; stops.set(key, o); }
+        if (hi != null) o.users.add(hi);
+      };
+      housing.forEach((h, hi) => {
+        ['to', 'back'].forEach(d => {
+          let spans; try { spans = buildSpans(h, d); } catch (e) { return; }
+          spans.forEach(sp => {
+            if (!sp.rail) return;
+            let seq, st;
+            try { seq = stationSequence(sp.rail.line, sp.rail.a, sp.rail.b); st = tStyle(sp.rail.line); } catch (e) { return; }
+            if (!seq || seq.length < 2) return;
+            const pair = [JSON.stringify(sp.rail.a), JSON.stringify(sp.rail.b)].sort().join('>');
+            const key = JSON.stringify(sp.rail.line) + '|' + pair;
+            if (!drawn.has(key)) {
+              drawn.add(key);
+              L.polyline(seq.map(w => [w.lat, w.lng]), { color: st.color, weight: 4, opacity: .75, interactive: false }).addTo(railLayer);
+              seq.forEach(w => { if (w.label || w.name) addStop({ lat: w.lat, lng: w.lng, label: w.label || w.name }, st, null); });
+            }
+            addStop(sp.from, st, hi); addStop(sp.to, st, hi);
+          });
+        });
+      });
+      stops.forEach(o => {
+        const m = L.circleMarker([o.pt.lat, o.pt.lng], { radius: o.users.size ? 7 : 5, color: o.st.color, weight: 3, fillColor: '#fff', fillOpacity: 1 });
+        const nm = o.pt.label || '';
+        if (nm || o.users.size) m.bindTooltip((nm || 'สถานี') + (o.users.size ? ' · ใช้โดย ' + o.users.size + ' ที่พัก' : ''));
+        m.addTo(railLayer);
+      });
+    }
+    $('cpRail').addEventListener('change', e => {
+      if (e.target.checked) { buildRail(); railLayer.addTo(map); } else map.removeLayer(railLayer);
+    });
+
+    /* ---- เปรียบเทียบที่พัก (สูงสุด 3 แห่ง) ---- */
+    const cmp = [];
+    function cmpBtnHTML(i) {
+      return '<div class="cmp-wrap"><button type="button" class="cmp-add" data-i="' + i + '">⚖️ เพิ่มในการเปรียบเทียบ</button></div>';
+    }
+    function cmpToggle(i) {
+      const k = cmp.indexOf(i);
+      if (k >= 0) cmp.splice(k, 1); else { if (cmp.length >= 3) cmp.shift(); cmp.push(i); }
+      refreshCmpUI();
+    }
+    function refreshCmpUI() {
+      $('cpCmpCnt').textContent = cmp.length ? '(' + cmp.length + '/3)' : '';
+      $('cpCmpList').innerHTML = cmp.length
+        ? cmp.map(i => '<span class="cmp-tag" data-i="' + i + '">' + housing[i].name + ' ✕</span>').join('')
+        : '<div class="jnote" style="margin:0 0 6px">เปิดที่พัก แล้วกด “เพิ่มในการเปรียบเทียบ” (เก็บล่าสุด 3 แห่ง)</div>';
+      $('cpCmpOpen').disabled = cmp.length < 2;
+      $('cpCmpList').querySelectorAll('.cmp-tag').forEach(t => t.addEventListener('click', () => cmpToggle(Number(t.dataset.i))));
+      const b = document.querySelector('#dBody .cmp-add');
+      if (b) {
+        const on = cmp.indexOf(Number(b.dataset.i)) >= 0;
+        b.classList.toggle('on', on);
+        b.textContent = on ? '✓ อยู่ในรายการเทียบ (แตะเพื่อเอาออก)' : '⚖️ เพิ่มในการเปรียบเทียบ';
+      }
+    }
+    function cmpTableHTML() {
+      const hs = cmp.map(i => housing[i]);
+      const num = v => numOrNull(v);
+      const rows = [
+        ['ประเภท', h => h.type, null, v => v],
+        ['ค่าเช่า/เดือน', h => num(h.rent), 'min', v => fmtN(v) + ' บาท'],
+        ['ห่างจาก มศว', h => h.distanceKm, 'min', v => v.toFixed(1) + ' กม.'],
+        ['ขนาดห้อง', h => num(h.roomSize), 'max', v => v + ' ตร.ม.'],
+        ['บาท/ตร.ม.', h => { const z = num(h.roomSize), r = num(h.rent); return (z && r) ? Math.round(r / z) : null; }, 'min', v => fmtN(v)],
+        ['คะแนนรีวิว', h => ratingOf(h) || null, 'max', v => '⭐ ' + v],
+        ['เวลาไป มศว', h => num(h.travelTimeGo), 'min', v => v + ' นาที'],
+        ['เวลากลับที่พัก', h => num(h.travelTimeBack), 'min', v => v + ' นาที'],
+        ['ค่าเดินทางไป', h => num(h.travelCostGo), 'min', v => fmtN(v) + ' บาท']
+      ];
+      let t = '<table><tr><th></th>' + hs.map(h => '<th>' + typeIcon(h.type) + ' ' + h.name + '</th>').join('') + '</tr>';
+      rows.forEach(r => {
+        const vals = hs.map(h => { const v = r[1](h); return (v === undefined || v === null || v === '' || Number.isNaN(v)) ? null : v; });
+        let best = null;
+        if (r[2]) {
+          const nums = vals.filter(v => typeof v === 'number');
+          if (nums.length > 1) best = r[2] === 'min' ? Math.min.apply(null, nums) : Math.max.apply(null, nums);
+        }
+        t += '<tr><td>' + r[0] + '</td>' + vals.map(v => '<td' + (best != null && v === best ? ' class="best"' : '') + '>' + (v == null ? '—' : r[3](v)) + '</td>').join('') + '</tr>';
+      });
+      return t + '</table><div class="jnote">ช่องสีเขียว = ค่าที่ดีที่สุดในแถวนั้น</div>';
+    }
+    $('cpCmpOpen').addEventListener('click', () => {
+      if (cmp.length < 2) return;
+      stopTour(); closePanel();
+      cmpModal.querySelector('.cm-body').innerHTML = cmpTableHTML();
+      cmpModal.classList.add('on');
+    });
+    $('cpCmpClear').addEventListener('click', () => { cmp.length = 0; refreshCmpUI(); });
+    cmpModal.addEventListener('click', e => { if (e.target === cmpModal || e.target.closest('.cm-x')) cmpModal.classList.remove('on'); });
+    refreshCmpUI();
 
     /* -------------------------------------------------- จุดเข้าหลัก */
     function showHouse(i) {
@@ -951,22 +1230,37 @@
     }
 
     map.on('click', () => {
+      closePanel();
       if (app.classList.contains('side-open')) setSide(false);
       if (drawer.classList.contains('open')) { stopTour(); closeDrawer(); }
     });
 
-    window.mapUpgrade = { show: showHouse, order: visibleOrder, clear: () => chip.click(), startTour, stopTour, openList: () => setSide(true), closeList: () => setSide(false) };
+    window.mapUpgrade = { setMode: m => setMode(m), show: showHouse, order: visibleOrder, clear: () => chip.click(), startTour, stopTour, openList: () => setSide(true), closeList: () => setSide(false) };
     window.render();
     setTimeout(fixSize, 300);
     if (/[?&]autoplay/.test(location.search)) setTimeout(() => startTour('hi'), 2000); // เปิดลิงก์ ...?autoplay=1 -> เริ่มเองทันที
     else resetIdle();
   }
 
-  function boot() {
-    try { init(); }
-    catch (err) { console.error('[map-upgrade] error', err); }
-    finally { reveal(); }
+  function ready() {
+    try {
+      return !!(housing && housing.length > 0 && markers && markers.length >= housing.length && map && state && UNI_GATE &&
+        typeof buildSpans === 'function' && typeof render === 'function' && typeof openDrawer === 'function' &&
+        typeof typeIcon === 'function' && typeof avgRating === 'function' &&
+        document.querySelector('.app') && document.getElementById('drawer'));
+    } catch (e) { return false; }   // ตัวแปรยังไม่ถูกสร้าง
   }
-  if (document.readyState === 'complete') boot();
-  else window.addEventListener('load', boot);
+  let booted = false, tries = 0;
+  function tryBoot() {
+    if (booted) return;
+    if (ready() || ++tries > 200) {   // เช็คทุก 40ms นานสุด ~8 วิ
+      booted = true;
+      try { init(); }
+      catch (err) { console.error('[map-upgrade] error', err); }
+      finally { reveal(); }
+      return;
+    }
+    setTimeout(tryBoot, 40);
+  }
+  tryBoot();
 })();
