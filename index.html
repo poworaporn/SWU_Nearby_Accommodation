@@ -28,10 +28,9 @@
   .burger{ display:none; margin-left:auto; background:none; border:1px solid rgba(255,255,255,.35); color:#fff; border-radius:8px; font-size:18px; width:38px; height:34px; cursor:pointer; }
 
   /* ---------- แผนที่ (ไฟล์ map.html) ----------
-     ความสูงจริงถูกตั้งซ้ำด้วย JS (fitMap) เพื่อแก้ปัญหา iPad / Safari ที่คำนวณ vh ใน iframe ผิด */
   .map-frame{ position:fixed; top:var(--bar); left:0; right:0; width:100%; height:calc(100vh - var(--bar)); height:calc(100dvh - var(--bar)); border:0; background:var(--paper); display:block; }
 
-  /* ---------- หน้าเนื้อหา (วางทับแผนที่) ---------- */
+  /*หน้าเนื้อหา วางทับแผนที่ */
   .page{ position:fixed; top:var(--bar); left:0; right:0; bottom:0; overflow-y:auto; -webkit-overflow-scrolling:touch; background:var(--paper); display:none; z-index:20; }
   .page.active{ display:block; }
   .wrap{ max-width:980px; margin:0 auto; padding:8px 20px 60px; }
@@ -134,7 +133,7 @@
 <iframe id="mapFrame" class="map-frame" src="map.html" title="แผนที่ผลสำรวจที่พักรอบ มศว ประสานมิตร"></iframe>
 
 <main>
-<!-- ===================== ที่มาและวิธีวิจัย ===================== -->
+<!--  ที่มาและวิธีวิจัย -->
 <section class="page" id="page-about">
   <div class="hero">
     <div class="inner">
@@ -221,7 +220,7 @@
       <ol class="steps">
         <li><div><b>เตรียมข้อมูล</b><span>ตรวจและทำความสะอาดคำตอบ แปลงค่าเป็นตัวเลข จัดการค่าที่หายไปและค่าผิดปกติ</span></div></li>
         <li><div><b>สร้างตัวแปรอธิบายเพิ่มเติม</b><span>คำนวณระยะทางถึง มศว และสถานีรถไฟฟ้า สร้างตัวแปรหุ่นของประเภทที่พักและสิ่งอำนวยความสะดวก และค่าเช่าต่อตารางเมตร</span></div></li>
-        <li><div><b>แบ่งกลุ่มข้อมูลและประมาณแบบจำลอง</b><span>ถดถอยเชิงเส้นพหุคูณ (OLS) โดยใช้ ln(ค่าเช่า) เป็นตัวแปรตาม เพื่อให้ตีความเป็นร้อยละได้ รันแยก 3 แบบ ได้แก่ เฉพาะระยะ 3 กม. เฉพาะระยะ 6 กม. และวงที่รวมทุกที่พัก</span></div></li>
+        <li><div><b>แบ่งกลุ่มข้อมูลและประมาณแบบจำลอง</b><span>ถดถอยเชิงเส้นพหุคูณ (OLS) โดยใช้ ค่าเช่า เป็นตัวแปรตาม เพื่อให้ตีความเป็นร้อยละได้ รันแยก 3 แบบ ได้แก่ เฉพาะระยะ 3 กม. เฉพาะระยะ 6 กม. และวงที่รวมทุกที่พัก</span></div></li>
         <li><div><b>ตรวจสอบความเหมาะสม</b><span>ตรวจ Multicollinearity (VIF), ส่วนเหลือ (Residual), ความแปรปรวนไม่คงที่ และค่าผิดปกติ</span></div></li>
         <li><div><b>ตีความและเปรียบเทียบ</b><span>ตีความสัมประสิทธิ์ ประเมินความเหมาะสมของแบบจำลอง (R², Adjusted R²) และเปรียบเทียบว่าปัจจัยแต่ละตัวมีอิทธิพลต่างกันอย่างไรในแต่ละกลุ่มระยะทาง</span></div></li>
       </ol>
@@ -280,7 +279,7 @@
   </div>
 </section>
 
-<!-- ===================== ผลการวิจัย ===================== -->
+<!-- ผลการวิจัย -->
 <section class="page" id="page-results">
   <div class="hero sm"><div class="inner">
     <div class="kicker">ผลการวิจัย</div>
@@ -335,7 +334,7 @@
   </div>
 </section>
 
-<!-- ===================== ผู้จัดทำ ===================== -->
+<!--  ผู้จัดทำ -->
 <section class="page" id="page-team">
   <div class="hero sm"><div class="inner">
     <div class="kicker">ผู้จัดทำ</div>
@@ -351,22 +350,21 @@
 </main>
 
 <script>
-// ✏️ แก้ข้อมูลโครงการตรงนี้ที่เดียว
+// ✏️ แก้ข้อมูลโครงการตรงนี้krub
 const SITE = {
   title:   'ปัจจัยที่มีอิทธิพลต่อการตัดสินใจเลือกที่พักอาศัยของนิสิตในบริเวณโดยรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร',
   short:   'ผลสำรวจที่พักรอบ มศว ประสานมิตร',
   course:  'รายวิชา EC116/117',
   advisor: { name:'ผู้ช่วยศาสตราจารย์ ดร.รัชพันธุ์ เชยจิตร' },
   team: [
-    { name:'นางสาวณฐภัค โฆสิตนุกูล', id:'66149010045', major:'คณะเศรษฐศาสตร์', role:'หน้าที่' },
-    { name:'นางสาวปวรพร นิยมถิ่น', id:'66149010077', major:'คณะเศรษฐศาสตร์', role:'หน้าที่' },
-    { name:'นางสาวพัชราภรณ์ แซ่หลิว', id:'66149010088', major:'คณะเศรษฐศาสตร์', role:'หน้าที่' },
-    { name:'นางสาวเพียงตะวัน จุลมกร', id:'66149010092', major:'คณะเศรษฐศาสตร์', role:'หน้าที่' },
-    { name:'นางสาวสิริพัตน์ สุรรังสิกุล', id:'66149010112', major:'คณะเศรษฐศาสตร์', role:'หน้าที่' }
+    { name:'นางสาวณฐภัค โฆสิตนุกูล', id:'66149010045', major:'คณะเศรษฐศาสตร์'},
+    { name:'นางสาวปวรพร นิยมถิ่น', id:'66149010077', major:'คณะเศรษฐศาสตร์'},
+    { name:'นางสาวพัชราภรณ์ แซ่หลิว', id:'66149010088', major:'คณะเศรษฐศาสตร์'},
+    { name:'นางสาวเพียงตะวัน จุลมกร', id:'66149010092', major:'คณะเศรษฐศาสตร์'},
+    { name:'นางสาวสิริพัตน์ สุรรังสิกุล', id:'66149010112', major:'คณะเศรษฐศาสตร์'}
   ]
 };
-
-// ===================== ฟังก์ชันคำนวณ (ไม่แตะ DOM) =====================
+// ฟังก์ชันคำนวณ 
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ph  = s => /^\s*\[/.test(s) ? '<span class="ph">'+esc(s)+'</span>' : esc(s);
 const num = v => { if(v===undefined||v===null||v==='') return null; const n=parseFloat(String(v).replace(/,/g,'')); return Number.isFinite(n)?n:null; };
@@ -460,7 +458,7 @@ function liveStatsHTML(data){
   + '<div class="chart">'+scatterSVG(data)+'<div class="legend"><span><i style="background:#0f4d3a"></i>คอนโดมิเนียม</span><span><i style="background:#b98b3e"></i>อพาร์ตเมนต์</span><span>เส้นประเขียว = 3 กม. · เส้นประทอง = 6 กม.</span></div></div>'
   + '<div class="note" style="margin-top:14px">สถิติเชิงพรรณนาที่คำนวณอัตโนมัติจากข้อมูลในไฟล์แผนที่ (map.html) อัปเดตตามข้อมูลล่าสุดทุกครั้งที่เปิดหน้านี้ ยังไม่ใช่ผลการประมาณแบบจำลอง</div>';
 }
-// ===================== ส่วนที่ทำงานกับหน้าเว็บ =====================
+// ส่วนที่ทำงานกับหน้าเว็บ 
 const $ = id => document.getElementById(id);
 const PAGES  = ['map','about','model','results','team'];
 const TITLES = { map:'แผนที่', about:'ที่มาและวิธีวิจัย', model:'แบบจำลอง', results:'ผลการวิจัย', team:'ผู้จัดทำ' };
@@ -492,7 +490,6 @@ function refreshLive(){
     box.innerHTML = '<div class="note">ยังอ่านข้อมูลจากแผนที่ไม่ได้ สถิติสรุปจะแสดงอัตโนมัติเมื่อเปิดผ่านเว็บจริง (GitHub Pages) และมีไฟล์ map.html อยู่โฟลเดอร์เดียวกับหน้านี้</div>';
   }
 }
-// Safari บน iPad คำนวณ vh/dvh ใน iframe คลาดเคลื่อน เลยตั้งความสูงเป็นพิกเซลจากขนาดจอจริงทุกครั้งที่จอเปลี่ยน
 function fitMap(){
   const frame = $('mapFrame');
   const vh  = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
