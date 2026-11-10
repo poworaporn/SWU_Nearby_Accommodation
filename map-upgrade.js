@@ -1247,7 +1247,7 @@
     const out = [];
     const chk = (name, fn) => { try { if (!fn()) out.push(name); } catch (e) { out.push(name); } };
     chk('housing', () => housing && housing.length > 0);
-    chk('markers', () => markers && (markers.length >= housing.length || document.readyState === 'complete'));
+    chk('markers', () => markers && markers.length > 0);
     chk('map', () => map && typeof map.getContainer === 'function');
     chk('state', () => state);
     chk('UNI_GATE', () => UNI_GATE);
@@ -1281,9 +1281,10 @@
     if (!lastMissing.length || ++tries > 200) {   // เช็คทุก 40ms นานสุด ~8 วิ
       booted = true;
       if (lastMissing.length) console.warn('[map-upgrade] เริ่มทำงานทั้งที่ยังไม่พร้อม ขาด:', lastMissing.join(', '));
+      console.info('[map-upgrade] เริ่มทำงานที่ ' + Math.round(performance.now()) + ' ms (เช็ค ' + tries + ' รอบ)');
       try { init(); }
       catch (err) { console.error('[map-upgrade] error', err); }
-      finally { reveal(); }
+      finally { reveal(); console.info('[map-upgrade] จัดหน้าเสร็จที่ ' + Math.round(performance.now()) + ' ms'); }
       return;
     }
     setTimeout(tryBoot, 40);
