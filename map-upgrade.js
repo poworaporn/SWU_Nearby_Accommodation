@@ -1,7 +1,6 @@
 (function () {
   'use strict';
   const css = `
-  /* ซ่อนทั้งแอปไว้จนกว่าสคริปต์จะจัดหน้าเสร็จ*/
   html:not(.mu-ready) .app{ opacity:0; }
   .app{ transition:opacity .3s ease; }
 
