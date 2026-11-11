@@ -265,7 +265,7 @@
       <div class="eq-title">แบบที่ 6 · สมการ L + สมการ N การเดินทางและสิ่งอำนวยความสะดวก</div>
       <div class="eq">Rentᵢ = β₀ + β₁·TimeAvgᵢ + β₂·CostAvgᵢ + β₃·StepsAvgᵢ + β₄·WiFi_Freeᵢ + β₅·Laundry_Sharedᵢ + β₆·Laundry_Privateᵢ + β₇·fitnessᵢ + β₈·poolᵢ + β₉·parkingᵢ + β₁₀·SecPoints + εᵢ </div>
 
-      <div class="eq-title">แบบที่ 7 · สมการ S + สมการ L + สมการ N </div>
+      <div class="eq-title">แบบที่ 7 · สมการ S + สมการ L + สมการ N ลักษณะห้อง, การเดินทาง และ สิ่งอำนวยความสะดวก</div>
       <div class="eq">Rentᵢ = β₀ + β₁·Typeᵢ + β₂·roomSizeᵢ + β₃·Floorᵢ + β₄·Fulla_Decorᵢ + β₅·elevetorᵢ + β₆·Bldg_Newᵢ+ + β₇·TimeAvgᵢ + β₈·CostAvgᵢ + β₉·StepsAvgᵢ + β₁₀·WiFi_Freeᵢ + β₁₁·Laundry_Sharedᵢ + β₁₂·Laundry_Privateᵢ + β₁₃·fitnessᵢ + β₁₄·poolᵢ + β₁₅·parkingᵢ + β₁₆·SecPoints +εᵢ </div>
 
 
@@ -309,47 +309,15 @@
     </div>
 
     <div class="sec">
-      <h2>ผลการประมาณแบบจำลอง <span class="draft">รอใส่ผลจริง</span></h2>
-      <div class="tbl-wrap" style="margin-bottom:14px"><table class="tbl">
-        <tr><th>สถิติ</th><th class="r">แบบที่ 1 · ระยะ 3 กม.</th><th class="r">แบบที่ 2 · ระยะ 6 กม.</th><th class="r">แบบที่ 3 · วงใหญ่</th></tr>
-        <tr><td>จำนวนข้อมูล (N)</td><td class="r"><span class="ph">—</span></td><td class="r"><span class="ph">—</span></td><td class="r" data-live="n">—</td></tr>
-        <tr><td>R²</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>Adjusted R²</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-      </table></div>
-      <div class="tbl-wrap"><table class="tbl">
-        <tr><th>ตัวแปร (สัมประสิทธิ์ β และ p-value)</th><th class="r">แบบที่ 1 · 3 กม.</th><th class="r">แบบที่ 2 · 6 กม.</th><th class="r">แบบที่ 3 · วงใหญ่</th></tr>
-        <tr><td>ค่าคงที่</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>ขนาดห้อง (ตร.ม.)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>ชั้นที่พัก</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>ระยะทางถึง มศว (กม.)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>ค่าเดินทางต่อเที่ยว (บาท)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>คอนโดมิเนียม (เทียบอพาร์ตเมนต์)</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-        <tr><td>สระว่ายน้ำ / ฟิตเนส / ลิฟต์ / ที่จอดรถ</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>
-      </table></div>
-      <p style="margin-top:8px;color:var(--muted);font-size:12px">รูปแบบ รอใส่ผลจากโปรแกรม</p>
-    </div>
-
-    <div class="sec">
-      <h2>ข้อค้นพบสำคัญ <span class="draft">ร่าง</span></h2>
-      <ol>
-        <li><span class="ph">[ข้อค้นพบที่ 1 เช่น ปัจจัยที่มีผลต่อค่าเช่ามากที่สุด]</span></li>
-        <li><span class="ph">[ข้อค้นพบที่ 2 เช่น ความแตกต่างของปัจจัยที่มีผลระหว่างระยะ 3 กม. กับระยะ 6 กม.]</span></li>
-        <li><span class="ph">[ข้อค้นพบที่ 3 เช่น บทบาทของรถไฟฟ้าและค่าเดินทางต่อการเลือกที่พัก]</span></li>
-      </ol>
-    </div>
-
-    <div class="sec">
-      <h2>อภิปรายผลและข้อเสนอแนะ <span class="draft">ร่าง</span></h2>
-      <p><span class="ph">[เชื่อมผลกับวัตถุประสงค์และงานวิจัยที่เกี่ยวข้อง และข้อเสนอแนะ</span></p>
-      <h3 style="font-size:14px;color:var(--emerald-deep);margin:14px 0 6px">ข้อจำกัดของการวิจัย</h3>
-      <ul>
+      <h2>ข้อจำกัดของการวิจัย</h2>
+       <ul>
         <li>ด้านกลุ่มตัวอย่าง จำนวนและวิธีการคัดเลือกกลุ่มตัวอย่างอาจไม่ครอบคลุมหรือเป็นตัวแทนของที่พักอาศัยทั้งหมดในพื้นที่ศึกษาได้อย่างสมบูรณ์ เนื่องจากการเก็บข้อมูลขึ้นอยู่กับผู้พักอาศัยที่สมัครใจตอบแบบสอบถาม</li>
         <li>ด้านความถูกต้องของข้อมูล ข้อมูลบางส่วนได้จากการรายงานของผู้ตอบแบบสอบถามด้วยตนเอง เช่น ค่าใช้จ่ายในการเดินทางและระยะเวลาเดินทาง ซึ่งอาจมีความคลาดเคลื่อนจากค่าใช้จ่ายหรือระยะเวลาที่เกิดขึ้นจริง</li>
         <li>ด้านการวัดระยะทาง การคำนวณระยะทางระหว่างที่พักอาศัยกับมหาวิทยาลัยใช้ระยะทางในแนวเส้นตรง จึงอาจไม่สะท้อนระยะทางและระยะเวลาในการเดินทางจริง ซึ่งขึ้นอยู่กับเส้นทางและรูปแบบการเดินทางที่เลือกใช้</li>
         <li>ข้อจำกัดด้านช่วงเวลาในการเก็บข้อมูล ข้อมูลสะท้อนลักษณะของตลาดที่พักอาศัยในช่วงเวลาที่ดำเนินการเก็บข้อมูลเท่านั้น อัตราค่าเช่าและเงื่อนไขการเช่าอาจเปลี่ยนแปลงได้ในช่วงเวลาอื่น</li>
       </ul>
     </div>
-  </div>
+ </div>
 </section>
 
 <!-- ===================== ผู้จัดทำ ===================== -->
@@ -414,7 +382,7 @@ function computeStats(data){
     };
   }).sort((a,b)=>b.n-a.n);
   const bands = [
-    { label:'ภายใน 3 กม.', test:d=>d<=3 },
+    { label:'ไม่เกิน 3 กม.', test:d=>d<=3 },
     { label:'มากกว่า 3 – 6 กม.',     test:d=>d>3 && d<=6 },
   ].map(b => {
     const g = list.filter(h => Number.isFinite(h.distanceKm) && b.test(h.distanceKm));
@@ -473,9 +441,8 @@ function liveStatsHTML(data){
   + '<h3 style="font-size:14px;color:var(--emerald-deep);margin:18px 0 8px">แยกตามประเภทที่พัก</h3>'
   + '<div class="tbl-wrap"><table class="tbl"><tr><th>ประเภท</th><th class="r">จำนวน</th><th class="r">ค่าเช่าเฉลี่ย (บาท)</th><th class="r">ขนาดเฉลี่ย (ตร.ม.)</th><th class="r">บาท/ตร.ม.</th><th class="r">รีวิวเฉลี่ย</th></tr>'+typeRows+'</table></div>'
   + '<h3 style="font-size:14px;color:var(--emerald-deep);margin:18px 0 6px">ค่าเช่าเฉลี่ยตามระยะทางจาก มศว</h3>' + bands
-  + '<h3 style="font-size:14px;color:var(--emerald-deep);margin:18px 0 8px">ระยะทางกับค่าเช่า (แต่ละจุดคือหนึ่งที่พัก)</h3>'
-  + '<div class="chart">'+scatterSVG(data)+'<div class="legend"><span><i style="background:#0f4d3a"></i>คอนโดมิเนียม</span><span><i style="background:#b98b3e"></i>อพาร์ตเมนต์</span><span>เส้นประเขียว = 3 กม. · เส้นประทอง = 6 กม.</span></div></div>'
-  + '<div class="note" style="margin-top:14px">สถิติเชิงพรรณนาที่คำนวณอัตโนมัติจากข้อมูลในไฟล์แผนที่ (map.html) อัปเดตตามข้อมูลล่าสุดทุกครั้งที่เปิดหน้านี้ ยังไม่ใช่ผลการประมาณแบบจำลอง</div>';
+  + '<h3 style="font-size:14px;color:var(--emerald-deep);margin:18px 0 8px">ระยะทางกับค่าเช่า (โดยแต่ละจุดคือหนึ่งที่พัก)</h3>'
+  + '<div class="chart">'+scatterSVG(data)+'<div class="legend"><span><i style="background:#0f4d3a"></i>คอนโดมิเนียม</span><span><i style="background:#b98b3e"></i>อพาร์ตเมนต์</span><span>จุดเขียว = ไม่เกิน 3 กม. · จุดทอง = 3-6 กม.</span></div></div>';
 }
 // ===================== ส่วนที่ทำงานกับหน้าเว็บ =====================
 const $ = id => document.getElementById(id);
