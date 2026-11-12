@@ -1,0 +1,82 @@
+.nong-mood-host {
+  position: relative;
+}
+
+.nong-mood {
+  --mood-size: clamp(58px, 7vw, 94px);
+  position: absolute;
+  z-index: var(--mood-z, 650);
+  width: var(--mood-size);
+  height: var(--mood-size);
+  pointer-events: none;
+  color: #17443a;
+  font: 600 14px/1.45 Tahoma, system-ui, sans-serif;
+}
+
+.nong-mood[hidden], .nong-mood__note[hidden] { display: none; }
+
+.nong-mood__toy {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 14px;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+}
+
+.nong-mood__toy:active { cursor: grabbing; }
+.nong-mood__toy img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.nong-mood__toy:focus-visible, .nong-mood__close:focus-visible { outline: 3px solid #217963; outline-offset: 3px; }
+
+.nong-mood__note {
+  position: absolute;
+  right: 24%;
+  bottom: calc(100% + 8px);
+  box-sizing: border-box;
+  width: max-content;
+  max-width: var(--mood-note-width, 198px);
+  padding: 9px 31px 9px 13px;
+  background: #fffaf0;
+  border: 1px solid #e4d9b6;
+  border-radius: 15px;
+  box-shadow: 0 5px 14px #12372d22;
+}
+
+.nong-mood__note::after {
+  position: absolute;
+  top: 100%;
+  right: 17px;
+  border: 8px solid transparent;
+  border-top-color: #fffaf0;
+  content: "";
+}
+
+.nong-mood[data-note-side="right"] .nong-mood__note { right: auto; left: 24%; }
+.nong-mood[data-note-side="right"] .nong-mood__note::after { right: auto; left: 17px; }
+.nong-mood[data-note-side="center"] .nong-mood__note { right: auto; left: 50%; transform: translateX(-50%); }
+.nong-mood[data-note-side="center"] .nong-mood__note::after { right: calc(50% - 8px); }
+.nong-mood[data-note-vertical="below"] .nong-mood__note { bottom: auto; top: calc(100% + 8px); }
+.nong-mood[data-note-vertical="below"] .nong-mood__note::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: #fffaf0; }
+
+.nong-mood__close {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #17443a;
+  font: 22px/1 system-ui, sans-serif;
+  cursor: pointer;
+  pointer-events: auto;
+}
