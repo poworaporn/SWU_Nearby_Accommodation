@@ -24,8 +24,23 @@ const scenes=[
  {id:'finale',title:'จากเรื่องเล่า สู่ข้อมูลวิจัย',duration:8,chapter:6,text:'ระยะทางอย่างเดียวอาจเล่าไม่หมด เราจึงเก็บทั้งเวลา ค่าเดินทาง และแต่ละช่วงของการเดินทาง แล้ววิเคราะห์ร่วมกับลักษณะห้องและส่วนกลาง ว่าอะไรสัมพันธ์กับค่าเช่า'}
 ];
 let total=0;scenes.forEach(s=>{s.start=total;total+=s.duration});
-let index=0,t=0,playing=false,ready=false,last=0,spoken=false,speaking=false,voiceEnabled=true,voices=[],speechToken=0,hold=0,currentUtterance=null;
-const synth=window.speechSynthesis, chapters=['01 สองที่พัก','02 อีกฝั่งของอโศก','03 ต่างกัน 3,000','04 วิธีวิจัย','05 เดิน · MRT · เดิน','06 เดิน · วิน · BTS · วิน','07 ข้อมูลพาไปต่อ'];
+let index=0,t=0,playing=false,ready=false,last=0,voiceEnabled=true;
+const audio=$('narration-audio');
+const chapters=['01 สองที่พัก','02 อีกฝั่งของอโศก','03 ต่างกัน 3,000','04 วิธีวิจัย','05 เดิน · MRT · เดิน','06 เดิน · วิน · BTS · วิน','07 ข้อมูลพาไปต่อ'];
+// Delay narration by 3 seconds; do not stretch or speed up the recording.
+const narrationOffset=3;
+function animationPosition(){return scenes[index].start+t}
+function seekAudio(){
+ const target=Math.max(0,animationPosition()-narrationOffset);
+ if(Math.abs(audio.currentTime-target)>.15)audio.currentTime=target;
+}
+function audioPlay(){
+ if(!voiceEnabled||animationPosition()<narrationOffset)return;
+ audio.muted=false;
+ audio.play().catch(()=>{$('voice-status').textContent='กดเล่นอีกครั้งเพื่ออนุญาตเสียง'});
+}
+audio.addEventListener('error',()=>{$('voice-status').textContent='โหลดไฟล์เสียงไม่สำเร็จ · ตรวจสอบ assets/narration.m4a'});
+audio.addEventListener('loadedmetadata',()=>{$('voice-status').textContent='พร้อมเล่นเสียงบันทึก · ทุกเครื่องได้ยินเสียงเดียวกัน'});
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),ease=v=>{v=clamp(v);return v*v*(3-2*v)},mix=(a,b,v)=>a+(b-a)*v;
 function round(x,y,w,h,r,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
 function text(str,x,y,size=32,color='#214d43',bold=true){ctx.font=`${bold?700:400} ${size}px Thai, sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.fillText(str,x,y)}
@@ -68,21 +83,53 @@ case 'finale':{bg('city');fadeWash(.75);bubble('room','ห้องและอ�
 function render(){ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';sceneFrame(scenes[index],t);$('seek').value=scenes[index].start+t;$('clock').textContent=`${fmt(scenes[index].start+t)} / ${fmt(total)}`}
 function fmt(v){v=Math.floor(v);return `${Math.floor(v/60)}:${String(v%60).padStart(2,'0')}`}
 function updateText(){const s=scenes[index];$('scene-name').textContent=`${String(index+1).padStart(2,'0')} · ${s.title}`;$('text-title').textContent=s.title;$('narrative').textContent=s.text||'จากถนนใหญ่ในอโศก ออกไปสำรวจที่พักอีกแห่ง';canvas.setAttribute('aria-label',s.title);document.querySelectorAll('#chapters button').forEach((b,i)=>b.classList.toggle('active',i===s.chapter))}
-function cancelSpeech(){speechToken++;speaking=false;currentUtterance=null;if(synth)synth.cancel()}
-function refreshVoices(){if(!synth){$('voice-status').textContent='เบราว์เซอร์นี้ไม่รองรับเสียงเล่า';return}const all=synth.getVoices();voices=all.filter(v=>/^th([_-]|$)/i.test(v.lang));const old=$('voice').value;$('voice').replaceChildren();voices.forEach((v,i)=>{let o=document.createElement('option');o.value=String(i);o.textContent=v.name;$('voice').appendChild(o)});if(!voices.length){let o=document.createElement('option');o.textContent='ไม่พบเสียงภาษาไทย';$('voice').appendChild(o);$('voice-status').textContent='ไม่พบเสียงไทยในเครื่องนี้ · ภาพยังเล่นได้ตามปกติ'}else{const male=voices.findIndex(v=>/niwat|pattara|male|ชาย/i.test(v.name)&&!/female/i.test(v.name));$('voice').value=voices[Number(old)]?old:String(Math.max(0,male));$('voice-status').textContent='พร้อมใช้เสียงไทย · '+voices[Number($('voice').value)].name}}
-function speakScene(test=false){if(!voiceEnabled&&!test||!voices.length||!synth)return;cancelSpeech();const token=speechToken;const s=scenes[index],line=test?'ฮัลโหล! หมุดพร้อมแล้ว ไปหาคำตอบกันไหม?':s.say||s.text;if(!line)return;const u=new SpeechSynthesisUtterance(line);u.lang='th-TH';u.voice=voices[Number($('voice').value)]||voices[0];const bright=$('tone').value==='bright';u.rate=s.mood==='tired'?.94:s.mood==='question'?1.02:1.07;u.pitch=bright?(s.mood==='surprise'?1.17:s.mood==='tired'?1:1.10):1;u.volume=1;speaking=true;currentUtterance=u;u.onend=()=>{if(token===speechToken){speaking=false;currentUtterance=null}};u.onerror=e=>{if(token===speechToken){speaking=false;currentUtterance=null;if(!['interrupted','canceled'].includes(e.error))$('voice-status').textContent='เสียงเล่าเล่นไม่ได้ในครั้งนี้ · ลองเลือกเสียงไทยอื่น'}};synth.resume();synth.speak(u)}
-function enter(i,offset=0,doSpeak=true){cancelSpeech();index=clamp(i,0,scenes.length-1);t=offset;hold=0;spoken=false;updateText();if(playing&&doSpeak){speakScene();spoken=true}render()}
-function setPlaying(state){playing=state;$('play').textContent=playing?'Ⅱ พัก':index===scenes.length-1&&t>=scenes[index].duration?'↺ เล่นอีกครั้ง':'▶ เล่นต่อ';if(!playing){if(synth)synth.pause()}else{if(synth&&synth.paused)synth.resume();if(!spoken){speakScene();spoken=true}}last=performance.now()}
+function enter(i,offset=0){index=clamp(i,0,scenes.length-1);t=clamp(offset,0,scenes[index].duration);updateText();seekAudio();render()}
+function setPlaying(state){
+ playing=state;
+ $('play').textContent=playing?'Ⅱ พัก':index===scenes.length-1&&t>=scenes[index].duration?'↺ เล่นอีกครั้ง':'▶ เล่นต่อ';
+ if(playing){seekAudio();audioPlay()}else audio.pause();
+ last=performance.now();
+}
 function start(){if(!ready)return;$('start').hidden=true;if(index===scenes.length-1&&t>=scenes[index].duration)enter(0);setPlaying(!playing)}
-function loop(now){let dt=last?Math.min((now-last)/1000,.1):0;last=now;if(ready&&playing){const s=scenes[index];if(t<s.duration)t=Math.min(s.duration,t+dt);else if(speaking&&hold<15)hold+=dt;else{if(index<scenes.length-1)enter(index+1);else{cancelSpeech();setPlaying(false)}}render()}requestAnimationFrame(loop)}
-$('play').onclick=start;$('start').onclick=start;$('restart').onclick=()=>{if(!ready)return;$('start').hidden=true;enter(0);setPlaying(true)};$('seek').max=total;$('seek').oninput=e=>{if(!ready)return;$('start').hidden=true;let value=Number(e.target.value),i=scenes.findIndex(s=>value<s.start+s.duration);if(i<0)i=scenes.length-1;enter(i,value-scenes[i].start)};
-$('sound').onclick=()=>{voiceEnabled=!voiceEnabled;$('sound').textContent='เสียงเล่า '+(voiceEnabled?'เปิด':'ปิด');$('sound').setAttribute('aria-pressed',String(voiceEnabled));if(!voiceEnabled)cancelSpeech();else if(playing)speakScene()};$('voice').onchange=()=>{if(voices.length)$('voice-status').textContent='เสียงไทย · '+voices[Number($('voice').value)].name;if(playing)speakScene()};$('test-voice').onclick=()=>{setPlaying(false);speakScene(true)};$('tone').onchange=()=>{if(playing)speakScene()};function toggleTheater(){const on=$('player').classList.toggle('theater');$('fullscreen').textContent=on?'×':'⛶';document.body.style.overflow=on?'hidden':''}
+function loop(now){
+ const dt=last?Math.min((now-last)/1000,.1):0;last=now;
+ if(ready&&playing){
+   let pos;
+   if(voiceEnabled&&!audio.paused&&Number.isFinite(audio.duration)&&audio.duration>0){
+     pos=clamp(narrationOffset+audio.currentTime,0,total);
+   }else{
+     pos=clamp(animationPosition()+dt,0,total);
+     if(voiceEnabled&&pos>=narrationOffset&&audio.paused&&!audio.ended){
+       // Start narration exactly at 00:03 of the animation.
+       seekAudio();audioPlay();
+     }
+   }
+   let i=scenes.findIndex(s=>pos<s.start+s.duration);
+   if(i<0)i=scenes.length-1;
+   if(i!==index){index=i;updateText()}
+   t=clamp(pos-scenes[index].start,0,scenes[index].duration);
+   if(animationPosition()>=total-.01)setPlaying(false);
+   render();
+ }
+ requestAnimationFrame(loop);
+}
+$('play').onclick=start;$('start').onclick=start;
+$('restart').onclick=()=>{if(!ready)return;$('start').hidden=true;enter(0);setPlaying(true)};
+$('seek').max=total;
+$('seek').oninput=e=>{if(!ready)return;$('start').hidden=true;let value=Number(e.target.value),i=scenes.findIndex(s=>value<s.start+s.duration);if(i<0)i=scenes.length-1;enter(i,value-scenes[i].start);if(playing)audioPlay()};
+$('sound').onclick=()=>{
+ voiceEnabled=!voiceEnabled;
+ $('sound').textContent='เสียงเล่า '+(voiceEnabled?'เปิด':'ปิด');
+ $('sound').setAttribute('aria-pressed',String(voiceEnabled));
+ if(!voiceEnabled){audio.pause();audio.muted=true}
+ else if(playing){seekAudio();audioPlay()}
+};
+function toggleTheater(){const on=$('player').classList.toggle('theater');$('fullscreen').textContent=on?'×':'⛶';document.body.style.overflow=on?'hidden':''}
 $('fullscreen').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else toggleTheater()};
 chapters.forEach((name,n)=>{let b=document.createElement('button');b.textContent=name;b.onclick=()=>{if(!ready)return;$('start').hidden=true;enter(scenes.findIndex(s=>s.chapter===n));setPlaying(true)};$('chapters').appendChild(b)});
 scenes.filter(s=>s.text).forEach(s=>{let li=document.createElement('li'),b=document.createElement('b');b.textContent=s.title;li.append(b,document.createTextNode(s.text));$('transcript').append(li)});
-document.addEventListener('keydown',e=>{if(e.code==='Escape'&&$('player').classList.contains('theater'))toggleTheater();if(['INPUT','SELECT','BUTTON','TEXTAREA'].includes(e.target.tagName))return;if(e.code==='Space'){e.preventDefault();start()}});document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)setPlaying(false)});window.addEventListener('pagehide',cancelSpeech);
+document.addEventListener('keydown',e=>{if(e.code==='Escape'&&$('player').classList.contains('theater'))toggleTheater();if(['INPUT','SELECT','BUTTON','TEXTAREA'].includes(e.target.tagName))return;if(e.code==='Space'){e.preventDefault();start()}});document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)setPlaying(false)});window.addEventListener('pagehide',()=>audio.pause());
 if(new URLSearchParams(location.search).has('embed'))document.body.classList.add('embed');
-refreshVoices();if(synth)synth.addEventListener('voiceschanged',refreshVoices);setTimeout(refreshVoices,1000);setTimeout(refreshVoices,3000);
 Promise.all(assets.map(name=>new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{images[name]=im;resolve()};im.onerror=()=>reject(new Error(name));im.src=`assets/${name}.png`;})).concat([document.fonts.load('700 32px Thai'),document.fonts.load('400 32px Thai')])).then(()=>{ready=true;$('play').disabled=false;$('start').disabled=false;$('start').querySelector('span').textContent='▶ เริ่มดูเรื่องราว';updateText();render()}).catch(e=>{$('start').querySelector('span').textContent='โหลดภาพไม่สำเร็จ กรุณารีเฟรช';$('voice-status').textContent='ภาพที่ยังไม่พร้อม '+e.message});requestAnimationFrame(loop);
 // Deterministic scene renderer also supports review without changing the narrative.
-window.moodFilm={get scenes(){return scenes},get state(){return {index,t,playing,ready,total,voices:voices.map(v=>v.name)}},seek(seconds){let i=scenes.findIndex(s=>seconds<s.start+s.duration);if(i<0)i=scenes.length-1;enter(i,clamp(seconds-scenes[i].start,0,scenes[i].duration),false)},pause(){cancelSpeech();setPlaying(false)}};
+window.moodFilm={get scenes(){return scenes},get state(){return {index,t,playing,ready,total,audioFile:'assets/narration.m4a'}},seek(seconds){let i=scenes.findIndex(s=>seconds<s.start+s.duration);if(i<0)i=scenes.length-1;enter(i,clamp(seconds-scenes[i].start,0,scenes[i].duration))},pause(){setPlaying(false)}};
