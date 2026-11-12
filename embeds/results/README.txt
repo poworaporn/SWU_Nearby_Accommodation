@@ -1,3 +1,1 @@
-เว็บผลวิจัย 21 โมเดล (HTML ไฟล์เดียว)
-เปิด index.html ได้โดยตรง และนำไปฝังด้วย iframe
-เพิ่มตารางทิศทางและคำอธิบายใต้ผล Gretl ในทุกโมเดล; เกณฑ์ 1% 5% 10%
+Upload index.html as embeds/results/index.html or open in Chrome. Contains 21 embedded Gretl images and game-style story.
