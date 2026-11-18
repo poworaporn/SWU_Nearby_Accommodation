@@ -791,10 +791,10 @@
       if (drPos) drPos.textContent = pos >= 0 ? (pos + 1) + '/' + order.length : '';
     };
 
-    /* -------------------------------------------------- AUTO-TOUR (โหมดนำเสนออัตโนมัติ) */
-    const IDLE_MS = 45000;   // ไม่มีใครแตะหน้าจอนานเท่านี้ (มิลลิวินาที) -> เริ่มนำเสนอเอง | ใส่ 0 = ปิด
+    /* -------------------------------------------------- AUTO-TOUR & น้องหมุด */
+    const IDLE_MS = 45000;   // ไม่มีใครแตะหน้าจอนานเท่านี้ (มิลลิวินาที) -> ให้น้องหมุดออกมาพรีเซนต์เอง | ใส่ 0 = ปิด
     let tourTimer = null, isTouring = false, tourRun = 0, scrollToken = 0;
-    let pendingFlag = '', pausedByUser = false, idleTimer = null, modeBefore = 'default';
+    let pendingFlag = '', idleTimer = null, modeBefore = 'default';
 
     // หาตัวที่เลื่อนได้จริง (กล่องเนื้อหา หรือทั้งลิ้นชักในจอแนวนอน)
     function getScroller() {
@@ -903,7 +903,6 @@
     }
 
     // รอบนำเสนอ: ภาพรวม -> ที่พักทีละแห่ง (เลื่อนข้อมูลเอง) -> การ์ดสรุป -> วนซ้ำ
-    // ภาพรวม: วนสีหมุด ราคา -> ระยะทาง -> รีวิว (หมุดเด้งออกจาก มศว เป็นระลอก) แล้วคืนค่าเดิม
     async function modeShow(total) {
       const seq = ['price', 'distance', 'rating'], step = total / seq.length;
       for (let k = 0; k < seq.length; k++) {
@@ -941,11 +940,13 @@
       }
     }
 
+    // โหมดทัวร์จะเริ่มเมื่อกดปุ่มด้านบนเท่านั้น (และสั่งหยุดน้องหมุดก่อนถ้าพูดอยู่)
     function startTour(mode) {
       if (isTouring) return;
       if (!visibleOrder().length) return;
+      if (window.nongPresenter && window.nongPresenter.stop) window.nongPresenter.stop();
       mode = mode === 'all' ? 'all' : 'hi';
-      isTouring = true; pausedByUser = false;
+      isTouring = true;
       modeBefore = curMode; closePanel();
       clearTimeout(idleTimer);
       setSide(false);
@@ -970,14 +971,24 @@
       resetIdle();
     }
 
-    // ไม่มีใครแตะจอนาน -> เริ่มนำเสนอเอง (เหมือนจอโชว์งาน)
+    // สั่งให้น้องหมุดออกมาพรีเซนต์ผลวิจัย
+    function startNongAuto() {
+      if (isTouring || document.body.classList.contains('nm-playing')) return;
+      if (window.nongPresenter && typeof window.nongPresenter.start === 'function') {
+        closePanel();
+        setSide(false);
+        window.nongPresenter.start();
+      }
+    }
+
+    // ไม่มีใครแตะจอนาน -> ให้น้องหมุดออกมาพูดสรุปผลวิจัยแทน Auto-tour
     function resetIdle() {
       clearTimeout(idleTimer);
-      if (!IDLE_MS || isTouring || pausedByUser) return;
+      if (!IDLE_MS || isTouring) return;
       idleTimer = setTimeout(() => {
-        if (isTouring) return;
+        if (isTouring || document.body.classList.contains('nm-playing')) return resetIdle();
         if (app.classList.contains('side-open') || document.hidden) return resetIdle();
-        startTour('hi');
+        startNongAuto();
       }, IDLE_MS);
     }
     ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(ev => document.addEventListener(ev, resetIdle, { passive: true }));
@@ -986,8 +997,8 @@
     ['touchstart', 'wheel', 'mousedown'].forEach(ev =>
       drawer.addEventListener(ev, () => { if (isTouring) stopTour(); else cancelAutoScroll(); }, { passive: true }));
 
-    tourBtn.addEventListener('click', () => { if (isTouring) { pausedByUser = true; stopTour(); } else startTour('hi'); });
-    tourAllBtn.addEventListener('click', () => { if (isTouring) { pausedByUser = true; stopTour(); } else startTour('all'); });
+    tourBtn.addEventListener('click', () => { if (isTouring) stopTour(); else startTour('hi'); });
+    tourAllBtn.addEventListener('click', () => { if (isTouring) stopTour(); else startTour('all'); });
 
     /* -------------------------------------------------- มุมมองสีหมุด / ชั้นข้อมูล / งบ / เปรียบเทียบ */
     const viewBtn = document.createElement('button');
@@ -1087,7 +1098,7 @@
       if (e.target.checked) { buildRings(); ringLayer.addTo(map); } else map.removeLayer(ringLayer);
     });
 
-    /* ---- ชั้นข้อมูล: สถานีรถไฟฟ้าที่ถูกใช้ในเส้นทางของที่พักทั้งหมด (ดึงจากข้อมูลเส้นทางเดิม ไม่ได้พิมพ์พิกัดเพิ่มเอง) ---- */
+    /* ---- ชั้นข้อมูล: สถานีรถไฟฟ้าที่ถูกใช้ในเส้นทางของที่พักทั้งหมด ---- */
     const railLayer = L.layerGroup();
     let railBuilt = false;
     function buildRail() {
@@ -1238,7 +1249,7 @@
     window.mapUpgrade = { setMode: m => setMode(m), show: showHouse, order: visibleOrder, clear: () => chip.click(), startTour, stopTour, openList: () => setSide(true), closeList: () => setSide(false) };
     window.render();
     setTimeout(fixSize, 300);
-    if (/[?&]autoplay/.test(location.search)) setTimeout(() => startTour('hi'), 2000); // เปิดลิงก์ ...?autoplay=1 -> เริ่มเองทันที
+    if (/[?&]autoplay/.test(location.search)) setTimeout(startNongAuto, 2000); // เปิดลิงก์ ...?autoplay=1 -> ให้น้องหมุดเริ่มพูดทันที
     else resetIdle();
   }
 
