@@ -60,7 +60,7 @@ chapterButtons.forEach(b=>b.addEventListener('click',()=>{film.currentTime=Numbe
 get('track').addEventListener('change',e=>{film.currentTime=tracks[Number(e.target.value)].start;syncPlayer();play();});
 get('mute').addEventListener('click',()=>{film.muted=!film.muted;get('mute').textContent=film.muted?'✕ ปิดเสียง':'♫ เสียง';get('mute').setAttribute('aria-label',film.muted?'เปิดเสียง':'ปิดเสียง');});
 get('full').addEventListener('click',async()=>{if(document.fullscreenElement){await document.exitFullscreen();return;}if(get('player').requestFullscreen){try{await get('player').requestFullscreen();return;}catch(e){}}get('player').classList.toggle('expanded');get('full').textContent=get('player').classList.contains('expanded')?'✕':'⛶';});
-fetch('audio-manifest.json').then(r=>r.json()).then(data=>{tracks=data;get('track').replaceChildren(...data.map((a,i)=>{const o=document.createElement('option');o.value=i;o.textContent=String(i+1).padStart(2,'0')+' · '+names[i];return o;}));syncPlayer();}).catch(()=>get('play-status').textContent='โหลดลำดับเสียงไม่สำเร็จ กรุณารีเฟรช');
+Promise.resolve(window.BUNDLED_TRACKS).then(data=>{tracks=data;get('track').replaceChildren(...data.map((a,i)=>{const o=document.createElement('option');o.value=i;o.textContent=String(i+1).padStart(2,'0')+' · '+names[i];return o;}));syncPlayer();}).catch(()=>get('play-status').textContent='โหลดลำดับเสียงไม่สำเร็จ กรุณารีเฟรช');
 let coefficients={};
 function showModel(){
  const model=get('model').value,area=Number(get('area').value),name=(model==='S+N+L'?'SLN':model.replaceAll('+',''))+' · '+['วงรวม','วงใน','วงนอก'][area];
@@ -77,5 +77,5 @@ function showModel(){
 get('model').addEventListener('change',showModel);get('area').addEventListener('change',showModel);
 get('preview').addEventListener('click',()=>{get('enlarged').src=get('estimate').src;get('zoom').showModal();});
 get('zoom').addEventListener('click',e=>{if(e.target===get('zoom'))get('zoom').close();});
-fetch('coefficients.json').then(r=>{if(!r.ok)throw Error();return r.json();}).then(d=>{coefficients=d;showModel();}).catch(()=>{});
+Promise.resolve(window.BUNDLED_COEFFICIENTS).then(d=>{coefficients=d;showModel();}).catch(()=>{});
 showModel();syncPlayer();
