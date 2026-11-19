@@ -27,8 +27,7 @@
   .nav a.active{ color:var(--gold-light); border-bottom-color:var(--gold); }
   .burger{ display:none; margin-left:auto; background:none; border:1px solid rgba(255,255,255,.35); color:#fff; border-radius:8px; font-size:18px; width:38px; height:34px; cursor:pointer; }
 
-  /* ---------- แผนที่ (ไฟล์ map.html) ----------
-     ความสูงจริงถูกตั้งซ้ำด้วย JS (fitMap) เพื่อแก้ปัญหา iPad / Safari ที่คำนวณ vh ใน iframe ผิด */
+  /* ---------- แผนที่ (ไฟล์ map.html) ---------- */
   .map-frame{ position:fixed; top:var(--bar); left:0; right:0; width:100%; height:calc(100vh - var(--bar)); height:calc(100dvh - var(--bar)); border:0; background:var(--paper); display:block; }
 
   /* ---------- หน้าเนื้อหา (วางทับแผนที่) ---------- */
@@ -44,16 +43,20 @@
   .hero .names{ font-size:13px; color:#d8e6de; line-height:1.7; margin-bottom:14px; }
   .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
   .chip{ font-size:11.5px; font-weight:600; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); padding:4px 11px; border-radius:14px; }
-  .btn{ display:inline-flex; align-items:center; gap:7px; padding:10px 18px; border-radius:22px; background:var(--gold); color:#fff; text-decoration:none; font-size:13px; font-weight:700; margin-right:8px; }
+  .btn{ display:inline-flex; align-items:center; gap:7px; padding:10px 18px; border-radius:22px; background:var(--gold); color:#fff; text-decoration:none; font-size:13px; font-weight:700; margin-right:8px; margin-bottom:6px; }
   .btn.ghost{ background:transparent; border:1.5px solid rgba(255,255,255,.5); }
 
-  .sec{ margin:30px 0; }
+  .tour-embed{ width:100%; height:1350px; border:1px solid var(--line); border-radius:18px; display:block; background:#f9f0dc; box-shadow:0 6px 24px rgba(0,0,0,.08); }
+  .quick-links{ display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 8px; }
+  .quick-links a{ font-size:12.5px; font-weight:600; color:var(--emerald-deep); background:var(--panel); border:1px solid var(--line); padding:6px 13px; border-radius:20px; text-decoration:none; }
+  .quick-links a:hover{ border-color:var(--gold); background:#fff8e6; }
+
+  .sec{ margin:32px 0; }
   .sec h2{ font-size:18px; color:var(--emerald-deep); margin:0 0 12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .sec h2::before{ content:''; width:5px; height:20px; border-radius:3px; background:var(--gold); }
   .sec p, .sec li{ line-height:1.85; font-size:14px; }
   .sec p{ margin:0 0 10px; }
   .sec ul, .sec ol{ margin:0 0 10px; padding-left:22px; }
-  .draft{ font-size:10.5px; font-weight:800; color:#7a5a1e; background:var(--gold-light); padding:2px 9px; border-radius:10px; }
   .ph{ background:#fff6dc; border-bottom:1.5px dashed var(--gold); padding:0 3px; border-radius:3px; }
   .note{ background:#fbf1e4; border:1px solid #e0b877; color:#8a5a24; border-radius:10px; padding:11px 14px; font-size:12.5px; line-height:1.7; margin:14px 0; }
 
@@ -97,9 +100,6 @@
   .m-name{ font-weight:700; color:var(--emerald-deep); font-size:14.5px; }
   .m-sub{ font-size:12px; color:var(--muted); margin-top:2px; }
   .m-role{ font-size:12.5px; margin-top:4px; }
-  .check{ list-style:none; padding:0 !important; }
-  .check li{ padding:7px 0 7px 26px; position:relative; border-bottom:1px dashed #e8e0cc; font-size:13px; }
-  .check li::before{ content:'☐'; position:absolute; left:0; color:var(--gold); font-size:15px; }
   .foot{ margin-top:40px; padding-top:16px; border-top:1px solid var(--line); font-size:11.5px; color:var(--muted); line-height:1.7; }
 
   @media (max-width:820px){
@@ -114,9 +114,8 @@
     .grid4{ grid-template-columns:repeat(2,1fr); }
     .brow{ grid-template-columns:1fr; gap:4px; }
     .brow .bv{ text-align:left; }
+    .tour-embed{ height:1200px; }
   }
-  <style>html:not(.mu-ready) .app{opacity:0}</style>
-<script>setTimeout(function(){document.documentElement.classList.add('mu-ready')},5000)</script>
 </style>
 </head>
 <body>
@@ -124,10 +123,8 @@
 <header class="bar">
   <a class="brand" href="#map"><span>🏘️</span><span class="brand-txt" id="brandTxt"></span></a>
   <nav class="nav" id="nav">
-    <a href="#map" data-page="map">แผนที่ แสดงที่พัก</a>
-    <a href="#about" data-page="about">ที่มาและวิธีวิจัย</a>
-    <a href="#model" data-page="model">แบบจำลอง</a>
-    <a href="#results" data-page="results">ผลการวิจัย</a>
+    <a href="#map" data-page="map">แผนที่ แสดงที่พักวิจัย</a>
+    <a href="#tour" data-page="tour">ที่มาและผลวิจัย</a>
     <a href="#team" data-page="team">ผู้จัดทำ</a>
   </nav>
   <button class="burger" id="burger" type="button" aria-label="เมนู">☰</button>
@@ -136,40 +133,59 @@
 <iframe id="mapFrame" class="map-frame" src="map.html" title="แผนที่ผลสำรวจที่พักรอบ มศว ประสานมิตร"></iframe>
 
 <main>
-<!-- ===================== ที่มาและวิธีวิจัย ===================== -->
-<section class="page" id="page-about">
+<!-- ===================== (รวมที่มา + แบบจำลอง + ผลวิจัย) ===================== -->
+<section class="page" id="page-tour">
   <div class="hero">
     <div class="inner">
       <div class="kicker" id="heroKicker"></div>
       <h1 id="heroTitle"></h1>
       <div class="names" id="heroNames"></div>
       <div class="chips" id="heroChips"></div>
-      <a class="btn" href="#map">🗺️ ดูแผนที่ผลสำรวจ</a><a class="btn ghost" href="#team">👥 ผู้จัดทำ</a>
+      <a class="btn" href="#map">🗺️ ดูแผนที่ผลสำรวจ</a>
+      <a class="btn ghost" href="./nong-mood-tour/" target="_blank">⛶ เปิดหน้าทัวร์เต็มจอ</a>
     </div>
   </div>
+
   <div class="wrap">
-    <div class="sec">
-  <h2>ที่มาและวิธีการวิจัย</h2>
-  <iframe
-    src="embeds/about/index.html"
-    title="ที่มาและวิธีการวิจัย"
-    style="width:100%;height:850px;border:0;border-radius:18px;display:block;"
-    loading="lazy">
-  </iframe>
-</div>
-    
-    <div class="sec">
+    <div class="quick-links">
+      <a href="#sec-tour">🎬 น้องหมุดพาทัวร์ & ตารางผล 21 โมเดล</a>
+      <a href="#sec-stats">📊 สถิติเบื้องต้นจากแผนที่</a>
+      <a href="#sec-about">📖 ที่มาและวิธีวิจัย</a>
+      <a href="#sec-model">📐 สมการแบบจำลอง 7 แบบ</a>
+    </div>
+
+    <!-- ส่วนที่ 1: น้องหมุดพาทัวร์ (รวม ที่มา + แบบจำลอง + ผลวิจัย 21 โมเดล) -->
+    <div class="sec" id="sec-tour">
+      <h2>น้องหมุดพาทัวร์ · เรื่องเล่าที่มา แบบจำลอง และผลวิจัย 21 โมเดล</h2>
+      <iframe
+        id="tourFrame"
+        class="tour-embed"
+        src="./nong-mood-tour/"
+        title="น้องหมุดพาทัวร์"
+        allow="autoplay; fullscreen"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <!-- ส่วนที่ 2: สถิติเบื้องต้นสดจากข้อมูลแผนที่ -->
+    <div class="sec" id="sec-stats">
+      <h2>สถิติเบื้องต้นจากข้อมูลสำรวจ</h2>
+      <div id="liveStats"><div class="note">กำลังโหลดข้อมูลจากแผนที่…</div></div>
+    </div>
+
+    <!-- ส่วนที่ 3: ที่มาและวิธีวิจัย -->
+    <div class="sec" id="sec-about">
       <h2>ความเป็นมาและความสำคัญ</h2>
       <p>การเลือกที่พักอาศัยเป็นหนึ่งในปัจจัยสำคัญที่ส่งผลต่อคุณภาพชีวิตและค่าใช้จ่ายในการดำรงชีวิตของนิสิต โดยเฉพาะนิสิตมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร ซึ่งมีความต้องการที่พักอาศัยในบริเวณโดยรอบมหาวิทยาลัยที่แตกต่างกัน ทั้งในด้านงบประมาณ ทำเลที่ตั้ง ขนาดพื้นที่ใช้สอย และความสะดวกในการเดินทาง ส่งผลให้ตลาดที่พักอาศัยในพื้นที่ดังกล่าวมีความหลากหลายทั้งประเภทและระดับราคา</p>
       <p>งานวิจัยนี้จึงมุ่งศึกษาและวิเคราะห์ปัจจัยที่เกี่ยวข้องกับอัตราค่าเช่าและการตัดสินใจเลือกที่พักอาศัยของนิสิต โดยอาศัยข้อมูลจากผู้พักอาศัยจริง เพื่อสะท้อนลักษณะของตลาดที่พักอาศัยในพื้นที่ศึกษา และนำเสนอข้อมูลผ่านแผนที่เชิงโต้ตอบ (Interactive Map) ที่รวบรวมรายละเอียดของที่พักแต่ละแห่ง พร้อมข้อมูลเส้นทางการเดินทาง เพื่ออำนวยความสะดวกในการสืบค้น เปรียบเทียบ และประกอบการตัดสินใจเลือกที่พักอาศัยได้อย่างมีประสิทธิภาพ</p>
     </div>
 
     <div class="sec">
-      <h2>วัตถุประสงค์ </h2>
+      <h2>วัตถุประสงค์</h2>
       <ol>
         <li>เพื่อสำรวจและศึกษาลักษณะของที่พักอาศัย ตลอดจนอัตราค่าเช่าของที่พักสำหรับนิสิตในรัศมี 6 กิโลเมตรจากมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร</li>
         <li>เพื่อวิเคราะห์ปัจจัยที่มีความสัมพันธ์กับอัตราค่าเช่าและการตัดสินใจเลือกที่พักอาศัยของนิสิต ได้แก่ ขนาดพื้นที่ใช้สอย ระยะทางจากมหาวิทยาลัย รูปแบบการเดินทาง และสิ่งอำนวยความสะดวก</li>
-        <li>เพื่อเปรียบเทียบความสัมพันธ์และอิทธิพลของปัจจัยที่เกี่ยวข้องกับอัตราค่าเช่าระหว่างกลุ่มที่พักอาศัยในรัศมีไม่เกิน 3 กิโลเมตร กลุ่มที่พักอาศัยในรัศมีมากกว่า 3 ถึง 6 กิโลเมตร และภาพรวมของพื้นที่ศึกษาทั้งหมด </li>
+        <li>เพื่อเปรียบเทียบความสัมพันธ์และอิทธิพลของปัจจัยที่เกี่ยวข้องกับอัตราค่าเช่าระหว่างกลุ่มที่พักอาศัยในรัศมีไม่เกิน 3 กิโลเมตร กลุ่มที่พักอาศัยในรัศมีมากกว่า 3 ถึง 6 กิโลเมตร และภาพรวมของพื้นที่ศึกษาทั้งหมด</li>
         <li>เพื่อนำเสนอข้อมูลที่พักอาศัยและผลการวิเคราะห์ผ่านแผนที่เชิงโต้ตอบ (Interactive Map) ซึ่งเอื้อให้ผู้ใช้งานสามารถสืบค้น ตรวจสอบรายละเอียด และเปรียบเทียบข้อมูลของที่พักแต่ละแห่งได้อย่างสะดวก</li>
       </ol>
     </div>
@@ -178,178 +194,96 @@
       <h2>ขอบเขตการวิจัย</h2>
       <div class="grid2">
         <div class="card"><h3>📍 พื้นที่ศึกษา</h3><p>รัศมี 6 กิโลเมตรจากสนามกีฬา มศว ประสานมิตร แบ่งเป็นวงใน (ระยะไม่เกิน 3 กม.) และวงนอก (ระยะมากกว่า 3 - 6 กม.)</p></div>
-        <div class="card"><h3>🏙️ เขตที่ครอบคลุม</h3><p>วัฒนา(ที่ตั้ง มศว) · คลองเตย · ห้วยขวาง · ดินแดง · ราชเทวี · ปทุมวัน · บางรัก · สาทร</p></div>
+        <div class="card"><h3>🏙️ เขตที่ครอบคลุม</h3><p>วัฒนา (ที่ตั้ง มศว) · คลองเตย · ห้วยขวาง · ดินแดง · ราชเทวี · ปทุมวัน · บางรัก · สาทร</p></div>
         <div class="card"><h3>🎓 กลุ่มตัวอย่าง</h3><p>นิสิต มศว ประสานมิตร ที่เช่าที่พักในบริเวณใกล้เคียงพื้นที่ศึกษา ปัจจุบันมีข้อมูล <b data-live="n">—</b> ที่พัก</p></div>
         <div class="card"><h3>🗓️ ช่วงเวลาเก็บข้อมูล</h3><p>เดือนกันยายน – พฤศจิกายน 2569</p></div>
       </div>
     </div>
 
     <div class="sec">
-      <h2>วิธีการเก็บรวบรวมข้อมูล </h2>
+      <h2>วิธีการเก็บรวบรวมข้อมูล</h2>
       <p>งานวิจัยนี้ดำเนินการเก็บรวบรวมข้อมูลผ่านแบบสอบถามออนไลน์ (Google Forms) โดยผู้ตอบแบบสอบถามจะได้รับการชี้แจงรายละเอียดและแสดงความยินยอมในการเก็บรวบรวมและใช้ข้อมูลเพื่อวัตถุประสงค์ทางการวิจัยก่อนเริ่มตอบแบบสอบถาม ทั้งนี้ ข้อมูลส่วนบุคคลของผู้ตอบจะได้รับการเก็บรักษาเป็นความลับ และนำเสนอผลการศึกษาในภาพรวม โดยไม่เปิดเผยข้อมูลที่สามารถระบุตัวตนของผู้ตอบแบบสอบถามได้ แบบสอบถามแบ่งเป็น 5 ส่วน</p>
       <ol>
-        <li>ข้อมูลทั่วไปของผู้ตอบแบบสอบถาม รวบรวมข้อมูลพื้นฐาน ได้แก่ เพศ อายุ คณะที่กำลังศึกษา และรายรับเฉลี่ยต่อเดือน </li>
+        <li>ข้อมูลทั่วไปของผู้ตอบแบบสอบถาม รวบรวมข้อมูลพื้นฐาน ได้แก่ เพศ อายุ คณะที่กำลังศึกษา และรายรับเฉลี่ยต่อเดือน</li>
         <li>ข้อมูลเกี่ยวกับที่พักอาศัย รวบรวมรายละเอียดของที่พัก ได้แก่ ชื่อที่พัก ประเภทที่พัก ขนาดห้อง ชั้นที่พัก และจำนวนผู้อยู่อาศัย</li>
         <li>ค่าใช้จ่ายและเงื่อนไขการเช่า รวบรวมข้อมูลด้านภาระค่าใช้จ่ายและเงื่อนไขการเช่า ได้แก่ อัตราค่าเช่า ค่าใช้จ่ายแรกเข้า ระยะเวลาสัญญาเช่า ค่าน้ำ ค่าไฟฟ้า ค่าส่วนกลาง และค่าอินเทอร์เน็ต</li>
         <li>การเดินทางและค่าใช้จ่ายที่เกี่ยวข้อง ศึกษารูปแบบและลักษณะการเดินทางจากที่พักไปยังมหาวิทยาลัย โดยจำแนกขั้นตอนการเดินทาง ระยะเวลา และค่าใช้จ่ายในการเดินทางต่อเที่ยว ทั้งขาไปและขากลับ</li>
         <li>ลักษณะห้องพักและสิ่งอำนวยความสะดวก รวบรวมข้อมูลเกี่ยวกับการตกแต่งและอุปกรณ์ภายในห้องพัก ตลอดจนสิ่งอำนวยความสะดวกของที่พัก เช่น เครื่องใช้ไฟฟ้า ฟิตเนส สระว่ายน้ำ ลิฟต์ ที่จอดรถ และระบบรักษาความปลอดภัย รวมถึงข้อมูลสภาพอาคาร ความคิดเห็นจากผู้พักอาศัย และการประเมินระดับความพึงพอใจใน 7 ด้าน</li>
       </ol>
     </div>
-    
-     <div class="sec">
-      <h2>ตัวแปรที่ใช้</h2>
-      <div class="tbl-wrap"><table class="tbl">
-        <tr><th>ข้อมูล</th><th>ตัวแปร</th></tr>
-        <tr><td>อัตราค่าเช่ารายเดือน</td><td>ตัวแปรตาม (Y)</td></tr>
-        <tr><td>ขนาดห้องพัก</td><td>ตัวแปรอิสระ (X)</td></tr>
-        <tr><td>ระยะทางจากมหาวิทยาลัย</td><td>ตัวแปรอิสระ (X)</td></tr>
-        <tr><td>ประเภทที่พัก</td><td>ตัวแปรอิสระ (X)</td></tr>
-        <tr><td>ลักษณะการตกแต่งห้อง</td><td>ตัวแปรอิสระ (X)</td></tr>
-        <tr><td>สิ่งอำนวยความสะดวก</td><td>ตัวแปรอิสระ (X)</td></tr>
-        <tr><td>ความสะดวกในการเดินทาง</td><td>ตัวแปรอิสระ (X)</td></tr>
-      </table></div>
-    </div>
-    
-    <div class="sec">
-      <h2>การประมวลผลข้อมูลและแผนที่</h2>
-      <ul>
-        <li>ปักหมุดพิกัดที่พักจาก Google Maps และคำนวณระยะทางเส้นตรง (Haversine) จากสนามกีฬา มศว ประสานมิตร</li>
-        <li>สร้างเส้นทางเดินทางจากลำดับวิธีเดินทางที่ผู้ตอบกรอก : ช่วงเดินและรถบนถนนใช้ OSRM สำหรับรถไฟฟ้าใช้พิกัดสถานีและป้ายรถเมล์จริง</li>
-        <li>แสดงผลด้วย Leaflet และแผนที่ OpenStreetMap ภาพถนนใช้ Google Street View เผยแพร่ผ่าน GitHub Pages</li>
-      </ul>
-    </div>
-    <div class="foot">ปัจจัยที่มีอิทธิพลต่อการตัดสินใจเลือกที่พักอาศัยของนิสิตในบริเวณโดยรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร</div>
-  </div>
-</section>
 
-<!-- ===================== แบบจำลอง ===================== -->
-<section class="page" id="page-model">
-  <div class="hero sm"><div class="inner">
-    <div class="kicker">รูปแบบการทำแบบจำลอง</div>
-    <h1>แบบจำลองวิเคราะห์ปัจจัยที่มีผลต่อค่าเช่าที่พัก</h1>
-  </div></div>
-  <div class="wrap">
-
-<div class="sec">
-  <h2>การสร้างแบบจำลองทางเศรษฐมิติ</h2>
-  <iframe
-    src="embeds/model/index.html"
-    title="แบบจำลอง Hedonic Pricing"
-    style="width:100%;height:850px;border:0;border-radius:18px;display:block;"
-    loading="lazy">
-  </iframe>
-</div>
-  
-    <div class="sec">
+    <!-- ส่วนที่ 4: แบบจำลอง -->
+    <div class="sec" id="sec-model">
       <h2>ขั้นตอนการสร้างแบบจำลอง</h2>
       <ol class="steps">
-        <li><div><b>การเตรียมและจัดการข้อมูล (Data Preparation)</b><span>รวบรวมข้อมูลจากแบบสอบถามผู้พักอาศัยรอบมศว ประสานมิตร ตรวจสอบความครบถ้วนและความถูกต้องของข้อมูล ทำความสะอาดข้อมูล และแปลงข้อมูลเชิงคุณภาพเป็นตัวแปรเชิงปริมาณ เช่น ตัวแปรหุ่น (Dummy Variables) เพื่อเตรียมข้อมูลสำหรับการวิเคราะห์ทางเศรษฐมิติ</span></div></li>
-        <li><div><b>การจัดกลุ่มและสร้างตัวแปร (Variable Classification)</b><span>กำหนดค่าเช่าที่พักรายเดือนเป็นตัวแปรตาม และแบ่งตัวแปรอิสระออกเป็น 3 กลุ่มตามแนวคิด Hedonic Pricing Model ได้แก่ S: ลักษณะทางกายภาพของที่พัก เช่น สภาพอาคาร ขนาดห้อง ชั้นที่พัก ลิฟต์ และเครื่องใช้ไฟฟ้า, L: ปัจจัยด้านทำเลและการเดินทาง เช่น  เวลาเดินทาง ค่าเดินทาง และรูปแบบขั้นตอนการเดินทาง, N: สภาพแวดล้อมและสิ่งอำนวยความสะดวก เช่น ฟิตเนส สระว่ายน้ำ บริการWIFI และส่วนกลาง สำหรับข้อมูลการเดินทาง นำมาจัดระเบียบและคำนวณตัวชี้วัดที่เหมาะสมเพื่อใช้ในการวิเคราะห์</span></div></li>
-        <li><div><b>การแบ่งพื้นที่ศึกษา (Spatial Classification)</b><span>แบ่งที่พักตามระยะห่างจากมหาวิทยาลัยออกเป็น 3 กลุ่ม ได้แก่ วงใน(Inner): ระยะไม่เกิน 3 กิโลเมตร, วงนอก(Outer): ระยะมากกว่า 3 ถึง 6 กิโลเมตร, วงรวม(All): ที่พักทั้งหมดภายในรัศมี 6 กิโลเมตร เพื่อเปรียบเทียบความสัมพันธ์ระหว่างคุณลักษณะของที่พักกับค่าเช่าในแต่ละพื้นที่</span></div></li>
-        <li><div><b>การสร้างและประมาณแบบจำลอง (Model Estimation)</b><span>ใช้การถดถอยเชิงเส้นพหุคูณด้วยวิธีกำลังสองน้อยที่สุด(OLS) โดยสร้างแบบจำลองจากตัวแปร 7 รูปแบบ ได้แก่ S, L, N, S+N, S+L, L+N และ S+L+N นำแต่ละรูปแบบมาประมาณแยกตามพื้นที่ทั้ง 3 กลุ่ม รวมเป็น 21 แบบจำลอง พร้อมใช้ Robust Standard Errors แบบ HC3 เพื่อช่วยให้การอนุมานทางสถิติมีความทนทานต่อปัญหาความแปรปรวนของค่าคลาดเคลื่อนที่ไม่คงที่</span></div></li>
-        <li><div><b>การวิเคราะห์และเปรียบเทียบผล (Results Interpretation)</b><span>พิจารณาทิศทางและขนาดของสัมประสิทธิ์ ระดับนัยสำคัญทางสถิติ (p-value) และความสามารถในการอธิบายค่าเช่าของแบบจำลองผ่าน R² และ Adjusted R² จากนั้นเปรียบเทียบผลระหว่างวงใน วงนอก และวงรวม เพื่อศึกษาว่าปัจจัยด้านโครงสร้าง ทำเล และสภาพแวดล้อมมีความสัมพันธ์กับค่าเช่าแตกต่างกันอย่างไรในแต่ละพื้นที่</span></div></li>
+        <li><div><b>การเตรียมและจัดการข้อมูล (Data Preparation)</b><span>รวบรวมข้อมูลจากแบบสอบถามผู้พักอาศัยรอบ มศว ประสานมิตร ตรวจสอบความครบถ้วนและความถูกต้องของข้อมูล ทำความสะอาดข้อมูล และแปลงข้อมูลเชิงคุณภาพเป็นตัวแปรเชิงปริมาณ เช่น ตัวแปรหุ่น (Dummy Variables) เพื่อเตรียมข้อมูลสำหรับการวิเคราะห์ทางเศรษฐมิติ</span></div></li>
+        <li><div><b>การจัดกลุ่มและสร้างตัวแปร (Variable Classification)</b><span>กำหนดค่าเช่าที่พักรายเดือนเป็นตัวแปรตาม และแบ่งตัวแปรอิสระออกเป็น 3 กลุ่มตามแนวคิด Hedonic Pricing Model ได้แก่ S: ลักษณะทางกายภาพของที่พัก, L: ปัจจัยด้านทำเลและการเดินทาง, N: สภาพแวดล้อมและสิ่งอำนวยความสะดวก</span></div></li>
+        <li><div><b>การแบ่งพื้นที่ศึกษา (Spatial Classification)</b><span>แบ่งที่พักตามระยะห่างจากมหาวิทยาลัยออกเป็น 3 กลุ่ม ได้แก่ วงใน (Inner): ระยะไม่เกิน 3 กิโลเมตร, วงนอก (Outer): ระยะมากกว่า 3 ถึง 6 กิโลเมตร, วงรวม (All): ที่พักทั้งหมดภายในรัศมี 6 กิโลเมตร</span></div></li>
+        <li><div><b>การสร้างและประมาณแบบจำลอง (Model Estimation)</b><span>ใช้การถดถอยเชิงเส้นพหุคูณด้วยวิธีกำลังสองน้อยที่สุด (OLS) โดยสร้างแบบจำลองจากตัวแปร 7 รูปแบบ ได้แก่ S, L, N, S+N, S+L, L+N และ S+L+N นำแต่ละรูปแบบมาประมาณแยกตามพื้นที่ทั้ง 3 กลุ่ม รวมเป็น 21 แบบจำลอง พร้อมใช้ Robust Standard Errors แบบ HC3</span></div></li>
+        <li><div><b>การวิเคราะห์และเปรียบเทียบผล (Results Interpretation)</b><span>พิจารณาทิศทางและขนาดของสัมประสิทธิ์ ระดับนัยสำคัญทางสถิติ (p-value) และความสามารถในการอธิบายค่าเช่าของแบบจำลองผ่าน R² และ Adjusted R² จากนั้นเปรียบเทียบผลระหว่างวงใน วงนอก และวงรวม</span></div></li>
       </ol>
     </div>
 
-     <div class="sec">
-      <h2>สมมติฐาน</h2>
-      <ol>
-        <li> H1: ขนาดพื้นที่ใช้สอยของห้องพักมีความสัมพันธ์เชิงบวกกับอัตราค่าเช่าที่พักอาศัย</li>
-        <li> H2: ระยะทางจากที่พักถึงมหาวิทยาลัยมีความสัมพันธ์กับอัตราค่าเช่าที่พักอาศัย</li>
-        <li> H3: ประเภทของที่พักอาศัยมีความสัมพันธ์กับอัตราค่าเช่าที่พักอาศัย</li>
-        <li> H4: ลักษณะการตกแต่งและอุปกรณ์ภายในห้องพักมีความสัมพันธ์กับอัตราค่าเช่าที่พักอาศัย</li>
-        <li> H5: จำนวนและประเภทของสิ่งอำนวยความสะดวกภายในที่พักมีความสัมพันธ์เชิงบวกกับอัตราค่าเช่าที่พักอาศัย</li>
-        <li> H6: ระดับความสะดวกในการเดินทางจากที่พักถึงมหาวิทยาลัยมีความสัมพันธ์กับอัตราค่าเช่าที่พักอาศัย</li>
-        <li> H7: ปัจจัยที่มีความสัมพันธ์กับอัตราค่าเช่าที่พักอาศัยมีความแตกต่างกันระหว่างกลุ่มที่พักในรัศมีไม่เกิน 3 กิโลเมตร และกลุ่มที่พักในรัศมีมากกว่า 3 ถึง 6 กิโลเมตรจากมหาวิทยาลัย</li>
-      </ol>
-    </div>
-    
     <div class="sec">
-      <h2> สมการแบบจำลองทั้งหมด 7 แบบ </h2>
-      <p> โดยนำทั้ง 7 รูปนี้แบบมาวิเคราะห์แยกตาม 3 ขอบเขตพื้นที่(วงใน, วงนอก, วงรวม) รวม 21 สมการ เพื่อเปรียบเทียบว่าปัจจัยที่สัมพันธ์กับค่าเช่ามีความแตกต่างกันในแต่ละพื้นที่อย่างไร</p>
+      <h2>สมการแบบจำลองทั้งหมด 7 แบบ</h2>
+      <p>โดยนำทั้ง 7 รูปแบบนี้มาวิเคราะห์แยกตาม 3 ขอบเขตพื้นที่ (วงใน, วงนอก, วงรวม) รวม 21 สมการ</p>
 
-      <div class="eq-title">แบบที่ 1 · สมการ S : Structural Characteristics ลักษณะห้องและอาคาร </div>
-      <div class="eq">Rentᵢ = β₀ + β₁·Typeᵢ + β₂·roomSizeᵢ + β₃·Floorᵢ + β₄·Fulla_Decorᵢ + β₅·elevetorᵢ + β₆·Bldg_Newᵢ + εᵢ </div>
+      <div class="eq-title">แบบที่ 1 · สมการ S : Structural Characteristics ลักษณะห้องและอาคาร</div>
+      <div class="eq">Rentᵢ = β₀ + β₁·Typeᵢ + β₂·roomSizeᵢ + β₃·Floorᵢ + β₄·Fulla_Decorᵢ + β₅·elevetorᵢ + β₆·Bldg_Newᵢ + εᵢ</div>
 
-      <div class="eq-title">แบบที่ 2 · สมการ L : Locational & Accessibility Characteristics การเดินทางและการเข้าถึง </div>
-      <div class="eq">Rentᵢ = β₀ + β₁·TimeAvgᵢ + β₂·CostAvgᵢ + β₃·StepsAvgᵢ + εᵢ </div>
+      <div class="eq-title">แบบที่ 2 · สมการ L : Locational & Accessibility Characteristics การเดินทางและการเข้าถึง</div>
+      <div class="eq">Rentᵢ = β₀ + β₁·TimeAvgᵢ + β₂·CostAvgᵢ + β₃·StepsAvgᵢ + εᵢ</div>
 
-      <div class="eq-title">แบบที่ 3 · สมการ N : Neighborhood & Building Amenities สภาพแวดล้อมและสิ่งอำนวยความสะดวก </div>
-      <div class="eq">Rentᵢ = β₀ + β₁·WiFi_Freeᵢ + β₂·Laundry_Sharedᵢ + β₃·Laundry_Privateᵢ + β₄·fitnessᵢ + β₅·poolᵢ + β₆·parkingᵢ + β₇·SecPoints +εᵢ </div>
+      <div class="eq-title">แบบที่ 3 · สมการ N : Neighborhood & Building Amenities สภาพแวดล้อมและสิ่งอำนวยความสะดวก</div>
+      <div class="eq">Rentᵢ = β₀ + β₁·WiFi_Freeᵢ + β₂·Laundry_Sharedᵢ + β₃·Laundry_Privateᵢ + β₄·fitnessᵢ + β₅·poolᵢ + β₆·parkingᵢ + β₇·SecPoints + εᵢ</div>
 
-      <div class="eq-title">แบบที่ 4 · สมการ S + สมการ N ลักษณะห้องและสิ่งอำนวยความสะดวก </div>
-      <div class="eq">Rentᵢ = β₀ + β₁·Typeᵢ + β₂·roomSizeᵢ + β₃·Floorᵢ + β₄·Fulla_Decorᵢ + β₅·elevetorᵢ + β₆·Bldg_Newᵢ+ β₇·WiFi_Freeᵢ + β₈·Laundry_Sharedᵢ + β₉·Laundry_Privateᵢ + β₁₀·fitnessᵢ + β₁₁·poolᵢ + β₁₂·parkingᵢ + β₁₃·SecPoints +εᵢ </div>
-  
-      <div class="eq-title">แบบที่ 5 · สมการ S + สมการ L ลักษณะห้องและการเดินทาง </div>
-      <div class="eq">Rentᵢ = β₀ + β₁·Typeᵢ + β₂·roomSizeᵢ + β₃·Floorᵢ + β₄·Fulla_Decorᵢ + β₅·elevetorᵢ + β₆·Bldg_Newᵢ+ + β₇·TimeAvgᵢ + β₈·CostAvgᵢ + β₉·StepsAvgᵢ + εᵢ </div>
+      <div class="eq-title">แบบที่ 4 · สมการ S + สมการ N ลักษณะห้องและสิ่งอำนวยความสะดวก</div>
+      <div class="eq">Rentᵢ = β₀ + β₁·Typeᵢ + β₂·roomSizeᵢ + β₃·Floorᵢ + β₄·Fulla_Decorᵢ + β₅·elevetorᵢ + β₆·Bldg_Newᵢ + β₇·WiFi_Freeᵢ + β₈·Laundry_Sharedᵢ + β₉·Laundry_Privateᵢ + β₁₀·fitnessᵢ + β₁₁·poolᵢ + β₁₂·parkingᵢ + β₁₃·SecPoints + εᵢ</div>
+
+      <div class="eq-title">แบบที่ 5 · สมการ S + สมการ L ลักษณะห้องและการเดินทาง</div>
+      <div class="eq">Rentᵢ = β₀ + β₁·Typeᵢ + β₂·roomSizeᵢ + β₃·Floorᵢ + β₄·Fulla_Decorᵢ + β₅·elevetorᵢ + β₆·Bldg_Newᵢ + β₇·TimeAvgᵢ + β₈·CostAvgᵢ + β₉·StepsAvgᵢ + εᵢ</div>
 
       <div class="eq-title">แบบที่ 6 · สมการ L + สมการ N การเดินทางและสิ่งอำนวยความสะดวก</div>
-      <div class="eq">Rentᵢ = β₀ + β₁·TimeAvgᵢ + β₂·CostAvgᵢ + β₃·StepsAvgᵢ + β₄·WiFi_Freeᵢ + β₅·Laundry_Sharedᵢ + β₆·Laundry_Privateᵢ + β₇·fitnessᵢ + β₈·poolᵢ + β₉·parkingᵢ + β₁₀·SecPoints + εᵢ </div>
+      <div class="eq">Rentᵢ = β₀ + β₁·TimeAvgᵢ + β₂·CostAvgᵢ + β₃·StepsAvgᵢ + β₄·WiFi_Freeᵢ + β₅·Laundry_Sharedᵢ + β₆·Laundry_Privateᵢ + β₇·fitnessᵢ + β₈·poolᵢ + β₉·parkingᵢ + β₁₀·SecPoints + εᵢ</div>
 
       <div class="eq-title">แบบที่ 7 · สมการ S + สมการ L + สมการ N ลักษณะห้อง, การเดินทาง และ สิ่งอำนวยความสะดวก</div>
-      <div class="eq">Rentᵢ = β₀ + β₁·Typeᵢ + β₂·roomSizeᵢ + β₃·Floorᵢ + β₄·Fulla_Decorᵢ + β₅·elevetorᵢ + β₆·Bldg_Newᵢ+ + β₇·TimeAvgᵢ + β₈·CostAvgᵢ + β₉·StepsAvgᵢ + β₁₀·WiFi_Freeᵢ + β₁₁·Laundry_Sharedᵢ + β₁₂·Laundry_Privateᵢ + β₁₃·fitnessᵢ + β₁₄·poolᵢ + β₁₅·parkingᵢ + β₁₆·SecPoints +εᵢ </div>
+      <div class="eq">Rentᵢ = β₀ + β₁·Typeᵢ + β₂·roomSizeᵢ + β₃·Floorᵢ + β₄·Fulla_Decorᵢ + β₅·elevetorᵢ + β₆·Bldg_Newᵢ + β₇·TimeAvgᵢ + β₈·CostAvgᵢ + β₉·StepsAvgᵢ + β₁₀·WiFi_Freeᵢ + β₁₁·Laundry_Sharedᵢ + β₁₂·Laundry_Privateᵢ + β₁₃·fitnessᵢ + β₁₄·poolᵢ + β₁₅·parkingᵢ + β₁₆·SecPoints + εᵢ</div>
 
-
-      <p>โดย Rentᵢ คือค่าเช่าต่อเดือนของที่พักที่ i (บาท) และ εᵢ คือความคลาดเคลื่อนของแบบจำลอง </p>
+      <p>โดย Rentᵢ คือค่าเช่าต่อเดือนของที่พักที่ i (บาท) และ εᵢ คือความคลาดเคลื่อนของแบบจำลอง</p>
       <div class="tbl-wrap"><table class="tbl">
         <tr><th>ตัวแปรอิสระ</th><th>ความหมาย</th><th>หน่วย / ชนิด</th><th>ทิศทางที่คาด</th></tr>
-        <tr><td>Type</td><td> ประเภทที่พักอาศัย (0 = อพาร์ตเมนต์, 1 = คอนโดมิเนียม)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
+        <tr><td>Type</td><td>ประเภทที่พักอาศัย (0 = อพาร์ตเมนต์, 1 = คอนโดมิเนียม)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
         <tr><td>Zone</td><td>รัศมีที่พักอาศัย (0 = ไม่เกิน 3 กิโลเมตร, 1 = มากกว่า 3 ถึง 6 กิโลเมตร)</td><td>ตัวแปรหุ่น</td><td>-</td></tr>
         <tr><td>roomSize</td><td>ขนาดห้องพัก</td><td>ตารางเมตร</td><td>+</td></tr>
         <tr><td>Floor</td><td>ชั้นที่ตั้งของห้องพัก</td><td>ชั้น</td><td>+</td></tr>
-        <tr><td>Fulla_Decor</td><td>ความครบครันของเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าภายในห้องพัก (0 = มีเฟอร์นิเจอร์หรือเครื่องใช้ไฟฟ้าหลักเพียงบางรายการ, 1 = มีเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าครบครัน พร้อมเข้าอยู่อาศัย)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
-        <tr><td>elevator</td><td>การมีลิฟต์ให้บริการ (0 = ที่พักไม่มีลิฟต์ให้บริการ,1 = ที่พักมีลิฟต์ให้บริการ)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
-        <tr><td>Bldg_New</td><td>ความใหม่และสภาพของอาคาร (0 = ทั่วไปตามอายุการใช้งาน, 1 = ดูทันสมัย เพิ่งก่อสร้างหรือได้รับการปรับปรุงใหม่)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
+        <tr><td>Fulla_Decor</td><td>ความครบครันของเฟอร์นิเจอร์และเครื่องใช้ไฟฟ้าภายในห้องพัก</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
+        <tr><td>elevator</td><td>การมีลิฟต์ให้บริการ (0 = ไม่มี, 1 = มี)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
+        <tr><td>Bldg_New</td><td>ความใหม่และสภาพของอาคาร (0 = ทั่วไป, 1 = ใหม่/ปรับปรุงใหม่)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
         <tr><td>TimeAvg</td><td>ระยะเวลาเฉลี่ยในการเดินทางจากที่พักถึงมหาวิทยาลัย</td><td>นาที</td><td>-</td></tr>
         <tr><td>CostAvg</td><td>ค่าใช้จ่ายเฉลี่ยในการเดินทางจากที่พักถึงมหาวิทยาลัย</td><td>บาท/เที่ยว</td><td>-</td></tr>
         <tr><td>StepsAvg</td><td>จำนวนขั้นตอนเฉลี่ยในการเดินทางจากที่พักถึงมหาวิทยาลัย</td><td>ขั้นตอน</td><td>-</td></tr>
-        <tr><td>WiFi_Free</td><td>การให้บริการอินเทอร์เน็ต Wi-Fi ฟรี (0 = ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม, 1 = ไม่มี หรือฟรี/รวมในค่าเช่า)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
-        <tr><td>WiFi_Pay</td><td>การชำระค่าให้บริการอินเทอร์เน็ต Wi-Fi (0 = ไม่มี หรือฟรี/รวมในค่าเช่า, 1 = ที่พักมีบริการ แต่ต้องชำระเงินเพิ่ม)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
-        <tr><td>Laundry_Shared</td><td>การมีบริการเครื่องซักผ้าส่วนกลาง (0 = มีเครื่องซักผ้าภายในห้องพักในสัญญาเช่า, 1 = ใช้เครื่องซักผ้าส่วนรวม)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
-        <tr><td>Laundry_Private</td><td>การมีเครื่องซักผ้าส่วนตัวภายในห้องพัก (0 = ใช้เครื่องซักผ้าส่วนรวม, 1 = มีเครื่องซักผ้าภายในห้องพักในสัญญาเช่า)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
-        <tr><td>fitness</td><td>การมีห้องออกกำลังกาย (0 = ไม่มีฟิตเนส, 1 = มีฟิตเนส)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
-        <tr><td>pool</td><td>การมีสระว่ายน้ำ  (0 = ไม่มีสระว่ายน้ำ, 1 = มีสระว่ายน้ำ)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
-        <tr><td>parking</td><td>การมีพื้นที่จอดรถ (0 = ไม่มีพื้นที่จอดรถ, 1 = มีพื้นที่จอดรถ)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
-        <tr><td>SecPoints</td><td>ระดับความปลอดภัยของที่พัก</td><td> คะแนน</td><td>+</td></tr>
+        <tr><td>WiFi_Free</td><td>การให้บริการอินเทอร์เน็ต Wi-Fi ฟรี</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
+        <tr><td>Laundry_Shared</td><td>การมีบริการเครื่องซักผ้าส่วนกลาง</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
+        <tr><td>Laundry_Private</td><td>การมีเครื่องซักผ้าส่วนตัวภายในห้องพัก</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
+        <tr><td>fitness</td><td>การมีห้องออกกำลังกาย (0 = ไม่มี, 1 = มี)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
+        <tr><td>pool</td><td>การมีสระว่ายน้ำ (0 = ไม่มี, 1 = มี)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
+        <tr><td>parking</td><td>การมีพื้นที่จอดรถ (0 = ไม่มี, 1 = มี)</td><td>ตัวแปรหุ่น</td><td>+</td></tr>
+        <tr><td>SecPoints</td><td>ระดับความปลอดภัยของที่พัก</td><td>คะแนน</td><td>+</td></tr>
       </table></div>
     </div>
 
-  </div>
-</section>
-
-<!-- ===================== ผลการวิจัย ===================== -->
-<section class="page" id="page-results">
-  <div class="hero sm"><div class="inner">
-    <div class="kicker">ผลการวิจัย</div>
-    <h1>ผลการสำรวจและผลการประมาณแบบจำลอง</h1>
-  </div></div>
-  <div class="wrap">
-
-    <div class="sec">
-      <h2>สถิติเบื้องต้นจากข้อมูลสำรวจ</h2>
-      <div id="liveStats"><div class="note">กำลังโหลดข้อมูลจากแผนที่…</div></div>
-    </div>
-
-  <div class="sec">
-  <h2>ผลการวิเคราะห์ทางเศรษฐมิติ</h2>
-  <iframe
-    src="embeds/results/index.html"
-    title="ผลการวิจัย 21 แบบจำลอง"
-    style="width:100%;height:1000px;border:0;border-radius:18px;display:block;"
-    loading="lazy">
-  </iframe>
-</div>
-
     <div class="sec">
       <h2>ข้อจำกัดของการวิจัย</h2>
-       <ul>
+      <ul>
         <li>ด้านกลุ่มตัวอย่าง จำนวนและวิธีการคัดเลือกกลุ่มตัวอย่างอาจไม่ครอบคลุมหรือเป็นตัวแทนของที่พักอาศัยทั้งหมดในพื้นที่ศึกษาได้อย่างสมบูรณ์ เนื่องจากการเก็บข้อมูลขึ้นอยู่กับผู้พักอาศัยที่สมัครใจตอบแบบสอบถาม</li>
         <li>ด้านความถูกต้องของข้อมูล ข้อมูลบางส่วนได้จากการรายงานของผู้ตอบแบบสอบถามด้วยตนเอง เช่น ค่าใช้จ่ายในการเดินทางและระยะเวลาเดินทาง ซึ่งอาจมีความคลาดเคลื่อนจากค่าใช้จ่ายหรือระยะเวลาที่เกิดขึ้นจริง</li>
         <li>ด้านการวัดระยะทาง การคำนวณระยะทางระหว่างที่พักอาศัยกับมหาวิทยาลัยใช้ระยะทางในแนวเส้นตรง จึงอาจไม่สะท้อนระยะทางและระยะเวลาในการเดินทางจริง ซึ่งขึ้นอยู่กับเส้นทางและรูปแบบการเดินทางที่เลือกใช้</li>
         <li>ข้อจำกัดด้านช่วงเวลาในการเก็บข้อมูล ข้อมูลสะท้อนลักษณะของตลาดที่พักอาศัยในช่วงเวลาที่ดำเนินการเก็บข้อมูลเท่านั้น อัตราค่าเช่าและเงื่อนไขการเช่าอาจเปลี่ยนแปลงได้ในช่วงเวลาอื่น</li>
       </ul>
     </div>
- </div>
+
+    <div class="foot">ปัจจัยที่มีอิทธิพลต่อการตัดสินใจเลือกที่พักอาศัยของนิสิตในบริเวณโดยรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร</div>
+  </div>
 </section>
 
 <!-- ===================== ผู้จัดทำ ===================== -->
@@ -367,22 +301,20 @@
 </main>
 
 <script>
-// ✏️ แก้ข้อมูลโครงการตรงนี้ที่เดียว
 const SITE = {
   title:   'ปัจจัยที่มีอิทธิพลต่อการตัดสินใจเลือกที่พักอาศัยของนิสิตในบริเวณโดยรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร',
   short:   'ผลสำรวจที่พักรอบ มศว ประสานมิตร',
   course:  'รายวิชา EC116/117',
-  advisor: { name:'ผู้ช่วยศาสตราจารย์ ดร.รัชพันธุ์ เชยจิตร' },
+  advisor: { name:'ผู้ช่วยศาสตราจารย์ ดร.รัชพันธุ์ เชยจิตร', sub:'อาจารย์ที่ปรึกษาโครงงานวิจัย · คณะเศรษฐศาสตร์' },
   team: [
-    { name:'นางสาวณฐภัค โฆสิตนุกูล', id:'66149010045', major:'คณะเศรษฐศาสตร์'},
-    { name:'นางสาวปวรพร นิยมถิ่น', id:'66149010077', major:'คณะเศรษฐศาสตร์'},
-    { name:'นางสาวพัชราภรณ์ แซ่หลิว', id:'66149010088', major:'คณะเศรษฐศาสตร์'},
-    { name:'นางสาวเพียงตะวัน จุลมกร', id:'66149010092', major:'คณะเศรษฐศาสตร์',},
-    { name:'นางสาวสิริพัตน์ สุรรังสิกุล', id:'66149010112', major:'คณะเศรษฐศาสตร์',}
+    { name:'นางสาวณฐภัค โฆสิตนุกูล', id:'66149010045', major:'คณะเศรษฐศาสตร์', role:'' },
+    { name:'นางสาวปวรพร นิยมถิ่น', id:'66149010077', major:'คณะเศรษฐศาสตร์', role:'' },
+    { name:'นางสาวพัชราภรณ์ แซ่หลิว', id:'66149010088', major:'คณะเศรษฐศาสตร์', role:'' },
+    { name:'นางสาวเพียงตะวัน จุลมกร', id:'66149010092', major:'คณะเศรษฐศาสตร์', role:'' },
+    { name:'นางสาวสิริพัตน์ สุรรังสิกุล', id:'66149010112', major:'คณะเศรษฐศาสตร์', role:'' }
   ]
 };
 
-// ===================== ฟังก์ชันคำนวณ (ไม่แตะ DOM) =====================
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const ph  = s => /^\s*\[/.test(s) ? '<span class="ph">'+esc(s)+'</span>' : esc(s);
 const num = v => { if(v===undefined||v===null||v==='') return null; const n=parseFloat(String(v).replace(/,/g,'')); return Number.isFinite(n)?n:null; };
@@ -414,7 +346,7 @@ function computeStats(data){
   }).sort((a,b)=>b.n-a.n);
   const bands = [
     { label:'ไม่เกิน 3 กม.', test:d=>d<=3 },
-    { label:'มากกว่า 3 – 6 กม.',     test:d=>d>3 && d<=6 },
+    { label:'มากกว่า 3 – 6 กม.', test:d=>d>3 && d<=6 },
   ].map(b => {
     const g = list.filter(h => Number.isFinite(h.distanceKm) && b.test(h.distanceKm));
     return { label:b.label, n:g.length, rent: mean(g.map(h=>num(h.rent)).filter(v=>v!=null)) };
@@ -475,19 +407,19 @@ function liveStatsHTML(data){
   + '<h3 style="font-size:14px;color:var(--emerald-deep);margin:18px 0 8px">ระยะทางกับค่าเช่า (โดยแต่ละจุดคือหนึ่งที่พัก)</h3>'
   + '<div class="chart">'+scatterSVG(data)+'<div class="legend"><span><i style="background:#0f4d3a"></i>คอนโดมิเนียม</span><span><i style="background:#b98b3e"></i>อพาร์ตเมนต์</span><span>จุดเขียว = ไม่เกิน 3 กม. · จุดทอง = 3-6 กม.</span></div></div>';
 }
-// ===================== ส่วนที่ทำงานกับหน้าเว็บ =====================
+
 const $ = id => document.getElementById(id);
-const PAGES  = ['map','about','model','results','team'];
-const TITLES = { map:'แผนที่', about:'ที่มาและวิธีวิจัย', model:'แบบจำลอง', results:'ผลการวิจัย', team:'ผู้จัดทำ' };
+const PAGES  = ['map','tour','team'];
+const TITLES = { map:'แผนที่', tour:'ที่มาและผลวิจัย', team:'ผู้จัดทำ' };
 
 function initContent(){
   $('brandTxt').textContent = SITE.short;
-  $('heroKicker').textContent = 'งานวิจัย ·';
+  $('heroKicker').textContent = 'งานวิจัย · คณะเศรษฐศาสตร์';
   $('heroTitle').textContent = SITE.title;
   $('heroNames').innerHTML = SITE.team.map(m => ph(m.name)).join(' · ');
   $('heroChips').innerHTML = '<span class="chip">'+ph(SITE.course)+'</span><span class="chip">ที่ปรึกษา: '+ph(SITE.advisor.name)+'</span>';
   $('teamGrid').innerHTML = SITE.team.map((m,i) =>
-    '<div class="card member"><div class="avatar">'+(i+1)+'</div><div><div class="m-name">'+ph(m.name)+'</div><div class="m-sub">'+ph(m.id)+' · '+ph(m.major)+'</div><div class="m-role">'+ph(m.role)+'</div></div></div>').join('');
+    '<div class="card member"><div class="avatar">'+(i+1)+'</div><div><div class="m-name">'+ph(m.name)+'</div><div class="m-sub">'+ph(m.id)+' · '+ph(m.major)+'</div>'+(m.role?'<div class="m-role">'+ph(m.role)+'</div>':'')+'</div></div>').join('');
   $('advisorCard').innerHTML = '<div class="avatar">🎓</div><div><div class="m-name">'+ph(SITE.advisor.name)+'</div><div class="m-sub">'+ph(SITE.advisor.sub)+'</div></div>';
   $('teamFoot').innerHTML = esc(SITE.title)+'<br>'+ph(SITE.course);
 }
@@ -495,7 +427,7 @@ function getData(){
   try{
     const d = $('mapFrame').contentWindow.eval('typeof housing!=="undefined" ? housing : null');
     return (d && d.length) ? d : null;
-  }catch(e){ return null; } 
+  }catch(e){ return null; }
 }
 function refreshLive(){
   const data = getData();
@@ -507,7 +439,6 @@ function refreshLive(){
     box.innerHTML = '<div class="note">ยังอ่านข้อมูลจากแผนที่ไม่ได้ สถิติสรุปจะแสดงอัตโนมัติเมื่อเปิดผ่านเว็บจริง (GitHub Pages) และมีไฟล์ map.html อยู่โฟลเดอร์เดียวกับหน้านี้</div>';
   }
 }
-// Safari บน iPad คำนวณ vh/dvh ใน iframe คลาดเคลื่อน เลยตั้งความสูงเป็นพิกเซลจากขนาดจอจริงทุกครั้งที่จอเปลี่ยน
 function fitMap(){
   const frame = $('mapFrame');
   const vh  = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
@@ -525,14 +456,28 @@ function fitMap(){
   }catch(e){}
 }
 function route(){
-  let p = (location.hash || '#map').slice(1);
-  if(PAGES.indexOf(p) === -1) p = 'map';
+  const raw = (location.hash || '#map').slice(1);
+  // รองรับลิงก์ #results จากปุ่ม "ดูตารางผลเต็ม" ของน้องหมุดบนแผนที่
+  const isResultsJump = (raw === 'results' || raw === 'about' || raw === 'model');
+  const p = isResultsJump ? 'tour' : (PAGES.indexOf(raw) === -1 ? 'map' : raw);
+
   PAGES.forEach(id => { const el = $('page-'+id); if(el) el.classList.toggle('active', id===p); });
   document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('active', a.dataset.page===p));
   $('nav').classList.remove('open');
-  const pg = $('page-'+p); if(pg) pg.scrollTop = 0;
+
+  const pg = $('page-'+p);
+  if(pg){
+    if(raw === 'results'){
+      // ตั้งค่า hash ภายใน iframe ให้เลื่อนไปที่ #results ทันที
+      const tf = $('tourFrame');
+      if(tf) tf.src = './nong-mood-tour/#results';
+      pg.scrollTop = 0;
+    } else {
+      pg.scrollTop = 0;
+    }
+  }
   document.title = TITLES[p] + ' | ' + SITE.short;
-  if(p==='results' || p==='about') refreshLive();
+  if(p==='tour') refreshLive();
   if(p==='map') setTimeout(fitMap, 50);
 }
 initContent();
