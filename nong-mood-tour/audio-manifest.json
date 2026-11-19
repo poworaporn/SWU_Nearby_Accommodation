@@ -1,0 +1,142 @@
+[
+  {
+    "number": 1,
+    "file": "audio/1.wav",
+    "duration": 5.4,
+    "start": 0,
+    "end": 5.4
+  },
+  {
+    "number": 2,
+    "file": "audio/2.wav",
+    "duration": 8.64,
+    "start": 5.4,
+    "end": 14.04
+  },
+  {
+    "number": 3,
+    "file": "audio/3.wav",
+    "duration": 2.92,
+    "start": 14.04,
+    "end": 16.96
+  },
+  {
+    "number": 4,
+    "file": "audio/4.wav",
+    "duration": 4.88,
+    "start": 16.96,
+    "end": 21.84
+  },
+  {
+    "number": 5,
+    "file": "audio/5.wav",
+    "duration": 8.88,
+    "start": 21.84,
+    "end": 30.72
+  },
+  {
+    "number": 6,
+    "file": "audio/6.wav",
+    "duration": 7.16,
+    "start": 30.72,
+    "end": 37.88
+  },
+  {
+    "number": 7,
+    "file": "audio/7.wav",
+    "duration": 13.6,
+    "start": 37.88,
+    "end": 51.48
+  },
+  {
+    "number": 8,
+    "file": "audio/8.wav",
+    "duration": 12.44,
+    "start": 51.48,
+    "end": 63.92
+  },
+  {
+    "number": 9,
+    "file": "audio/9.wav",
+    "duration": 8.32,
+    "start": 63.92,
+    "end": 72.24
+  },
+  {
+    "number": 10,
+    "file": "audio/10.wav",
+    "duration": 11.68,
+    "start": 72.24,
+    "end": 83.92
+  },
+  {
+    "number": 11,
+    "file": "audio/11.wav",
+    "duration": 12.0,
+    "start": 83.92,
+    "end": 95.92
+  },
+  {
+    "number": 12,
+    "file": "audio/12.wav",
+    "duration": 116.96,
+    "start": 95.92,
+    "end": 212.88
+  },
+  {
+    "number": 13,
+    "file": "audio/13.wav",
+    "duration": 41.76,
+    "start": 212.88,
+    "end": 254.64
+  },
+  {
+    "number": 14,
+    "file": "audio/14.wav",
+    "duration": 48.92,
+    "start": 254.64,
+    "end": 303.56
+  },
+  {
+    "number": 15,
+    "file": "audio/17.wav",
+    "duration": 45.96,
+    "start": 303.56,
+    "end": 349.52
+  },
+  {
+    "number": 16,
+    "file": "audio/18.wav",
+    "duration": 46.8,
+    "start": 349.52,
+    "end": 396.32
+  },
+  {
+    "number": 17,
+    "file": "audio/15.wav",
+    "duration": 37.96,
+    "start": 396.32,
+    "end": 434.28
+  },
+  {
+    "number": 18,
+    "file": "audio/19.wav",
+    "duration": 34.28,
+    "start": 434.28,
+    "end": 468.56
+  },
+  {
+    "number": 19,
+    "file": "audio/16.wav",
+    "duration": 44.2,
+    "start": 468.56,
+    "end": 512.76
+  },
+  {
+    "number": 20,
+    "file": "closing.wav",
+    "duration": 20.2,
+    "start": 512.76,
+    "end": 532.96
+  }
+]
