@@ -31,7 +31,7 @@
   .map-frame{ position:fixed; top:var(--bar); left:0; right:0; width:100%; height:calc(100vh - var(--bar)); height:calc(100dvh - var(--bar)); border:0; background:var(--paper); display:block; }
 
   /* ---------- หน้าเนื้อหา (วางทับแผนที่) ---------- */
-  .page{ position:fixed; top:var(--bar); left:0; right:0; bottom:0; overflow-y:auto; -webkit-overflow-scrolling:touch; background:var(--paper); display:none; z-index:20; }
+  .page{ position:fixed; top:var(--bar); left:0; right:0; bottom:0; overflow-y:auto; -webkit-overflow-scrolling:touch; background:var(--paper); display:none; z-index:20; scroll-behavior:smooth; }
   .page.active{ display:block; }
   .wrap{ max-width:980px; margin:0 auto; padding:8px 20px 60px; }
 
@@ -48,10 +48,10 @@
 
   .tour-embed{ width:100%; height:1350px; border:1px solid var(--line); border-radius:18px; display:block; background:#f9f0dc; box-shadow:0 6px 24px rgba(0,0,0,.08); }
   .quick-links{ display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 8px; }
-  .quick-links a{ font-size:12.5px; font-weight:600; color:var(--emerald-deep); background:var(--panel); border:1px solid var(--line); padding:6px 13px; border-radius:20px; text-decoration:none; }
-  .quick-links a:hover{ border-color:var(--gold); background:#fff8e6; }
+  .quick-links button{ font:inherit; font-size:12.5px; font-weight:600; color:var(--emerald-deep); background:var(--panel); border:1px solid var(--line); padding:7px 14px; border-radius:20px; cursor:pointer; }
+  .quick-links button:hover{ border-color:var(--gold); background:#fff8e6; }
 
-  .sec{ margin:32px 0; }
+  .sec{ margin:34px 0; scroll-margin-top:18px; }
   .sec h2{ font-size:18px; color:var(--emerald-deep); margin:0 0 12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .sec h2::before{ content:''; width:5px; height:20px; border-radius:3px; background:var(--gold); }
   .sec p, .sec li{ line-height:1.85; font-size:14px; }
@@ -133,7 +133,7 @@
 <iframe id="mapFrame" class="map-frame" src="map.html" title="แผนที่ผลสำรวจที่พักรอบ มศว ประสานมิตร"></iframe>
 
 <main>
-<!-- ===================== (รวมที่มา + แบบจำลอง + ผลวิจัย) ===================== -->
+<!-- ===================== ที่มาและผลวิจัย ===================== -->
 <section class="page" id="page-tour">
   <div class="hero">
     <div class="inner">
@@ -147,33 +147,28 @@
   </div>
 
   <div class="wrap">
-    <div class="quick-links">
-      <a href="#sec-tour">🎬 น้องหมุดพาทัวร์ & ตารางผล 21 โมเดล</a>
-      <a href="#sec-stats">📊 สถิติเบื้องต้นจากแผนที่</a>
-      <a href="#sec-about">📖 ที่มาและวิธีวิจัย</a>
-      <a href="#sec-model">📐 สมการแบบจำลอง 7 แบบ</a>
+    <!-- ปุ่มลัดเลื่อนไปยังหัวข้อต่างๆ ในหน้านี้ -->
+    <div class="quick-links" id="quickLinks">
+      <button type="button" data-target="sec-tour">🎬 คลิปน้องหมุดเล่าเรื่อง & ผล 21 โมเดล</button>
+      <button type="button" data-target="sec-about">📖 ที่มาและวิธีวิจัย</button>
+      <button type="button" data-target="sec-model">📐 สมการแบบจำลอง 7 แบบ</button>
+      <button type="button" data-target="sec-stats">📊 สถิติเบื้องต้นจากแผนที่</button>
     </div>
 
-    <!-- ส่วนที่ 1: น้องหมุดพาทัวร์ (รวม ที่มา + แบบจำลอง + ผลวิจัย 21 โมเดล) -->
+    <!-- ส่วนที่ 1: น้องหมุดพาทัวร์ (เรื่องเล่า + แบบจำลอง + ผลวิจัย 21 โมเดล) -->
     <div class="sec" id="sec-tour">
-      <h2>น้องหมุดพาทัวร์ · เรื่องเล่าที่มา แบบจำลอง และผลวิจัย 21 โมเดล</h2>
+      <h2>น้องหมุด · เรื่องเล่าที่มา แบบจำลอง และผลวิจัย 21 โมเดล</h2>
       <iframe
         id="tourFrame"
         class="tour-embed"
         src="./nong-mood-tour/"
-        title="น้องหมุดพาทัวร์"
+        title="น้องหมุดเล่าเรื่อง"
         allow="autoplay; fullscreen"
         allowfullscreen>
       </iframe>
     </div>
 
-    <!-- ส่วนที่ 2: สถิติเบื้องต้นสดจากข้อมูลแผนที่ -->
-    <div class="sec" id="sec-stats">
-      <h2>สถิติเบื้องต้นจากข้อมูลสำรวจ</h2>
-      <div id="liveStats"><div class="note">กำลังโหลดข้อมูลจากแผนที่…</div></div>
-    </div>
-
-    <!-- ส่วนที่ 3: ที่มาและวิธีวิจัย -->
+    <!-- ส่วนที่ 2: ที่มาและวิธีวิจัย -->
     <div class="sec" id="sec-about">
       <h2>ความเป็นมาและความสำคัญ</h2>
       <p>การเลือกที่พักอาศัยเป็นหนึ่งในปัจจัยสำคัญที่ส่งผลต่อคุณภาพชีวิตและค่าใช้จ่ายในการดำรงชีวิตของนิสิต โดยเฉพาะนิสิตมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร ซึ่งมีความต้องการที่พักอาศัยในบริเวณโดยรอบมหาวิทยาลัยที่แตกต่างกัน ทั้งในด้านงบประมาณ ทำเลที่ตั้ง ขนาดพื้นที่ใช้สอย และความสะดวกในการเดินทาง ส่งผลให้ตลาดที่พักอาศัยในพื้นที่ดังกล่าวมีความหลากหลายทั้งประเภทและระดับราคา</p>
@@ -212,7 +207,7 @@
       </ol>
     </div>
 
-    <!-- ส่วนที่ 4: แบบจำลอง -->
+    <!-- ส่วนที่ 3: แบบจำลอง -->
     <div class="sec" id="sec-model">
       <h2>ขั้นตอนการสร้างแบบจำลอง</h2>
       <ol class="steps">
@@ -272,6 +267,12 @@
       </table></div>
     </div>
 
+    <!-- ส่วนที่ 4: สถิติเบื้องต้นสดจากข้อมูลแผนที่ & ข้อจำกัด -->
+    <div class="sec" id="sec-stats">
+      <h2>สถิติเบื้องต้นจากข้อมูลสำรวจ</h2>
+      <div id="liveStats"><div class="note">กำลังโหลดข้อมูลจากแผนที่…</div></div>
+    </div>
+
     <div class="sec">
       <h2>ข้อจำกัดของการวิจัย</h2>
       <ul>
@@ -305,7 +306,7 @@ const SITE = {
   title:   'ปัจจัยที่มีอิทธิพลต่อการตัดสินใจเลือกที่พักอาศัยของนิสิตในบริเวณโดยรอบมหาวิทยาลัยศรีนครินทรวิโรฒ ประสานมิตร',
   short:   'ผลสำรวจที่พักรอบ มศว ประสานมิตร',
   course:  'รายวิชา EC116/117',
-  advisor: { name:'ผู้ช่วยศาสตราจารย์ ดร.รัชพันธุ์ เชยจิตร', sub:'อาจารย์ที่ปรึกษาโครงงานวิจัย · คณะเศรษฐศาสตร์' },
+  advisor: { name:'ผู้ช่วยศาสตราจารย์ ดร.รัชพันธุ์ เชยจิตร', sub:'อาจารย์ที่ปรึกษา · คณะเศรษฐศาสตร์' },
   team: [
     { name:'นางสาวณฐภัค โฆสิตนุกูล', id:'66149010045', major:'คณะเศรษฐศาสตร์', role:'' },
     { name:'นางสาวปวรพร นิยมถิ่น', id:'66149010077', major:'คณะเศรษฐศาสตร์', role:'' },
@@ -457,9 +458,8 @@ function fitMap(){
 }
 function route(){
   const raw = (location.hash || '#map').slice(1);
-  // รองรับลิงก์ #results จากปุ่ม "ดูตารางผลเต็ม" ของน้องหมุดบนแผนที่
-  const isResultsJump = (raw === 'results' || raw === 'about' || raw === 'model');
-  const p = isResultsJump ? 'tour' : (PAGES.indexOf(raw) === -1 ? 'map' : raw);
+  const isTourSection = (raw === 'results' || raw === 'about' || raw === 'model' || raw.startsWith('sec-'));
+  const p = isTourSection ? 'tour' : (PAGES.indexOf(raw) === -1 ? 'map' : raw);
 
   PAGES.forEach(id => { const el = $('page-'+id); if(el) el.classList.toggle('active', id===p); });
   document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('active', a.dataset.page===p));
@@ -468,10 +468,12 @@ function route(){
   const pg = $('page-'+p);
   if(pg){
     if(raw === 'results'){
-      // ตั้งค่า hash ภายใน iframe ให้เลื่อนไปที่ #results ทันที
       const tf = $('tourFrame');
       if(tf) tf.src = './nong-mood-tour/#results';
       pg.scrollTop = 0;
+    } else if(raw.startsWith('sec-')){
+      const target = $(raw);
+      if(target) target.scrollIntoView({ behavior:'smooth' });
     } else {
       pg.scrollTop = 0;
     }
@@ -480,6 +482,15 @@ function route(){
   if(p==='tour') refreshLive();
   if(p==='map') setTimeout(fitMap, 50);
 }
+
+// จัดการการกดปุ่มลัด 4 ปุ่มให้เลื่อนไปยังหัวข้อในหน้าปัจจุบันโดยไม่เปลี่ยนหน้า
+$('quickLinks').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-target]');
+  if(!btn) return;
+  const target = $(btn.dataset.target);
+  if(target) target.scrollIntoView({ behavior:'smooth' });
+});
+
 initContent();
 $('burger').addEventListener('click', () => $('nav').classList.toggle('open'));
 window.addEventListener('hashchange', route);
