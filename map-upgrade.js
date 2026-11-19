@@ -792,7 +792,7 @@
     };
 
     /* -------------------------------------------------- AUTO-TOUR & น้องหมุด */
-    const IDLE_MS = 45000;   // ไม่มีใครแตะหน้าจอนานเท่านี้ (มิลลิวินาที) -> ให้น้องหมุดออกมาพรีเซนต์เอง | ใส่ 0 = ปิด
+    const IDLE_MS = 0;   // ไม่มีใครแตะหน้าจอนานเท่านี้ (มิลลิวินาที) -> ให้น้องหมุดออกมาพรีเซนต์เอง | ใส่ 0 = ปิด
     let tourTimer = null, isTouring = false, tourRun = 0, scrollToken = 0;
     let pendingFlag = '', idleTimer = null, modeBefore = 'default';
 
