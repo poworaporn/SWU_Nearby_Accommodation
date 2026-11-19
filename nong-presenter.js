@@ -421,7 +421,7 @@ function togglePause(){
 }
 function goResults(){
   try{ if(window.parent && window.parent !== window){ window.parent.location.hash = '#results'; return; } }catch(e){}
-  location.href = 'index.html#results';
+  location.href = './nong-mood-tour/#results';
 }
 
 /* ------------------------------------------------------------------ ปุ่ม */
